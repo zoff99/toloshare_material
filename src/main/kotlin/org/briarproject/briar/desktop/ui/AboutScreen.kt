@@ -48,6 +48,7 @@ import com.zoffcc.applications.ffmpegav.AVActivity
 import com.zoffcc.applications.jninotifications.NTFYActivity
 import com.zoffcc.applications.sorm.OrmaDatabase
 import com.zoffcc.applications.sorm.OrmaDatabase.get_current_sqlite_version
+import com.zoffcc.applications.toloshare_material.toloshare_material.BuildConfig
 import com.zoffcc.applications.trifa.HelperGeneric.get_java_os_name
 import com.zoffcc.applications.trifa.HelperGeneric.get_java_os_version
 import com.zoffcc.applications.trifa.HelperGeneric.get_trifa_build_str
@@ -70,7 +71,6 @@ import com.zoffcc.applications.trifa.TAG
 import com.zoffcc.applications.trifa.TRIFAGlobals
 import com.zoffcc.applications.trifa.TRIFAGlobals.TRIFA_GITHUB_NEW_ISSUE_URL
 import com.zoffcc.applications.trifa.TrifaToxService.Companion.orma
-import com.zoffcc.applications.trifa_material.trifa_material.BuildConfig
 import globalstore
 import kotlinx.coroutines.DelicateCoroutinesApi
 import org.briarproject.briar.desktop.utils.InternationalizationUtils.i18n

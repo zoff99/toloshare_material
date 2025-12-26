@@ -21,6 +21,7 @@ import com.zoffcc.applications.sorm.FriendList
 import com.zoffcc.applications.sorm.GroupDB
 import com.zoffcc.applications.sorm.GroupMessage
 import com.zoffcc.applications.sorm.Message
+import com.zoffcc.applications.toloshare_material.toloshare_material.BuildConfig
 import com.zoffcc.applications.trifa.AudioBar.audio_in_bar
 import com.zoffcc.applications.trifa.AudioBar.audio_out_bar
 import com.zoffcc.applications.trifa.HelperFiletransfer.check_auto_accept_incoming_filetransfer
@@ -115,7 +116,6 @@ import com.zoffcc.applications.trifa.TrifaToxService.Companion.resend_v3_message
 import com.zoffcc.applications.trifa.VideoInFrame.new_video_in_frame
 import com.zoffcc.applications.trifa.VideoInFrame.setup_video_in_resolution
 import com.zoffcc.applications.trifa2.timestampMs
-import com.zoffcc.applications.trifa_material.trifa_material.BuildConfig
 import contactstore
 import global_prefs
 import globalfrndstoreunreadmsgs

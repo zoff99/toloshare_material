@@ -29,6 +29,7 @@ import com.sksamuel.scrimage.webp.WebpWriter
 import com.vanniktech.emoji.search.SearchEmojiManager
 import com.zoffcc.applications.sorm.Filetransfer
 import com.zoffcc.applications.sorm.Message
+import com.zoffcc.applications.toloshare_material.toloshare_material.BuildConfig
 import com.zoffcc.applications.trifa.HelperFiletransfer.get_filetransfer_filenum_from_id
 import com.zoffcc.applications.trifa.HelperFiletransfer.set_filetransfer_state_from_id
 import com.zoffcc.applications.trifa.HelperFriend.delete_friend
@@ -68,7 +69,6 @@ import com.zoffcc.applications.trifa.ToxVars.TOX_HASH_LENGTH
 import com.zoffcc.applications.trifa.ToxVars.TOX_MAX_NGC_FILESIZE
 import com.zoffcc.applications.trifa.ToxVars.TOX_MSGV3_MAX_MESSAGE_LENGTH
 import com.zoffcc.applications.trifa.TrifaToxService.Companion.orma
-import com.zoffcc.applications.trifa_material.trifa_material.BuildConfig
 import globalstore
 import grouppeerstore
 import groupstore

@@ -135,6 +135,7 @@ import com.zoffcc.applications.sorm.BootstrapNodeEntryDB
 import com.zoffcc.applications.sorm.GroupMessage
 import com.zoffcc.applications.sorm.Message
 import com.zoffcc.applications.toloshare_material.PrefsSettings
+import com.zoffcc.applications.toloshare_material.toloshare_material.BuildConfig
 import com.zoffcc.applications.trifa.AVState
 import com.zoffcc.applications.trifa.AudioBar
 import com.zoffcc.applications.trifa.AudioBar.audio_in_bar
@@ -176,7 +177,6 @@ import com.zoffcc.applications.trifa.MainActivity.Companion.tox_group_peer_get_n
 import com.zoffcc.applications.trifa.MainActivity.Companion.toxav_option_set
 import com.zoffcc.applications.trifa.NodeListJS
 import com.zoffcc.applications.trifa.OperatingSystem
-import com.zoffcc.applications.trifa.PrefsSettings
 import com.zoffcc.applications.trifa.RandomNameGenerator
 import com.zoffcc.applications.trifa.SQLITE_TYPE
 import com.zoffcc.applications.trifa.SingleComponentAspectRatioKeeperLayout
@@ -188,7 +188,6 @@ import com.zoffcc.applications.trifa.TrifaToxService
 import com.zoffcc.applications.trifa.TrifaToxService.Companion.clear_grouppeers
 import com.zoffcc.applications.trifa.TrifaToxService.Companion.load_grouppeers
 import com.zoffcc.applications.trifa.TrifaToxService.Companion.orma
-import com.zoffcc.applications.trifa_material.trifa_material.BuildConfig
 import io.github.alexzhirkevich.qrose.options.QrBrush
 import io.github.alexzhirkevich.qrose.options.solid
 import io.github.alexzhirkevich.qrose.rememberQrCodePainter

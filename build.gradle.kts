@@ -14,7 +14,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.github.gmazzo.buildconfig") version "6.0.7"
     id("org.ajoberstar.grgit") version "5.3.3"
-    id("io.gitlab.arturbosch.detekt") version("1.23.3")
+    // id("io.gitlab.arturbosch.detekt") version("1.23.3")
     id("de.undercouch.download") version "5.6.0"
 }
 
@@ -58,9 +58,9 @@ repositories {
     maven("https://jitpack.io")
 }
 
-detekt {
-    config.setFrom(file("config/detekt/detekt.yml"))
-}
+//detekt {
+//    config.setFrom(file("config/detekt/detekt.yml"))
+//}
 
 buildConfig {
     buildConfigField("String", "APP_NAME", "\"${project.name}\"")
