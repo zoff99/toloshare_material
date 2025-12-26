@@ -311,7 +311,7 @@ var global_semaphore_grouppeerlist_ui = CustomSemaphore(1)
 var global_semaphore_grouplist_ui = CustomSemaphore(1)
 var global_semaphore_messagelist_ui = CustomSemaphore(1)
 var global_semaphore_groupmessagelist_ui = CustomSemaphore(1)
-val APPDIRS = AppDirs("trifa_material", "zoxcore")
+val APPDIRS = AppDirs("toloshare_material", "zoxcore")
 val RESOURCESDIR = File(System.getProperty("compose.application.resources.dir"))
 const val GENERIC_TOR_USERAGENT = "Mozilla/5.0 (Windows NT 6.1; rv:60.0) Gecko/20100101 Firefox/60.0"
 var scaffoldState: ScaffoldState = ScaffoldState(drawerState = DrawerState(initialValue = DrawerValue.Closed), snackbarHostState = SnackbarHostState())
