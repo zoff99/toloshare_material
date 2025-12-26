@@ -158,19 +158,19 @@ dependencies {
         if ((os!!.isLinux) && (os_arch == "amd64") && (!running_on_nixos) && (!build_with_appimage))
         {
             // on "Linux amd64" use "sqlite-jdbc" with sqlcipher included (which is a dropin replacement for sqlite-jdbc)
-            println("Linux amd64 -> unsing pkgs_zoffcc_sqlite-jdbc-sqlcipher")
+            println("Linux amd64 -> using pkgs_zoffcc_sqlite-jdbc-sqlcipher")
             implementation("com.github.zoff99:pkgs_zoffcc_sqlite-jdbc-sqlcipher:1.0.20")
         } else
         {
             // use regular "sqlite-jdbc"
-            println("other OS -> unsing org.xerial:sqlite-jdbc")
+            println("other OS -> using org.xerial:sqlite-jdbc")
             implementation("org.xerial:sqlite-jdbc:3.51.1.0")
         }
     }
     catch(_: Exception)
     {
         // use regular "sqlite-jdbc"
-        println("error detecting OS -> unsing org.xerial:sqlite-jdbc")
+        println("error detecting OS -> using org.xerial:sqlite-jdbc")
         implementation("org.xerial:sqlite-jdbc:3.51.1.0")
     }
     // ------- SQLITE / SQLCIPHER implementation -------
