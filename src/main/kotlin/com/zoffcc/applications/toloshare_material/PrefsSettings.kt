@@ -1,4 +1,4 @@
-package com.zoffcc.applications.toloshare_material
+package com.zoffcc.applications.toloshare
 
 class PrefsSettings {
 }
