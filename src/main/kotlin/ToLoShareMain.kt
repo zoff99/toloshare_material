@@ -134,6 +134,7 @@ import com.zoffcc.applications.ffmpegav.AVActivity.JAVA_AUDIO_IN_DEVICE_NAME
 import com.zoffcc.applications.sorm.BootstrapNodeEntryDB
 import com.zoffcc.applications.sorm.GroupMessage
 import com.zoffcc.applications.sorm.Message
+import com.zoffcc.applications.toloshare_material.PrefsSettings
 import com.zoffcc.applications.trifa.AVState
 import com.zoffcc.applications.trifa.AudioBar
 import com.zoffcc.applications.trifa.AudioBar.audio_in_bar
@@ -238,7 +239,7 @@ var start_button_text_wrapper = "stopped"
 var online_button_text_wrapper = "offline"
 var online_button_color_wrapper = Color.White.toArgb()
 var closing_application = false
-val global_prefs: Preferences = Preferences.userNodeForPackage(com.zoffcc.applications.trifa.PrefsSettings::class.java)
+val global_prefs: Preferences = Preferences.userNodeForPackage(com.zoffcc.applications.toloshare_material.PrefsSettings::class.java)
 val UISCALE_ITEM_HEIGHT = 30.dp
 val CONTACTITEM_HEIGHT = 50.dp
 val GROUPITEM_HEIGHT = 50.dp
