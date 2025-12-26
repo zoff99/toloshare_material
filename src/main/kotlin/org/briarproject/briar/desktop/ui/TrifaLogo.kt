@@ -28,6 +28,6 @@ import org.briarproject.briar.desktop.utils.InternationalizationUtils.i18n
 @Composable
 fun TrifaLogo(modifier: Modifier = Modifier.fillMaxWidth()) =
     Image(
-        painterResource("images/logo_trifa.png"), // NON-NLS
+        painterResource("images/logo_toloshare.png"), // NON-NLS
         i18n("access.logo"), modifier
     )
