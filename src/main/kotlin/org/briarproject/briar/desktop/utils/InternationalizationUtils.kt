@@ -86,7 +86,7 @@ object InternationalizationUtils {
      */
     private fun createResourceBundle() =
         ResourceBundle.getBundle(
-            "strings.trifa_material",
+            "strings.toloshare_material",
             if (locale.toLanguageTag() == "en") Locale.ROOT // NON-NLS
             else locale
         )
