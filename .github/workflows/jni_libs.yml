@@ -1,0 +1,370 @@
+name: JNI Libs
+
+on:
+#  push:
+#    paths-ignore:
+#     - 'README.md'
+#     - 'CHANGELOG.md'
+  pull_request:
+    paths-ignore:
+     - 'README.md'
+     - 'CHANGELOG.md'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: dummy
+        default: dummy
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+
+  build-macos-jni-artifact:
+    name: JNI Artifact macOS Build
+    runs-on: macos-15-intel
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: show architecture
+        run:  uname -m
+
+      - name: install deps
+        run:  brew install git automake yasm nasm
+
+      - name: build deps
+        run:  |
+          ls -al
+          id
+          pwd
+          ./circle_scripts/deps_macos.sh
+
+      - name: build jni lib
+        run:  |
+          ls -al
+          id
+          pwd
+          ./circle_scripts/java_jni_lib_macos.sh
+
+      - name: sha hash of jni lib
+        run:  |
+          shasum -a 256 /Users/runner/ToxAndroidRefImpl/jni-c-toxcore/libjni-c-toxcore.jnilib || echo "ignore"
+
+      - name: Rename artifact for nightly upload
+        if: github.ref == 'refs/heads/master'
+        run: |
+          pwd
+          cp -v /Users/runner/ToxAndroidRefImpl/jni-c-toxcore/libjni-c-toxcore.jnilib libjni-c-toxcore.jnilib
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: libjni-c-toxcore.jnilib
+          path: libjni-c-toxcore.jnilib
+      - name: Upload to nightly release
+        uses: ncipollo/release-action@v1
+        if: github.ref == 'refs/heads/master'
+        with:
+          allowUpdates: true
+          tag: nightly
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
+          prerelease: true
+          replacesArtifacts: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: "libjni-c-toxcore.jnilib"
+
+  build-macos_arm64-jni-artifact:
+    name: JNI Artifact macOS arm64 Build
+    runs-on: macos-14
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: show architecture
+        run:  uname -m
+
+      - name: install deps
+        run:  brew install git automake autoconf yasm nasm libtool
+
+      - name: build deps
+        run:  |
+          ls -al
+          id
+          pwd
+          ./circle_scripts/deps_macos.sh
+
+      - name: build jni lib
+        run:  |
+          ls -al
+          id
+          pwd
+          ./circle_scripts/java_jni_lib_macos.sh
+
+      - name: sha hash of jni lib
+        run:  |
+          shasum -a 256 /Users/runner/ToxAndroidRefImpl/jni-c-toxcore/libjni-c-toxcore.jnilib || echo "ignore"
+
+      - name: Rename artifact for nightly upload
+        if: github.ref == 'refs/heads/master'
+        run: |
+          pwd
+          cp -v /Users/runner/ToxAndroidRefImpl/jni-c-toxcore/libjni-c-toxcore.jnilib libjni-c-toxcore_arm64.jnilib
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: libjni-c-toxcore_arm64.jnilib
+          path: libjni-c-toxcore_arm64.jnilib
+      - name: Upload to nightly release
+        uses: ncipollo/release-action@v1
+        if: github.ref == 'refs/heads/master'
+        with:
+          allowUpdates: true
+          tag: nightly
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
+          prerelease: true
+          replacesArtifacts: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: "libjni-c-toxcore_arm64.jnilib"
+
+  build-raspi-jni-artifact:
+    name: JNI Artifact Raspi Build
+    runs-on: ubuntu-22.04
+    if: |
+      true
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: install deps
+        run: |
+          sudo apt-get update && \
+          sudo DEBIAN_FRONTEND=noninteractive \
+          apt-get install -y --no-install-recommends \
+          ca-certificates
+
+      - name: make script dockcross-linux-arm64
+        run: docker run --rm dockcross/linux-arm64 > ./dockcross-linux-arm64; chmod +x ./dockcross-linux-arm64
+
+      - name: test
+        run: ./dockcross-linux-arm64 bash -c 'ls -al;id;pwd;hostname;uname -a'
+
+      - name: build deps
+        run:  |
+          ./dockcross-linux-arm64 bash -c './circle_scripts/deps_linux.sh raspi'
+
+      - name: build jni lib
+        run:  |
+          ./dockcross-linux-arm64 bash -c './circle_scripts/java_jni_lib_linux.sh raspi'
+
+      - name: sha hash of jni lib
+        run:  |
+          mv -v /home/runner/work/trifa_material/trifa_material/libjni-c-toxcore.so /home/runner/work/trifa_material/trifa_material/libjni-c-toxcore_raspi.so
+          sha256sum /home/runner/work/trifa_material/trifa_material/libjni-c-toxcore_raspi.so || echo "ignore"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: libjni-c-toxcore_raspi.so
+          path: libjni-c-toxcore_raspi.so
+      - name: Upload to nightly release
+        uses: ncipollo/release-action@v1
+        if: github.ref == 'refs/heads/master'
+        with:
+          allowUpdates: true
+          tag: nightly
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
+          prerelease: true
+          replacesArtifacts: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: "libjni-c-toxcore_raspi.so"
+
+
+
+  build-asan-linux-jni-artifact:
+    name: JNI Artifact ASAN Linux Build
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: install deps
+        run: |
+          sudo apt-get update && \
+          sudo DEBIAN_FRONTEND=noninteractive \
+          apt-get install -y --no-install-recommends \
+          ca-certificates \
+          openjdk-17-jdk \
+          openjdk-17-jdk-headless \
+          coreutils autoconf libtool pkg-config \
+          libasan6 \
+          cmake \
+          nasm \
+          yasm
+
+      - name: build deps
+        run:  |
+          ls -al
+          id
+          pwd
+          ./circle_scripts/deps_linux.sh "" asan
+
+      - name: build jni lib
+        run:  |
+          ls -al
+          id
+          pwd
+          ./circle_scripts/java_jni_lib_linux.sh "" asan
+
+      - name: sha hash of jni lib
+        run:  |
+          sha256sum /home/runner/work/trifa_material/trifa_material/libjni-c-toxcore.so || echo "ignore"
+
+      - name: rename jni lib
+        run:  |
+          mv -v libjni-c-toxcore.so libjni-c-toxcore.so__ASAN
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: libjni-c-toxcore.so__ASAN
+          path: libjni-c-toxcore.so__ASAN
+      - name: Upload to nightly release
+        uses: ncipollo/release-action@v1
+        if: github.ref == 'refs/heads/master'
+        with:
+          allowUpdates: true
+          tag: nightly
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
+          prerelease: true
+          replacesArtifacts: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: "libjni-c-toxcore.so__ASAN"
+
+
+
+  build-linux-jni-artifact:
+    name: JNI Artifact Linux Build
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: install deps
+        run: |
+          sudo apt-get update && \
+          sudo DEBIAN_FRONTEND=noninteractive \
+          apt-get install -y --no-install-recommends \
+          ca-certificates \
+          openjdk-17-jdk \
+          openjdk-17-jdk-headless \
+          coreutils autoconf libtool pkg-config \
+          cmake \
+          nasm \
+          yasm
+
+      - name: build deps
+        run:  |
+          ls -al
+          id
+          pwd
+          ./circle_scripts/deps_linux.sh
+
+      - name: build jni lib
+        run:  |
+          ls -al
+          id
+          pwd
+          ./circle_scripts/java_jni_lib_linux.sh
+
+      - name: sha hash of jni lib
+        run:  |
+          sha256sum /home/runner/work/trifa_material/trifa_material/libjni-c-toxcore.so || echo "ignore"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: libjni-c-toxcore.so
+          path: libjni-c-toxcore.so
+      - name: Upload to nightly release
+        uses: ncipollo/release-action@v1
+        if: github.ref == 'refs/heads/master'
+        with:
+          allowUpdates: true
+          tag: nightly
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
+          prerelease: true
+          replacesArtifacts: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: "libjni-c-toxcore.so"
+
+
+  build-windows-jni-artifact:
+    name: JNI Artifact Windows Build
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: install deps
+        run: |
+             sudo apt-get update && \
+             sudo DEBIAN_FRONTEND=noninteractive \
+             apt-get install -y --no-install-recommends \
+             ca-certificates \
+             yasm nasm \
+             openjdk-17-jdk \
+             openjdk-17-jdk-headless \
+             coreutils autoconf libtool pkg-config \
+             gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 binutils-mingw-w64-x86-64 \
+             mingw-w64-tools pkg-config-mingw-w64-x86-64 win-iconv-mingw-w64-dev \
+             mingw-w64-x86-64-dev
+
+
+      - name: build deps
+        run:  |
+          ls -al
+          id
+          pwd
+          ./circle_scripts/deps_win.sh
+
+      - name: build jni lib
+        run:  |
+          ls -al
+          id
+          pwd
+          ./circle_scripts/java_jni_lib_win.sh
+
+      - name: sha hash of jni lib
+        run:  |
+          sha256sum /home/runner/work/trifa_material/trifa_material/jni-c-toxcore.dll || echo "ignore"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: jni-c-toxcore.dll
+          path: jni-c-toxcore.dll
+      - name: Upload to nightly release
+        uses: ncipollo/release-action@v1
+        if: github.ref == 'refs/heads/master'
+        with:
+          allowUpdates: true
+          tag: nightly
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
+          prerelease: true
+          replacesArtifacts: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: "jni-c-toxcore.dll"
+
