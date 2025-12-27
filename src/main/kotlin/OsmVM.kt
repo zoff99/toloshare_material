@@ -4,6 +4,7 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import kotlinx.io.asSource
 import ovh.plrapps.mapcompose.api.addLayer
 import ovh.plrapps.mapcompose.api.scale
+import ovh.plrapps.mapcompose.api.shouldLoopScale
 import ovh.plrapps.mapcompose.core.TileStreamProvider
 import ovh.plrapps.mapcompose.ui.layout.Forced
 import ovh.plrapps.mapcompose.ui.state.MapState
@@ -26,6 +27,7 @@ class OsmVM : ScreenModel {
         // 48.2085, 16.3730 // St. Stephan
     }.apply {
         addLayer(tileStreamProvider)
+        shouldLoopScale = false
         scale = 5.0  // initial zoom level
     }
 }

@@ -193,7 +193,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2")
     val voyagerVersion = "1.1.0-beta02"
     implementation("cafe.adriel.voyager:voyager-screenmodel:${voyagerVersion}")
-    implementation("cafe.adriel.voyager:voyager-core:${voyagerVersion}")}
+    implementation("cafe.adriel.voyager:voyager-core:${voyagerVersion}")
+    implementation("com.squareup.okio:okio:3.16.4")
+}
 
 val main_class_name = "ToLoShareMainKt"
 
