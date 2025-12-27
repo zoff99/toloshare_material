@@ -348,7 +348,8 @@ fun App()
     var start_button_text by remember { mutableStateOf("start") }
     var tox_running_state: String by remember { mutableStateOf("stopped") }
 
-    val osm = remember { OsmViewModel() }
+    geostore.init_geo()
+    val osm = remember { geostore.state.osm }
 
     println("User data dir: " + APPDIRS.getUserDataDir())
     println("User data dir (roaming): " + APPDIRS.getUserDataDir(roaming = true))
@@ -1415,8 +1416,13 @@ fun App()
                             }
                             UiMode.MAP ->
                             {
-                                Box(modifier = Modifier.fillMaxSize()) {
-                                    MapWithZoomControl(osm, Modifier.align(Alignment.Center).fillMaxSize())
+                                val geostate by geostore.stateFlow.collectAsState()
+                                Box(modifier = Modifier.fillMaxSize().randomDebugBorder()) {
+                                    if (geostate.remote_locations.size > 0)
+                                    {
+                                        Log.i(TAG, "GGGGGGGGGGGGGGGGGGGGGGGGG")
+                                    }
+                                    MapWithZoomControl(osm as OsmViewModel, Modifier.align(Alignment.Center).fillMaxSize())
                                 }
                             }
                             UiMode.GROUPS ->

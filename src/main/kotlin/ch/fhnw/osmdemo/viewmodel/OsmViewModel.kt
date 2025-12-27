@@ -133,6 +133,7 @@ class OsmViewModel : ViewModel(){
                                  destScale     = 0.1,
                                  animationSpec = SnapSpec())
         }
+        // state.removeMarker(ST_STEPHEN_MARKER_ID)
     }
 
     fun addMarker(id: String, geoPos : GeoPosition) = addMarker(id, geoPos.asNormalizedWebMercator())
@@ -146,6 +147,7 @@ class OsmViewModel : ViewModel(){
                     tint               = markerColor
                 )
             }
+            println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa")
             state.disableMarkerDrag(id)
             markerCount++
         }
