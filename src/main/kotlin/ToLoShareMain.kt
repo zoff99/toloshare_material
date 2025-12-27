@@ -239,6 +239,7 @@ import org.briarproject.briar.desktop.utils.InternationalizationUtils.i18n
 import ovh.plrapps.mapcompose.api.addMarker
 import ovh.plrapps.mapcompose.api.centroidX
 import ovh.plrapps.mapcompose.api.centroidY
+import ovh.plrapps.mapcompose.api.hasMarker
 import ovh.plrapps.mapcompose.api.moveMarker
 import ovh.plrapps.mapcompose.api.removeMarker
 import ovh.plrapps.mapcompose.api.scrollTo
@@ -1422,14 +1423,17 @@ fun App()
                             {
                                 val geostate by geostore.stateFlow.collectAsState()
                                 Box(modifier = Modifier.fillMaxSize()) {
-                                    Log.i(TAG, "redraw Map")
+                                    // DEBUG // Log.i(TAG, "redraw Map")
                                     if (geostate.remote_locations.size > 0)
                                     {
-                                        osm.state.removeMarker(ST_STEPHEN_MARKER_ID)
                                         geostate.remote_locations.forEach {
                                             osm.addMarker(id = it.pk_str, name = it.name, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon))
                                             osm.moveMarker(id = it.pk_str, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon))
                                         }
+                                    }
+                                    if (osm.state.hasMarker(ST_STEPHEN_MARKER_ID))
+                                    {
+                                        osm.state.removeMarker(ST_STEPHEN_MARKER_ID)
                                     }
                                     MapWithZoomControl(osm, Modifier.align(Alignment.Center).fillMaxSize())
                                 }

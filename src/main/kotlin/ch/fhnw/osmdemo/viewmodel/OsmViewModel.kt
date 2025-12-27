@@ -87,7 +87,7 @@ class OsmViewModel : ViewModel(){
           addLayer(tileStreamProvider)
 
           onMarkerMove { id, x, y, _, _ ->
-              println("move $id $x $y")
+              // println("move $id $x $y")
           }
 
           /**
@@ -120,16 +120,16 @@ class OsmViewModel : ViewModel(){
           }
 
           onMarkerLongPress { id, x, y ->
-              println("on marker long press $id $x $y")
-              removeMarker(id)
+              // println("on marker long press $id $x $y")
+              // removeMarker(id)
           }
 
           onTap { x, y ->
-              println("on tap $x $y")
+              // println("on tap $x $y")
           }
 
           onLongPress { x, y ->
-              println("on long press $x $y")
+              // println("on long press $x $y")
           }
 
          // enableRotation()

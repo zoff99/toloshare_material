@@ -1644,7 +1644,7 @@ class MainActivity
                                         {
                                         }
 
-                                        Log.i(TAG, "GEO::" + separated)
+                                        // Log.i(TAG, "GEO::" + separated)
                                         geostore.update(item = GeoItem(name = fname, pk_str = fpubkey,
                                             lat = lat.toDouble(), lon = lon.toDouble(),
                                             acc = acc,

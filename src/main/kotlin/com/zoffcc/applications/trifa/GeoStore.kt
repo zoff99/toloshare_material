@@ -2,28 +2,9 @@
 
 package com.zoffcc.applications.trifa
 
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.TweenSpec
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import ch.fhnw.osmdemo.viewmodel.GeoPosition
-import ch.fhnw.osmdemo.viewmodel.OsmViewModel
-import ch.fhnw.osmdemo.viewmodel.ST_STEPHEN_GEOPOS
-import ch.fhnw.osmdemo.viewmodel.ST_STEPHEN_MARKER_ID
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import ovh.plrapps.mapcompose.api.addMarker
-import ovh.plrapps.mapcompose.api.centroidX
-import ovh.plrapps.mapcompose.api.centroidY
-import ovh.plrapps.mapcompose.api.hasMarker
-import ovh.plrapps.mapcompose.api.reloadTiles
-import ovh.plrapps.mapcompose.api.removeMarker
-import ovh.plrapps.mapcompose.api.scale
-import ovh.plrapps.mapcompose.api.scrollTo
 import java.util.*
 import kotlin.collections.forEach
 import kotlin.collections.plus
