@@ -239,6 +239,7 @@ import org.briarproject.briar.desktop.utils.InternationalizationUtils.i18n
 import ovh.plrapps.mapcompose.api.addMarker
 import ovh.plrapps.mapcompose.api.centroidX
 import ovh.plrapps.mapcompose.api.centroidY
+import ovh.plrapps.mapcompose.api.moveMarker
 import ovh.plrapps.mapcompose.api.removeMarker
 import ovh.plrapps.mapcompose.api.scrollTo
 import ovh.plrapps.mapcompose.demo.viewmodels.OsmVM
@@ -352,8 +353,6 @@ fun App()
     var start_button_text by remember { mutableStateOf("start") }
     var tox_running_state: String by remember { mutableStateOf("stopped") }
 
-    geostore.init_geo()
-    // val osm = remember { geostore.state.osm }
     val osm = remember { OsmViewModel() }
 
     println("User data dir: " + APPDIRS.getUserDataDir())
@@ -1422,13 +1421,14 @@ fun App()
                             UiMode.MAP ->
                             {
                                 val geostate by geostore.stateFlow.collectAsState()
-                                Box(modifier = Modifier.fillMaxSize().randomDebugBorder()) {
-                                    Log.i(TAG, "GGGGGGGGGGGGGGGGGGGGGGGGG")
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    Log.i(TAG, "redraw Map")
                                     if (geostate.remote_locations.size > 0)
                                     {
                                         osm.state.removeMarker(ST_STEPHEN_MARKER_ID)
                                         geostate.remote_locations.forEach {
                                             osm.addMarker(it.pk_str, GeoPosition(latitude = it.lat, longitude = it.lon))
+                                            osm.moveMarker(it.pk_str, GeoPosition(latitude = it.lat, longitude = it.lon))
                                         }
                                     }
                                     MapWithZoomControl(osm, Modifier.align(Alignment.Center).fillMaxSize())

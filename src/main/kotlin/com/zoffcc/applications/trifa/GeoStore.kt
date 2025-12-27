@@ -47,7 +47,6 @@ interface GeoStore
 {
     fun add(item: GeoItem)
     fun update(item: GeoItem)
-    fun init_geo()
     fun clear()
     val stateFlow: StateFlow<StateGeoLocations>
     val state get() = stateFlow.value
@@ -60,11 +59,6 @@ fun CoroutineScope.createGeoStore(): GeoStore
     return object : GeoStore
     {
         override val stateFlow: StateFlow<StateGeoLocations> = mutableStateFlow
-
-        override fun init_geo()
-        {
-            // state.osm = OsmViewModel()
-        }
 
         override fun add(item: GeoItem)
         {
@@ -99,9 +93,6 @@ fun CoroutineScope.createGeoStore(): GeoStore
                 mutableStateFlow.value = state.copy(remote_locations = new_remote_locations)
             } else
             {
-                // state.osm!!.addMarker("X" + item.pk_str, GeoPosition(latitude = 48.209084, longitude = 16.3719307))
-                // Log.i(TAG, "addMarker **************1 : " + state.osm!!.state.hasMarker("X" + item.pk_str))
-                // state.osm!!.state.removeMarker(ST_STEPHEN_MARKER_ID)
                 mutableStateFlow.value = state.copy(remote_locations = state.remote_locations + item)
             }
         }

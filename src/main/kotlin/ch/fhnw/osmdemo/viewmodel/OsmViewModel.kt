@@ -32,6 +32,7 @@ import ovh.plrapps.mapcompose.api.centroidX
 import ovh.plrapps.mapcompose.api.centroidY
 import ovh.plrapps.mapcompose.api.disableMarkerDrag
 import ovh.plrapps.mapcompose.api.enableMarkerDrag
+import ovh.plrapps.mapcompose.api.moveMarker
 import ovh.plrapps.mapcompose.api.onCalloutClick
 import ovh.plrapps.mapcompose.api.onLongPress
 import ovh.plrapps.mapcompose.api.onMarkerClick
@@ -138,6 +139,8 @@ class OsmViewModel : ViewModel(){
 
     fun addMarker(id: String, geoPos : GeoPosition) = addMarker(id, geoPos.asNormalizedWebMercator())
 
+    fun moveMarker(id: String, geoPos : GeoPosition) = moveMarker(id, geoPos.asNormalizedWebMercator())
+
     fun addMarker(id: String, point : NormalizedPoint){
         viewModelScope.launch {
             state.addMarker(id, point.x, point.y) {
@@ -149,6 +152,12 @@ class OsmViewModel : ViewModel(){
             }
             state.disableMarkerDrag(id)
             markerCount++
+        }
+    }
+
+    fun moveMarker(id: String, point : NormalizedPoint){
+        viewModelScope.launch {
+            state.moveMarker(id, point.x, point.y)
         }
     }
 
