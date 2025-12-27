@@ -20,7 +20,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.fhnw.osmdemo.view.Callout
 import io.ktor.utils.io.*
-import org.jetbrains.compose.resources.painterResource
 import ovh.plrapps.mapcompose.api.addCallout
 import ovh.plrapps.mapcompose.api.addLayer
 import ovh.plrapps.mapcompose.api.addMarker
@@ -44,7 +43,6 @@ import ovh.plrapps.mapcompose.api.visibleArea
 import ovh.plrapps.mapcompose.core.TileStreamProvider
 import ovh.plrapps.mapcompose.ui.layout.Forced
 import ovh.plrapps.mapcompose.ui.state.MapState
-
 
 /**
  * Shows how to use WMTS tile servers with MapCompose, such as OpenStreetMap.
@@ -125,9 +123,9 @@ class OsmViewModel : ViewModel(){
     }
 
     init {
-        addMarker("St_Stephan", ST_STEPHEN)
+        addMarker("St_Stephen", ST_STEPHEN)
         viewModelScope.launch {
-            state.centerOnMarker(id            = "St_Stephan",
+            state.centerOnMarker(id            = "St_Stephen",
                                  destScale     = 0.1,
                                  animationSpec = SnapSpec())
         }
@@ -138,7 +136,7 @@ class OsmViewModel : ViewModel(){
     fun addMarker(id: String, point : NormalizedPoint){
         viewModelScope.launch {
             state.addMarker(id, point.x, point.y) {
-                Icon(imageVector            = Icons.Filled.LocationOn,
+                Icon(imageVector       = Icons.Filled.LocationOn,
                     contentDescription = id,
                     modifier           = Modifier.size(50.dp),
                     tint               = markerColor
