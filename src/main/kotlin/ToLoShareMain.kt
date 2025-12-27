@@ -362,7 +362,7 @@ fun App()
         Scaffold(modifier = Modifier.randomDebugBorder(), scaffoldState = scaffoldState) {
             Column() {
                 Row(modifier = Modifier.randomDebugBorder().weight(0.999f)) {
-                    var uiMode by remember { mutableStateOf(UiMode.CONTACTS) }
+                    var uiMode by remember { mutableStateOf(UiMode.MAP) }
                     val main_top_tab_height by remember { mutableStateOf(MAIN_TOP_TAB_HEIGHT) }
                     BriarSidebar(uiMode = uiMode, setUiMode = { uiMode = it })
                     VerticalDivider()
@@ -1391,6 +1391,10 @@ fun App()
                                         }
                                     }
                                 }
+                            }
+                            UiMode.MAP ->
+                            {
+                                Text("MAP")
                             }
                             UiMode.GROUPS ->
                             {

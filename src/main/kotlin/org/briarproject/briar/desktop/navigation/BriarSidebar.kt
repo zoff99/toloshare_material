@@ -105,6 +105,7 @@ fun BriarSidebar(
         val current_globalstate by globalstore.stateFlow.collectAsState()
         BriarSidebarButtonFunc(UiMode.CONTACTS, messageCount = current_globalstate.contacts_unread_message_count)
         BriarSidebarButtonFunc(UiMode.GROUPS, messageCount = current_globalstate.contacts_unread_group_message_count)
+        BriarSidebarButtonFunc(UiMode.MAP)
         BriarSidebarButtonFunc(UiMode.SETTINGS)
         BriarSidebarButtonFunc(UiMode.ADDFRIEND)
         BriarSidebarButtonFunc(UiMode.ADDGROUP)
