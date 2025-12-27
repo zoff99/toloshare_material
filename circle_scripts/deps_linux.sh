@@ -81,7 +81,7 @@ cd x265_git/
     echo "*** RASPI ***"
     cmake . -DCMAKE_INSTALL_PREFIX="$_INST_" -DENABLE_PIC=ON -DENABLE_ASSEMBLY=OFF # -DCMAKE_VERBOSE_MAKEFILE=ON
   else
-    # /usr/bin/ld: /home/runner/work/trifa_material/trifa_material/inst//lib/libx265.a(cpu-a.asm.o): relocation R_X86_64_PC32 against symbol `x265_intel_cpu_indicator_init' can not be used when making a shared object; recompile with -fPIC
+    # /usr/bin/ld: /home/runner/work/toloshare_material/toloshare_material/inst//lib/libx265.a(cpu-a.asm.o): relocation R_X86_64_PC32 against symbol `x265_intel_cpu_indicator_init' can not be used when making a shared object; recompile with -fPIC
     cmake . -DCMAKE_INSTALL_PREFIX="$_INST_" -DENABLE_PIC=ON -DENABLE_ASSEMBLY=ON # -DCMAKE_VERBOSE_MAKEFILE=ON
   fi
   make || exit 1

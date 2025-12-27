@@ -101,7 +101,7 @@ $_INST_/lib/libsodium.a \
 -shared \
 -Wl,-soname,libjni-c-toxcore_noise.so -o libjni-c-toxcore_noise.so || exit 1
 
-sha256sum /home/runner/work/trifa_material/trifa_material/libjni-c-toxcore_noise.so
+sha256sum /home/runner/work/toloshare_material/toloshare_material/libjni-c-toxcore_noise.so
 
 
 ls -al libjni-c-toxcore_noise.so || exit 1

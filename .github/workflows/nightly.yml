@@ -5,22 +5,10 @@ on:
     paths-ignore:
      - 'README.md'
      - 'CHANGELOG.md'
-     - '.github/workflows/macos_pkg.yml'
-     - '.github/workflows/screens_only_for_nightly_linux.yml'
-     - '.github/workflows/screens_only_for_nightly_macos_arm.yml'
-     - '.github/workflows/screens_only_for_nightly_macos.yml'
-     - '.github/workflows/screens_only_for_nightly_win.yml'
-     - '.github/workflows/jni_libs.yml'
   pull_request:
     paths-ignore:
      - 'README.md'
      - 'CHANGELOG.md'
-     - '.github/workflows/macos_pkg.yml'
-     - '.github/workflows/screens_only_for_nightly_linux.yml'
-     - '.github/workflows/screens_only_for_nightly_macos_arm.yml'
-     - '.github/workflows/screens_only_for_nightly_macos.yml'
-     - '.github/workflows/screens_only_for_nightly_win.yml'
-     - '.github/workflows/jni_libs.yml'
   workflow_dispatch:
     inputs:
       version:
@@ -81,15 +69,15 @@ jobs:
         run:  id;pwd;ls -al;./gradlew -Dorg.gradle.java.home=/usr/lib/jvm/java-17-openjdk-amd64 packageReleaseUberJarForCurrentOS
 
       - name: check jar
-        run:  id;pwd;ls -hal ./build/compose/jars/trifa_material-linux-x64-*.jar
+        run:  id;pwd;ls -hal ./build/compose/jars/toloshare_material-linux-x64-*.jar
 
       - name: check deb
-        run:  id;pwd;ls -hal ./build/compose/binaries/main*/deb/trifa-material_*-1_amd64.deb
+        run:  id;pwd;ls -hal ./build/compose/binaries/main*/deb/toloshare-material_*-1_amd64.deb
 
       - name: fix deb
         run: |
-          id;pwd;ls -hal ./build/compose/binaries/main*/deb/trifa-material_*-1_amd64.deb
-          deb_pkg_name_with_path=$(ls -1 ./build/compose/binaries/main*/deb/trifa-material_*-1_amd64.deb | tail -1 2>/dev/null)
+          id;pwd;ls -hal ./build/compose/binaries/main*/deb/toloshare-material_*-1_amd64.deb
+          deb_pkg_name_with_path=$(ls -1 ./build/compose/binaries/main*/deb/toloshare-material_*-1_amd64.deb | tail -1 2>/dev/null)
           deb_pkg_name_base=$(basename "$deb_pkg_name_with_path")
           cp -v "$deb_pkg_name_with_path" "$deb_pkg_name_base"
           set -x
@@ -99,30 +87,30 @@ jobs:
           cp -av ./final_pkg.deb "$deb_pkg_name_with_path"
 
       - name: check rpm
-        run:  id;pwd;ls -hal ./build/compose/binaries/main*/rpm/trifa_material-*.x86_64.rpm
+        run:  id;pwd;ls -hal ./build/compose/binaries/main*/rpm/toloshare_material-*.x86_64.rpm
 
 
       - name: Rename artifact for nightly upload
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
-          cp -v ./build/compose/binaries/main*/deb/trifa-material_*_amd64.deb trifa-material_nightly.deb
-          cp -v ./build/compose/binaries/main*/rpm/trifa_material-*.x86_64.rpm trifa-material_nightly.rpm
+          cp -v ./build/compose/binaries/main*/deb/toloshare-material_*_amd64.deb toloshare-material_nightly.deb
+          cp -v ./build/compose/binaries/main*/rpm/toloshare_material-*.x86_64.rpm toloshare-material_nightly.rpm
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: trifa-material_nightly.deb
-          path: trifa-material_nightly.deb
+          name: toloshare-material_nightly.deb
+          path: toloshare-material_nightly.deb
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: trifa-material_nightly.rpm
-          path: trifa-material_nightly.rpm
+          name: toloshare-material_nightly.rpm
+          path: toloshare-material_nightly.rpm
 
       - name: Rename artifact for release upload
         if: contains(github.ref, 'refs/tags/v')
         run: |
-          cp -v ./build/compose/binaries/main*/deb/trifa-material_*_amd64.deb trifa-material.deb
-          cp -v ./build/compose/binaries/main*/rpm/trifa_material-*.x86_64.rpm trifa-material.rpm
+          cp -v ./build/compose/binaries/main*/deb/toloshare-material_*_amd64.deb toloshare-material.deb
+          cp -v ./build/compose/binaries/main*/rpm/toloshare_material-*.x86_64.rpm toloshare-material.rpm
       - name: Upload to versioned release
         if: contains(github.ref, 'refs/tags/v')
         uses: ncipollo/release-action@v1
@@ -130,7 +118,7 @@ jobs:
           allowUpdates: true
           draft: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "trifa-material.deb,trifa-material.rpm"
+          artifacts: "toloshare-material.deb,toloshare-material.rpm"
 
       - name: Upload to nightly release
         uses: ncipollo/release-action@v1
@@ -143,7 +131,7 @@ jobs:
           prerelease: true
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "trifa-material_nightly.deb,trifa-material_nightly.rpm"
+          artifacts: "toloshare-material_nightly.deb,toloshare-material_nightly.rpm"
 
 
 
@@ -195,22 +183,22 @@ jobs:
         run:  id;pwd;ls -al;./gradlew -Dorg.gradle.java.home=/usr/lib/jvm/java-17-openjdk-amd64 executeAppImageBuilder
 
       - name: check appimage
-        run:  id;pwd;ls -hal ./trifa*material*AppImage
+        run:  id;pwd;ls -hal ./toloshare*material*AppImage
 
       - name: Rename artifact for nightly upload
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
-          cp -v ./trifa*material*AppImage trifa-material_nightly-x86_64.appimage
+          cp -v ./toloshare*material*AppImage toloshare-material_nightly-x86_64.appimage
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: trifa-material_nightly-x86_64.appimage
-          path: trifa-material_nightly-x86_64.appimage
+          name: toloshare-material_nightly-x86_64.appimage
+          path: toloshare-material_nightly-x86_64.appimage
 
       - name: Rename artifact for release upload
         if: contains(github.ref, 'refs/tags/v')
         run: |
-          cp -v ./trifa*material*AppImage trifa-material-x86_64.appimage
+          cp -v ./toloshare*material*AppImage toloshare-material-x86_64.appimage
       - name: Upload to versioned release
         if: contains(github.ref, 'refs/tags/v')
         uses: ncipollo/release-action@v1
@@ -218,7 +206,7 @@ jobs:
           allowUpdates: true
           draft: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "trifa-material-x86_64.appimage"
+          artifacts: "toloshare-material-x86_64.appimage"
 
       - name: Upload to nightly release
         uses: ncipollo/release-action@v1
@@ -231,7 +219,7 @@ jobs:
           prerelease: true
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "trifa-material_nightly-x86_64.appimage"
+          artifacts: "toloshare-material_nightly-x86_64.appimage"
 
   build-macos-nightly-artifact:
     name: Nightly Artifact macOS Build
@@ -273,21 +261,21 @@ jobs:
           ls -al
           id
           pwd
-          ./gradlew packageReleaseDistributionForCurrentOS || cat /Users/runner/work/trifa_material/trifa_material/build/compose/logs/createDistributable/codesign-2*txt
+          ./gradlew packageReleaseDistributionForCurrentOS || cat /Users/runner/work/toloshare_material/toloshare_material/build/compose/logs/createDistributable/codesign-2*txt
       - name: Rename artifact for nightly upload
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
-          cp -v /Users/runner/work/trifa_material/trifa_material/build/compose/binaries/main*/dmg/trifa_material-*.dmg trifa-material_nightly.dmg
+          cp -v /Users/runner/work/toloshare_material/toloshare_material/build/compose/binaries/main*/dmg/toloshare_material-*.dmg toloshare-material_nightly.dmg
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: trifa-material_nightly.dmg
-          path: trifa-material_nightly.dmg
+          name: toloshare-material_nightly.dmg
+          path: toloshare-material_nightly.dmg
 
       - name: Rename artifact for release upload
         if: contains(github.ref, 'refs/tags/v')
         run: |
-          cp -v /Users/runner/work/trifa_material/trifa_material/build/compose/binaries/main*/dmg/trifa_material-*.dmg trifa-material.dmg
+          cp -v /Users/runner/work/toloshare_material/toloshare_material/build/compose/binaries/main*/dmg/toloshare_material-*.dmg toloshare-material.dmg
       - name: Upload to versioned release
         if: contains(github.ref, 'refs/tags/v')
         uses: ncipollo/release-action@v1
@@ -295,7 +283,7 @@ jobs:
           allowUpdates: true
           draft: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "trifa-material.dmg"
+          artifacts: "toloshare-material.dmg"
 
       - name: Upload to nightly release
         uses: ncipollo/release-action@v1
@@ -308,7 +296,7 @@ jobs:
           prerelease: true
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "trifa-material_nightly.dmg"
+          artifacts: "toloshare-material_nightly.dmg"
 
 
 
@@ -344,26 +332,26 @@ jobs:
 
       - name: Rename artifact for nightly upload
         run: |
-          cp -v ./build/compose/binaries/main*/msi/trifa*material*.msi trifa-material_nightly.msi
-          cp -v ./build/compose/binaries/main*/exe/trifa_material-*.exe trifa-material_nightly.exe
+          cp -v ./build/compose/binaries/main*/msi/toloshare*material*.msi toloshare-material_nightly.msi
+          cp -v ./build/compose/binaries/main*/exe/toloshare_material-*.exe toloshare-material_nightly.exe
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: trifa-material_nightly.msi
-          path: trifa-material_nightly.msi
+          name: toloshare-material_nightly.msi
+          path: toloshare-material_nightly.msi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: trifa-material_nightly.exe
-          path: trifa-material_nightly.exe
+          name: toloshare-material_nightly.exe
+          path: toloshare-material_nightly.exe
 
       - name: Rename artifact for release upload
         if: contains(github.ref, 'refs/tags/v')
         run: |
-          cp -v ./build/compose/binaries/main*/msi/trifa*material*.msi trifa-material.msi
-          cp -v ./build/compose/binaries/main*/exe/trifa_material-*.exe trifa-material.exe
+          cp -v ./build/compose/binaries/main*/msi/toloshare*material*.msi toloshare-material.msi
+          cp -v ./build/compose/binaries/main*/exe/toloshare_material-*.exe toloshare-material.exe
 
       - name: Upload to versioned release
         if: contains(github.ref, 'refs/tags/v')
@@ -372,7 +360,7 @@ jobs:
           allowUpdates: true
           draft: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "trifa-material.msi,trifa-material.exe"
+          artifacts: "toloshare-material.msi,toloshare-material.exe"
 
       - name: Upload to nightly release
         uses: ncipollo/release-action@v1
@@ -385,7 +373,7 @@ jobs:
           prerelease: true
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "trifa-material_nightly.msi,trifa-material_nightly.exe"
+          artifacts: "toloshare-material_nightly.msi,toloshare-material_nightly.exe"
 
   build-windows-nightly-zip-artifact:
     runs-on: ubuntu-22.04
@@ -400,7 +388,7 @@ jobs:
 
       - uses: actions/download-artifact@v7
         with:
-          name: trifa-material_nightly.msi
+          name: toloshare-material_nightly.msi
 
       - name: show artifact
         run:  ls -al
@@ -424,18 +412,18 @@ jobs:
       - name: extract msi2zip
         run: |
           id;pwd;ls -al
-          msiextract trifa-material_nightly.msi
+          msiextract toloshare-material_nightly.msi
 
       - name: create zip
         run: |
           id;pwd;ls -al
-          zip -r trifa-material-windows_nightly.zip trifa_material
+          zip -r toloshare-material-windows_nightly.zip toloshare_material
           id;pwd;ls -al
 
       - name: Rename artifact for release upload
         if: contains(github.ref, 'refs/tags/v')
         run: |
-          cp -v trifa-material-windows_nightly.zip trifa-material-windows.zip
+          cp -v toloshare-material-windows_nightly.zip toloshare-material-windows.zip
       - name: Upload to versioned release
         if: contains(github.ref, 'refs/tags/v')
         uses: ncipollo/release-action@v1
@@ -443,7 +431,7 @@ jobs:
           allowUpdates: true
           draft: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "trifa-material-windows.zip"
+          artifacts: "toloshare-material-windows.zip"
 
       - name: Upload to nightly release
         uses: ncipollo/release-action@v1
@@ -456,7 +444,7 @@ jobs:
           prerelease: true
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "trifa-material-windows_nightly.zip"
+          artifacts: "toloshare-material-windows_nightly.zip"
 
 
   macos-14arm-test:
@@ -540,20 +528,20 @@ jobs:
            screencapture -T 300 -x -t png /Users/runner/screen13.png &
            pwd
            ls -al
-           ./gradlew run > trifa.log 2>&1 &
+           ./gradlew run > toloshare.log 2>&1 &
            pwd
            sleep 45
            cliclick -m verbose c:77,124
            sleep 15
            cliclick -m verbose c:139,124
            sleep 20
-           cd /Users/runner/work/trifa_material/trifa_material/java_tox_tester-master/
+           cd /Users/runner/work/toloshare_material/toloshare_material/java_tox_tester-master/
            ./do_compile.sh
-           cat /Users/runner/work/trifa_material/trifa_material/trifa.log
-           ./do_run.sh $(cat /Users/runner/work/trifa_material/trifa_material/toxid.txt) >/Users/runner/work/trifa_material/trifa_material/tester.log 2>&1 &
+           cat /Users/runner/work/toloshare_material/toloshare_material/toloshare.log
+           ./do_run.sh $(cat /Users/runner/work/toloshare_material/toloshare_material/toxid.txt) >/Users/runner/work/toloshare_material/toloshare_material/tester.log 2>&1 &
            sleep 68
-           ls -al /Users/runner/work/trifa_material/trifa_material/
-           cat /Users/runner/work/trifa_material/trifa_material/trifa.log
+           ls -al /Users/runner/work/toloshare_material/toloshare_material/
+           cat /Users/runner/work/toloshare_material/toloshare_material/toloshare.log
            cliclick -m verbose c:195,347
            sleep 1
            cliclick -m verbose c:745,627
@@ -561,22 +549,22 @@ jobs:
            cliclick -m verbose c:367,623
            sleep 1
            sendkeys apps
-           sendkeys -a "TRIfA" -c ":smile"
-           cd /Users/runner/work/trifa_material/trifa_material/jshowarch-master
+           sendkeys -a "toloshare" -c ":smile"
+           cd /Users/runner/work/toloshare_material/toloshare_material/jshowarch-master
            rm *.class
            javac jshowarch.java
            java jshowarch 885 76 165 110 15 1 &
            sleep 90
            cliclick -m verbose c:367,623
            sleep 120
-           cat /Users/runner/work/trifa_material/trifa_material/tester.log
+           cat /Users/runner/work/toloshare_material/toloshare_material/tester.log
            pwd
            ls -al /Users/runner/
-           cp -v /Users/runner/screenshot-macos-14.png /Users/runner/work/trifa_material/trifa_material/screenshot-macos-14arm.png
+           cp -v /Users/runner/screenshot-macos-14.png /Users/runner/work/toloshare_material/toloshare_material/screenshot-macos-14arm.png
 
     - name: tweak screenshot
       run: |
-           cd /Users/runner/work/trifa_material/trifa_material/
+           cd /Users/runner/work/toloshare_material/toloshare_material/
            pwd
            cp -v screenshot-macos-14arm.png /Users/runner/screenshot-macos-14arm_orig.png
            convert screenshot-macos-14arm.png -crop 1176x885+0+0 +repage crop_br.png
@@ -689,20 +677,20 @@ jobs:
            screencapture -T 300 -x -t png /Users/runner/screen13.png &
            pwd
            ls -al
-           ./gradlew run > trifa.log 2>&1 &
+           ./gradlew run > toloshare.log 2>&1 &
            pwd
            sleep 45
            cliclick -m verbose c:77,124
            sleep 15
            cliclick -m verbose c:139,124
            sleep 20
-           cd /Users/runner/work/trifa_material/trifa_material/java_tox_tester-master/
+           cd /Users/runner/work/toloshare_material/toloshare_material/java_tox_tester-master/
            ./do_compile.sh
-           cat /Users/runner/work/trifa_material/trifa_material/trifa.log
-           ./do_run.sh $(cat /Users/runner/work/trifa_material/trifa_material/toxid.txt) >/Users/runner/work/trifa_material/trifa_material/tester.log 2>&1 &
+           cat /Users/runner/work/toloshare_material/toloshare_material/toloshare.log
+           ./do_run.sh $(cat /Users/runner/work/toloshare_material/toloshare_material/toxid.txt) >/Users/runner/work/toloshare_material/toloshare_material/tester.log 2>&1 &
            sleep 68
-           ls -al /Users/runner/work/trifa_material/trifa_material/
-           cat /Users/runner/work/trifa_material/trifa_material/trifa.log
+           ls -al /Users/runner/work/toloshare_material/toloshare_material/
+           cat /Users/runner/work/toloshare_material/toloshare_material/toloshare.log
            cliclick -m verbose c:195,347
            sleep 1
            cliclick -m verbose c:745,627
@@ -710,8 +698,8 @@ jobs:
            cliclick -m verbose c:367,623
            sleep 1
            sendkeys apps
-           sendkeys -a "TRIfA" -c ":smile"
-           cd /Users/runner/work/trifa_material/trifa_material/jshowarch-master
+           sendkeys -a "toloshare" -c ":smile"
+           cd /Users/runner/work/toloshare_material/toloshare_material/jshowarch-master
            rm *.class
            javac jshowarch.java
            java jshowarch 885 76 165 110 15 1 &
@@ -724,14 +712,14 @@ jobs:
            # hosted compute popup
            cliclick -m verbose c:599,351
            sleep 119
-           cat /Users/runner/work/trifa_material/trifa_material/tester.log
+           cat /Users/runner/work/toloshare_material/toloshare_material/tester.log
            pwd
            ls -al /Users/runner/
-           cp -v /Users/runner/screenshot-macos-15arm.png /Users/runner/work/trifa_material/trifa_material/screenshot-macos-15arm.png
+           cp -v /Users/runner/screenshot-macos-15arm.png /Users/runner/work/toloshare_material/toloshare_material/screenshot-macos-15arm.png
 
     - name: tweak screenshot
       run: |
-           cd /Users/runner/work/trifa_material/trifa_material/
+           cd /Users/runner/work/toloshare_material/toloshare_material/
            pwd
            cp -v screenshot-macos-15arm.png /Users/runner/screenshot-macos-15arm_orig.png
            convert screenshot-macos-15arm.png -crop 1176x885+0+0 +repage crop_br.png
@@ -894,7 +882,7 @@ jobs:
                printf '#!/bin/bash\n' > /tmp/a.sh
                printf 'xclock -digital -geometry 300x45+100+688 &\n' >> /tmp/a.sh
                printf 'export LC_ALL=zh_CN.utf8\n' >> /tmp/a.sh
-               printf '/home/runner/work/trifa_material/trifa_material/gradlew -Dorg.gradle.java.home=/usr/lib/jvm/java-17-openjdk-amd64/ run &\n' >> /tmp/a.sh
+               printf '/home/runner/work/toloshare_material/toloshare_material/gradlew -Dorg.gradle.java.home=/usr/lib/jvm/java-17-openjdk-amd64/ run &\n' >> /tmp/a.sh
                printf 'sleep 20\n' >> /tmp/a.sh
                printf 'xwininfo -id $(xdotool getactivewindow)\n' >> /tmp/a.sh
                printf 'xdotool mousemove --sync 80 74 click 1\n' >> /tmp/a.sh
@@ -905,9 +893,9 @@ jobs:
                printf 'sleep 5\n' >> /tmp/a.sh
                printf 'sleep 60\n' >> /tmp/a.sh
                printf 'ls -ratl\n' >> /tmp/a.sh
-               printf 'cat /home/runner/work/trifa_material/trifa_material/toxid.txt;echo\n' >> /tmp/a.sh
-               printf 'cd /home/runner/work/trifa_material/trifa_material/java_tox_tester-ipv6only/\n' >> /tmp/a.sh
-               printf './do_run.sh $(cat /home/runner/work/trifa_material/trifa_material/toxid.txt) >/home/runner/work/trifa_material/trifa_material/tester.log 2>&1 &\n' >> /tmp/a.sh
+               printf 'cat /home/runner/work/toloshare_material/toloshare_material/toxid.txt;echo\n' >> /tmp/a.sh
+               printf 'cd /home/runner/work/toloshare_material/toloshare_material/java_tox_tester-ipv6only/\n' >> /tmp/a.sh
+               printf './do_run.sh $(cat /home/runner/work/toloshare_material/toloshare_material/toxid.txt) >/home/runner/work/toloshare_material/toloshare_material/tester.log 2>&1 &\n' >> /tmp/a.sh
                printf 'sleep 220\n' >> /tmp/a.sh
                printf 'xdotool mousemove --sync 214 295 click 1\n' >> /tmp/a.sh
                printf 'sleep 4\n' >> /tmp/a.sh
@@ -978,10 +966,10 @@ jobs:
                xvfb-run --server-args="-screen 0 1024x768x24" --auto-servernum /tmp/a.sh
                echo "++++++++++++++++++"
                echo "++++++++++++++++++"
-               cat /home/runner/work/trifa_material/trifa_material/trifa.log||echo "NO ERR"
+               cat /home/runner/work/toloshare_material/toloshare_material/toloshare.log||echo "NO ERR"
                echo "++++++++++++++++++"
                echo "++++++++++++++++++"
-               cat /home/runner/work/trifa_material/trifa_material/tester.log||echo "NO ERR"
+               cat /home/runner/work/toloshare_material/toloshare_material/tester.log||echo "NO ERR"
                cp -av /tmp/screenshot-linux.png screenshot-linux.png
 
         - name: upload-screenshots
@@ -1144,16 +1132,16 @@ jobs:
           $bitmap  = New-Object System.Drawing.Bitmap $Width, $Height
           $graphic = [System.Drawing.Graphics]::FromImage($bitmap)
           $graphic.CopyFromScreen($Left, $Top, 0, 0, $bitmap.Size)
-          $bitmap.Save("D:\a\trifa_material\trifa_material\screenshot-windows.png")
+          $bitmap.Save("D:\a\toloshare_material\toloshare_material\screenshot-windows.png")
           Write-Output "Screenshot saved to:"
-          Write-Output D:\a\trifa_material\trifa_material\screenshot-windows.png
+          Write-Output D:\a\toloshare_material\toloshare_material\screenshot-windows.png
 
       - name: upload-screenshots
         uses: actions/upload-artifact@v6
         with:
           name: screenshot-windows
           path: |
-            D:\a\trifa_material\trifa_material\screenshot-windows.png
+            D:\a\toloshare_material\toloshare_material\screenshot-windows.png
 
       - name: Upload to nightly release
         uses: ncipollo/release-action@v1

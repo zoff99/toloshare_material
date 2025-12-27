@@ -164,8 +164,8 @@ jobs:
 
       - name: sha hash of jni lib
         run:  |
-          mv -v /home/runner/work/trifa_material/trifa_material/libjni-c-toxcore.so /home/runner/work/trifa_material/trifa_material/libjni-c-toxcore_raspi.so
-          sha256sum /home/runner/work/trifa_material/trifa_material/libjni-c-toxcore_raspi.so || echo "ignore"
+          mv -v /home/runner/work/toloshare_material/toloshare_material/libjni-c-toxcore.so /home/runner/work/toloshare_material/toloshare_material/libjni-c-toxcore_raspi.so
+          sha256sum /home/runner/work/toloshare_material/toloshare_material/libjni-c-toxcore_raspi.so || echo "ignore"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
@@ -225,7 +225,7 @@ jobs:
 
       - name: sha hash of jni lib
         run:  |
-          sha256sum /home/runner/work/trifa_material/trifa_material/libjni-c-toxcore.so || echo "ignore"
+          sha256sum /home/runner/work/toloshare_material/toloshare_material/libjni-c-toxcore.so || echo "ignore"
 
       - name: rename jni lib
         run:  |
@@ -288,7 +288,7 @@ jobs:
 
       - name: sha hash of jni lib
         run:  |
-          sha256sum /home/runner/work/trifa_material/trifa_material/libjni-c-toxcore.so || echo "ignore"
+          sha256sum /home/runner/work/toloshare_material/toloshare_material/libjni-c-toxcore.so || echo "ignore"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
@@ -348,7 +348,7 @@ jobs:
 
       - name: sha hash of jni lib
         run:  |
-          sha256sum /home/runner/work/trifa_material/trifa_material/jni-c-toxcore.dll || echo "ignore"
+          sha256sum /home/runner/work/toloshare_material/toloshare_material/jni-c-toxcore.dll || echo "ignore"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6

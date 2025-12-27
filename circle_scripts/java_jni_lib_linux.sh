@@ -145,7 +145,7 @@ $_INST_/lib/libsodium.a \
 -shared \
 -Wl,-soname,libjni-c-toxcore.so -o libjni-c-toxcore.so || exit 1
 
-sha256sum /home/runner/work/trifa_material/trifa_material/libjni-c-toxcore.so
+sha256sum /home/runner/work/toloshare_material/toloshare_material/libjni-c-toxcore.so
 
 
 ls -al libjni-c-toxcore.so || exit 1

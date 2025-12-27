@@ -105,7 +105,7 @@ $_INST_/lib/libsodium.a \
 -lm \
 -o jni-c-toxcore.dll || exit 1
 
-sha256sum /home/runner/work/trifa_material/trifa_material/jni-c-toxcore.dll
+sha256sum /home/runner/work/toloshare_material/toloshare_material/jni-c-toxcore.dll
 
 ls -al jni-c-toxcore.dll || exit 1
 pwd
