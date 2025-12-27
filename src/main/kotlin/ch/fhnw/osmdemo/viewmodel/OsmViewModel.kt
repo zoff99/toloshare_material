@@ -7,8 +7,7 @@ import androidx.compose.animation.core.SnapSpec
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MyLocation
-import androidx.compose.material.icons.filled.ZoomIn
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -126,11 +125,36 @@ class OsmViewModel : ViewModel(){
     }
 
     init {
-        addMarker("St. Stephan", ST_STEPHEN)
+        addMarker("St_Stephan", ST_STEPHEN)
         viewModelScope.launch {
-            state.centerOnMarker(id            = "St. Stephan",
+            state.centerOnMarker(id            = "St_Stephan",
                                  destScale     = 0.1,
                                  animationSpec = SnapSpec())
+        }
+    }
+
+    fun addMarker(id: String, geoPos : GeoPosition) = addMarker(id, geoPos.asNormalizedWebMercator())
+
+    fun addMarker(id: String, point : NormalizedPoint){
+        viewModelScope.launch {
+            state.addMarker(id, point.x, point.y) {
+                Icon(imageVector            = Icons.Filled.LocationOn,
+                    contentDescription = id,
+                    modifier           = Modifier.size(50.dp),
+                    tint               = markerColor
+                )
+            }
+            state.disableMarkerDrag(id)
+            markerCount++
+        }
+    }
+
+    fun addMarkerInCenter() {
+        viewModelScope.launch {
+            val area = state.visibleArea()
+            val centerX = area.p1x + ((area.p2x - area.p1x) * 0.5)
+            val centerY = area.p1y + ((area.p4y - area.p1y) * 0.5)
+            addMarker("marker$markerCount", NormalizedPoint(centerX, centerY))
         }
     }
 
@@ -159,31 +183,6 @@ class OsmViewModel : ViewModel(){
 
     private fun ByteArray.asRawSource() = ByteReadChannel(this).asSource()
 
-
-    fun addMarker(id: String, geoPos : GeoPosition) = addMarker(id, geoPos.asNormalizedWebMercator())
-
-    fun addMarker(id: String, point : NormalizedPoint){
-        viewModelScope.launch {
-            state.addMarker(id, point.x, point.y) {
-                Icon(imageVector            = Icons.Filled.MyLocation,
-                    contentDescription = id,
-                    modifier           = Modifier.size(50.dp),
-                    tint               = markerColor
-                )
-            }
-            state.disableMarkerDrag(id)
-            markerCount++
-        }
-    }
-
-    fun addMarkerInCenter() {
-        viewModelScope.launch {
-            val area = state.visibleArea()
-            val centerX = area.p1x + ((area.p2x - area.p1x) * 0.5)
-            val centerY = area.p1y + ((area.p4y - area.p1y) * 0.5)
-            addMarker("marker$markerCount", NormalizedPoint(centerX, centerY))
-        }
-    }
 }
 
 
