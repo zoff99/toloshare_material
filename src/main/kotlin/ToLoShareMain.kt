@@ -2872,7 +2872,7 @@ fun MapWithZoomControl(vm: OsmViewModel, modifier: Modifier = Modifier) {
     Box(modifier = modifier.onPointerEvent(PointerEventType.Scroll) {
         val change = it.changes.first()
         val delta = change.scrollDelta.y.toInt().sign
-        println("mouse wheel: " + delta)
+        // println("mouse wheel: " + delta)
         if (delta == 1)
         {
             vm.zoomOut()
