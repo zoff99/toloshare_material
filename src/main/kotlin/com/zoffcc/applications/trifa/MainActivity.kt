@@ -79,6 +79,7 @@ import com.zoffcc.applications.trifa.HelperRelay.send_pushtoken_to_relay
 import com.zoffcc.applications.trifa.HelperRelay.send_relay_pubkey_to_friend
 import com.zoffcc.applications.trifa.TRIFAGlobals.ABSOLUTE_MINIMUM_GLOBAL_VIDEO_BITRATE
 import com.zoffcc.applications.trifa.TRIFAGlobals.AVATAR_INCOMING_MAX_BYTE_SIZE
+import com.zoffcc.applications.trifa.TRIFAGlobals.GEO_COORDS_CUSTOM_LOSSLESS_ID
 import com.zoffcc.applications.trifa.TRIFAGlobals.GLOBAL_AUDIO_BITRATE
 import com.zoffcc.applications.trifa.TRIFAGlobals.GLOBAL_VIDEO_BITRATE
 import com.zoffcc.applications.trifa.TRIFAGlobals.GROUP_ID_LENGTH
@@ -354,6 +355,7 @@ class MainActivity
                 Log.i(TAG, "init:PREF__orbot_enabled_to_int=$PREF__orbot_enabled_to_int")
                 PREF__orbot_enabled_to_int_used_for_init = PREF__orbot_enabled_to_int
                 init(tox_savefile_directory, PREF__udp_enabled, PREF__local_discovery_enabled, PREF__orbot_enabled_to_int_used_for_init, ORBOT_PROXY_HOST, ORBOT_PROXY_PORT, password_hash, PREF__ipv6_enabled, PREF__force_udp_only, PREF__ngc_video_bitrate, PREF__ngc_video_max_quantizer, PREF__ngc_audio_bitrate, PREF__ngc_audio_samplerate, PREF__ngc_audio_channels)
+                tox_callback_friend_lossless_packet_per_pktid(GEO_COORDS_CUSTOM_LOSSLESS_ID)
             }
             val my_tox_id_temp = get_my_toxid()
             Log.i(TAG, "MyToxID:$my_tox_id_temp")
@@ -528,6 +530,9 @@ class MainActivity
 
         @JvmStatic
         external fun init_tox_callbacks()
+
+        @JvmStatic
+        external fun tox_callback_friend_lossless_packet_per_pktid(pktid: Int): Int
 
         @JvmStatic
         external fun tox_iteration_interval(): Long
