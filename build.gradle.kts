@@ -184,7 +184,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.13.2")
     implementation("io.github.alexzhirkevich:qrose:1.0.1")
     implementation("com.vanniktech:emoji-ios:0.21.0")
-    implementation("ovh.plrapps:mapcompose-mp:0.11.0")
+    implementation("ovh.plrapps:mapcompose-mp:0.12.0")
     // implementation("io.github.theapache64:rebugger:1.0.0-rc02")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines:0.19.2")
