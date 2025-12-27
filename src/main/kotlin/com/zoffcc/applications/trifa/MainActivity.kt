@@ -77,6 +77,7 @@ import com.zoffcc.applications.trifa.HelperRelay.send_all_friend_pubkeys_to_rela
 import com.zoffcc.applications.trifa.HelperRelay.send_friend_pubkey_to_relay
 import com.zoffcc.applications.trifa.HelperRelay.send_pushtoken_to_relay
 import com.zoffcc.applications.trifa.HelperRelay.send_relay_pubkey_to_friend
+import com.zoffcc.applications.trifa.Log.i
 import com.zoffcc.applications.trifa.TRIFAGlobals.ABSOLUTE_MINIMUM_GLOBAL_VIDEO_BITRATE
 import com.zoffcc.applications.trifa.TRIFAGlobals.AVATAR_INCOMING_MAX_BYTE_SIZE
 import com.zoffcc.applications.trifa.TRIFAGlobals.GEO_COORDS_CUSTOM_LOSSLESS_ID
@@ -136,6 +137,7 @@ import myUser
 import org.briarproject.briar.desktop.contact.ContactItem
 import org.briarproject.briar.desktop.contact.GroupItem
 import org.briarproject.briar.desktop.contact.GroupPeerItem
+import org.jetbrains.skia.Bitmap
 import set_tox_online_state
 import toxdatastore
 import java.io.File
@@ -1592,6 +1594,47 @@ class MainActivity
                         if (length == 0L)
                         {
                             remove_pushurl_for_friend(fpubkey)
+                        }
+                    }
+                } else if (data[0].toUByte().toInt() == TRIFAGlobals.GEO_COORDS_CUSTOM_LOSSLESS_ID)
+                {
+                    if (length > 0)
+                    {
+                        if (data[0] === GEO_COORDS_CUSTOM_LOSSLESS_ID.toByte())
+                        {
+                            val geo_data_raw = String(Arrays.copyOfRange(data, 1, data.size), StandardCharsets.UTF_8)
+                            // example data: TzGeo00:BEGINGEO:<lat>>:<lon>:0.0:22.03:124.1:ENDGEO
+                            val separated: List<String> = geo_data_raw.split(":")
+                            if (separated[0] == "TzGeo00")
+                            {
+                                if (separated[1] == "BEGINGEO")
+                                {
+                                    val current_ts_millis = System.currentTimeMillis()
+                                    val lat = separated[2].toFloat()
+                                    val lon = separated[3].toFloat()
+                                    // float alt = Float.parseFloat(separated[4]); // not used
+                                    val acc = separated[5].toFloat()
+                                    val bearing = separated[6].toFloat()
+                                    var f_pubkey: String? = null
+                                    try
+                                    {
+                                        f_pubkey = tox_friend_get_public_key(friend_number)
+                                        if ((f_pubkey != null) && (f_pubkey.length > 10))
+                                        {
+                                        }
+                                    } catch (e: java.lang.Exception)
+                                    {
+                                    }
+
+                                    try
+                                    {
+                                       Log.i(TAG, "GEO::" + separated)
+                                    } catch (e: java.lang.Exception)
+                                    {
+                                    }
+
+                                }
+                            }
                         }
                     }
                 }
