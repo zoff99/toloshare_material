@@ -1,12 +1,11 @@
 [Desktop Entry]
-Name=TRIfA Material
-GenericName=Tox client
-StartupWMClass=TrifaMainKt
-Comment=TRIfA Material Tox Client
-Exec=trifa_material/bin/trifa_material
-Icon=trifa_material
+Name=ToLoShare Material
+GenericName=Tox Location Sharing
+StartupWMClass=ToLoShareMainKt
+Comment=ToLoShare
+Exec=toloshare_material/bin/toloshare_material
+Icon=toloshare_material
 Terminal=false
 Type=Application
-Categories=InstantMessaging;Network;
-MimeType=x-scheme-handler/tox;
+Categories=Network;
 X-GNOME-UsesNotifications=true
