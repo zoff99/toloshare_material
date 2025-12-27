@@ -8,7 +8,7 @@ import kotlin.math.round
 import kotlin.math.sinh
 import kotlin.math.tan
 
-val FHNW = GeoPosition(latitude = 47.480995, longitude = 8.211862)
+val ST_STEPHEN = GeoPosition(latitude = 47.480995, longitude = 8.211862)
 
 data class GeoPosition(val longitude: Double, val latitude: Double) {
     fun dms(): String {

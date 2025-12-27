@@ -121,7 +121,7 @@ fun createHttpClient(): HttpClient = HttpClient(Apache5) {
     // Add default request configuration
     install(DefaultRequest) {
         // OSM services require a User-Agent header
-        headers.append("User-Agent", "PoiCh/1.0 (Desktop Application)")
+        headers.append("User-Agent", "com.zoffcc.applications.toloshare_material")
         headers.append("Accept", "*/*")
     }
 }
