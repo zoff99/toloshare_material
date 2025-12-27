@@ -64,7 +64,7 @@ fun makeOsmTileStreamProvider() : TileStreamProvider {
             val url = URL("https://tile.openstreetmap.org/$zoomLvl/$col/$row.png")
             val connection = url.openConnection() as HttpURLConnection
             // OSM requires a user-agent
-            connection.setRequestProperty("User-Agent", "Chrome/120.0.0.0 Safari/537.36")
+            connection.setRequestProperty("User-Agent", "com.zoffcc.applications.toloshare_material")
             connection.doInput = true
             connection.connect()
             connection.inputStream.asSource()
