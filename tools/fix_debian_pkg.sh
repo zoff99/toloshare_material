@@ -4,11 +4,11 @@ debfile="$1"
 workdir="./tmp_work/"
 
 
-postinst_cmd1='xdg-desktop-menu install /opt/trifa-material/lib/trifa-material-trifa_material.desktop'
-# postinst_cmd2='xdg-mime install --novendor /opt/trifa-material/lib/app/resources/trifa_material.xml'
+postinst_cmd1='xdg-desktop-menu install /opt/toloshare-material/lib/toloshare-material-toloshare_material.desktop'
+# postinst_cmd2='xdg-mime install --novendor /opt/toloshare-material/lib/app/resources/toloshare_material.xml'
 
-prerm_cmd1='xdg-desktop-menu uninstall /opt/undereat-material/lib/undereat-material-undereat_material.desktop'
-# prerm_cmd2='xdg-mime uninstall /opt/trifa-material/lib/app/resources/trifa_material.xml'
+prerm_cmd1='xdg-desktop-menu uninstall /opt/toloshare-material/lib/toloshare-material-toloshare_material.desktop'
+# prerm_cmd2='xdg-mime uninstall /opt/toloshare-material/lib/app/resources/toloshare_material.xml'
 
 mkdir -p "$workdir"
 cp -av "$debfile" "$workdir"
@@ -59,17 +59,16 @@ else
     tar --use-compress-program=unzstd -xvf ../data.tar.zst || exit 1
 fi
 
-desktop_file="./opt/trifa-material/lib/trifa-material-trifa_material.desktop"
+desktop_file="./opt/toloshare-material/lib/toloshare-material-toloshare_material.desktop"
 
 cat "$desktop_file"
 
-# sed -i -e 's#Exec=/opt/trifa-material/bin/trifa_material#Exec=/opt/trifa-material/bin/trifa_material %U#' "$desktop_file"
-sed -i -e 's#Comment=.*$#Comment=TRIfA Material Tox Client#' "$desktop_file"
-sed -i -e 's#Name=.*$#Name=TRIfA Material#' "$desktop_file"
-sed -i -e 's#MimeType=.*$#MimeType=x-scheme-handler/tox;#' "$desktop_file"
-sed -i -e 's#Categories=.*$#Categories=InstantMessaging;Network;#' "$desktop_file"
+# sed -i -e 's#Exec=/opt/toloshare-material/bin/toloshare_material#Exec=/opt/toloshare-material/bin/toloshare_material %U#' "$desktop_file"
+sed -i -e 's#Comment=.*$#Comment=ToLoShare#' "$desktop_file"
+sed -i -e 's#Name=.*$#Name=ToLoShare Material#' "$desktop_file"
+sed -i -e 's#Categories=.*$#Categories=Network;#' "$desktop_file"
 
-echo 'StartupWMClass=TrifaMainKt' >> "$desktop_file"
+echo 'StartupWMClass=ToLoShareMainKt' >> "$desktop_file"
 
 cat "$desktop_file"
 
