@@ -134,7 +134,9 @@ import androidx.compose.ui.window.rememberWindowState
 import ca.gosyer.appdirs.AppDirs
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
+import ch.fhnw.osmdemo.viewmodel.GeoPosition
 import ch.fhnw.osmdemo.viewmodel.OsmViewModel
+import ch.fhnw.osmdemo.viewmodel.ST_STEPHEN_MARKER_ID
 import com.google.gson.Gson
 import com.kdroid.composetray.utils.SingleInstanceManager
 import com.vanniktech.emoji.Emoji
@@ -234,8 +236,10 @@ import org.briarproject.briar.desktop.ui.UiMode
 import org.briarproject.briar.desktop.ui.UiPlaceholder
 import org.briarproject.briar.desktop.ui.VerticalDivider
 import org.briarproject.briar.desktop.utils.InternationalizationUtils.i18n
+import ovh.plrapps.mapcompose.api.addMarker
 import ovh.plrapps.mapcompose.api.centroidX
 import ovh.plrapps.mapcompose.api.centroidY
+import ovh.plrapps.mapcompose.api.removeMarker
 import ovh.plrapps.mapcompose.api.scrollTo
 import ovh.plrapps.mapcompose.demo.viewmodels.OsmVM
 import ovh.plrapps.mapcompose.ui.MapUI
@@ -349,7 +353,8 @@ fun App()
     var tox_running_state: String by remember { mutableStateOf("stopped") }
 
     geostore.init_geo()
-    val osm = remember { geostore.state.osm }
+    // val osm = remember { geostore.state.osm }
+    val osm = remember { OsmViewModel() }
 
     println("User data dir: " + APPDIRS.getUserDataDir())
     println("User data dir (roaming): " + APPDIRS.getUserDataDir(roaming = true))
@@ -1418,11 +1423,15 @@ fun App()
                             {
                                 val geostate by geostore.stateFlow.collectAsState()
                                 Box(modifier = Modifier.fillMaxSize().randomDebugBorder()) {
+                                    Log.i(TAG, "GGGGGGGGGGGGGGGGGGGGGGGGG")
                                     if (geostate.remote_locations.size > 0)
                                     {
-                                        Log.i(TAG, "GGGGGGGGGGGGGGGGGGGGGGGGG")
+                                        osm.state.removeMarker(ST_STEPHEN_MARKER_ID)
+                                        geostate.remote_locations.forEach {
+                                            osm.addMarker(it.pk_str, GeoPosition(latitude = it.lat, longitude = it.lon))
+                                        }
                                     }
-                                    MapWithZoomControl(osm as OsmViewModel, Modifier.align(Alignment.Center).fillMaxSize())
+                                    MapWithZoomControl(osm, Modifier.align(Alignment.Center).fillMaxSize())
                                 }
                             }
                             UiMode.GROUPS ->

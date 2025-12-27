@@ -147,7 +147,6 @@ class OsmViewModel : ViewModel(){
                     tint               = markerColor
                 )
             }
-            println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa")
             state.disableMarkerDrag(id)
             markerCount++
         }

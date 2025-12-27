@@ -28,7 +28,7 @@ import java.util.*
 import kotlin.collections.forEach
 import kotlin.collections.plus
 
-data class StateGeoLocations(val remote_locations: List<GeoItem> = emptyList(), var osm: OsmViewModel? = null)
+data class StateGeoLocations(val remote_locations: List<GeoItem> = emptyList()) // , var osm: OsmViewModel? = null)
 
 data class GeoItem(
     val name: String,
@@ -63,7 +63,7 @@ fun CoroutineScope.createGeoStore(): GeoStore
 
         override fun init_geo()
         {
-            state.osm = OsmViewModel()
+            // state.osm = OsmViewModel()
         }
 
         override fun add(item: GeoItem)
@@ -99,9 +99,10 @@ fun CoroutineScope.createGeoStore(): GeoStore
                 mutableStateFlow.value = state.copy(remote_locations = new_remote_locations)
             } else
             {
-                state.osm!!.addMarker("X" + item.pk_str, GeoPosition(latitude = 48.209084, longitude = 16.3719307))
-                Log.i(TAG, "addMarker **************1 : " + state.osm!!.state.hasMarker("X" + item.pk_str))
-                state.osm!!.state.removeMarker(ST_STEPHEN_MARKER_ID)
+                // state.osm!!.addMarker("X" + item.pk_str, GeoPosition(latitude = 48.209084, longitude = 16.3719307))
+                // Log.i(TAG, "addMarker **************1 : " + state.osm!!.state.hasMarker("X" + item.pk_str))
+                // state.osm!!.state.removeMarker(ST_STEPHEN_MARKER_ID)
+                mutableStateFlow.value = state.copy(remote_locations = state.remote_locations + item)
             }
         }
 
