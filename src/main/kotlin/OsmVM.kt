@@ -18,14 +18,15 @@ class OsmVM : ScreenModel {
     private val tileStreamProvider = makeOsmTileStreamProvider()
 
     private val maxLevel = 16
-    private val minLevel = 12
+    private val minLevel = 1
     private val mapSize = mapSizeAtLevel(maxLevel, tileSize = 256)
-    val state = MapState(levelCount = maxLevel + 1, mapSize, mapSize, workerCount = 16) {
+    val state = MapState(levelCount = maxLevel + 1, mapSize, mapSize, workerCount = 4) {
         minimumScaleMode(Forced(1 / 2.0.pow(maxLevel - minLevel)))
-        scroll(0.5064745545387268, 0.3440358340740204)  // Paris
+        scroll(0.5064745545387268, 0.3440358340740204)
+        // 48.2085, 16.3730 // St. Stephan
     }.apply {
         addLayer(tileStreamProvider)
-        scale = 0.0  // to zoom out initially
+        scale = 5.0  // initial zoom level
     }
 }
 
@@ -35,24 +36,6 @@ class OsmVM : ScreenModel {
  */
 private fun mapSizeAtLevel(wmtsLevel: Int, tileSize: Int): Int {
     return tileSize * 2.0.pow(wmtsLevel).toInt()
-}
-
-/**
- * A [TileStreamProvider] which performs HTTP requests.
- */
-fun makeHttpTileStreamProvider(): TileStreamProvider {
-    return TileStreamProvider { row, col, zoomLvl ->
-        try {
-            val url = URL("https://raw.githubusercontent.com/p-lr/MapCompose/master/demo/src/main/assets/tiles/mont_blanc_layered/$zoomLvl/$row/$col.jpg")
-            val connection = url.openConnection() as HttpURLConnection
-            connection.doInput = true
-            connection.connect()
-            connection.inputStream.asSource()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
 }
 
 /**

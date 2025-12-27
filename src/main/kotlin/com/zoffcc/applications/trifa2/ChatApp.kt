@@ -90,7 +90,6 @@ import com.zoffcc.applications.trifa.createGroupPeerStore
 import com.zoffcc.applications.trifa.createGroupSettingsStore
 import com.zoffcc.applications.trifa.createGroupStore
 import com.zoffcc.applications.trifa.createGroupstoreUnreadMessages
-import com.zoffcc.applications.trifa.createMapStore
 import com.zoffcc.applications.trifa.createSavepathStore
 import com.zoffcc.applications.trifa.createToxDataStore
 import com.zoffcc.applications.trifa.createUnreadMessages
@@ -121,7 +120,6 @@ val grouppeerstore = CoroutineScope(SupervisorJob()).createGroupPeerStore()
 val groupsettingsstore = CoroutineScope(SupervisorJob()).createGroupSettingsStore()
 val friendsettingsstore = CoroutineScope(SupervisorJob()).createFriendSettingsStore()
 val groupstore = CoroutineScope(SupervisorJob()).createGroupStore()
-val mapstore = CoroutineScope(SupervisorJob()).createMapStore()
 val savepathstore = CoroutineScope(SupervisorJob()).createSavepathStore()
 val toxdatastore = CoroutineScope(SupervisorJob()).createToxDataStore()
 val avstatestore = CoroutineScope(SupervisorJob()).createAVStateStore()

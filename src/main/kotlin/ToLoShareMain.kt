@@ -2925,7 +2925,7 @@ suspend fun zoomOut(state: MapState)  {
         state.centroidX,
         state.centroidY,
         state.scale / 1.5f,
-        TweenSpec(800, easing = FastOutSlowInEasing)
+        TweenSpec(200, easing = FastOutSlowInEasing)
     )
 }
 
