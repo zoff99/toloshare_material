@@ -189,12 +189,14 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines:0.19.2")
     implementation("io.ktor:ktor-client-core:3.3.3")
-    implementation("io.ktor:ktor-client-android:3.3.3")
+    // implementation("io.ktor:ktor-client-android:3.3.3")
+    implementation("io.ktor:ktor-client-apache5:3.3.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2")
     val voyagerVersion = "1.1.0-beta02"
     implementation("cafe.adriel.voyager:voyager-screenmodel:${voyagerVersion}")
     implementation("cafe.adriel.voyager:voyager-core:${voyagerVersion}")
     implementation("com.squareup.okio:okio:3.16.4")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose")
 }
 
 val main_class_name = "ToLoShareMainKt"

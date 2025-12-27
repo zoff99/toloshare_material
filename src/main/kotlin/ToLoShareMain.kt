@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -63,6 +64,8 @@ import androidx.compose.material.icons.filled.RawOff
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.SafetyCheck
 import androidx.compose.material.icons.filled.VideoLabel
+import androidx.compose.material.icons.filled.ZoomIn
+import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -129,6 +132,7 @@ import androidx.compose.ui.window.rememberWindowState
 import ca.gosyer.appdirs.AppDirs
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
+import ch.fhnw.osmdemo.viewmodel.OsmViewModel
 import com.google.gson.Gson
 import com.kdroid.composetray.utils.SingleInstanceManager
 import com.vanniktech.emoji.Emoji
@@ -1406,7 +1410,10 @@ fun App()
                             }
                             UiMode.MAP ->
                             {
-                                OsmDemo.Content()
+                                val osm = remember { OsmViewModel() }
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    MapWithZoomControl(osm, Modifier.align(Alignment.Center).fillMaxSize())
+                                }
                             }
                             UiMode.GROUPS ->
                             {
@@ -2857,76 +2864,34 @@ fun Modifier.dashedBorder(strokeWidth: Dp, color: Color, cornerRadiusDp: Dp) = c
     }
 )
 
-object OsmDemo : Screen
-{
-    @Composable
-    override fun Content() {
-        val screenModel = rememberScreenModel { OsmVM() }
-
-        MapWithZoomControl(state = screenModel.state) {
-            MapContainer(screenModel)
-        }
-    }
-}
-
-
 @Composable
-fun MapContainer(screenModel: OsmVM) {
-    MapUI(
-        Modifier,
-        state = screenModel.state
-    )
-}
-
-@Composable
-fun MapWithZoomControl(state: MapState, content: @Composable () -> Unit) {
-    val coroutineScope = rememberCoroutineScope()
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        content()
-        Column(modifier = Modifier
-            .align(Alignment.TopEnd)
-            .padding(top = 10.dp, end = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp)
-        ) {
-            Button(
-                modifier = Modifier.size(40.dp),
-                onClick = {
-                    coroutineScope.launch {
-                        zoomIn(state)
-                    }
-                }
-            ) {
-                Text("+")
+fun MapWithZoomControl(vm: OsmViewModel, modifier: Modifier = Modifier) {
+    Box(modifier = modifier) {
+        MapPanel(vm.state, Modifier.align(Alignment.TopStart))
+        Column(modifier           = Modifier.align(Alignment.TopEnd)
+            .padding(top = 10.dp, end = 10.dp)
+            .background(color = Color(0xCC2196F3).copy(alpha = 0.3f),
+                shape = RoundedCornerShape(20.dp)),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            IconButton(onClick = { vm.zoomIn() }){
+                Icon(imageVector        = Icons.Filled.ZoomIn,
+                    contentDescription = "Zoom in",
+                    modifier           = Modifier.padding(top = 5.dp).size(40.dp))
             }
-            Button(
-                modifier = Modifier.size(40.dp),
-                onClick = {
-                    coroutineScope.launch {
-                        zoomOut(state)
-                    }
-                }
-            ) {
-                Text("-")
+            IconButton(onClick = { vm.zoomOut() }){
+                Icon(imageVector        = Icons.Filled.ZoomOut,
+                    contentDescription = "Zoom out",
+                    modifier           = Modifier.padding(bottom = 5.dp).size(40.dp))
             }
         }
     }
 }
-suspend fun zoomIn(state: MapState)  {
-    state.scrollTo(
-        state.centroidX,
-        state.centroidY,
-        state.scale * 1.5f, TweenSpec(800, easing = FastOutSlowInEasing)
-    )
-}
 
-suspend fun zoomOut(state: MapState)  {
-    state.scrollTo(
-        state.centroidX,
-        state.centroidY,
-        state.scale / 1.5f,
-        TweenSpec(200, easing = FastOutSlowInEasing)
-    )
+@Composable
+fun MapPanel(state: MapState, modifier: Modifier = Modifier) {
+    MapUI(modifier = modifier,
+        state    = state)
 }
 
 
