@@ -21,7 +21,7 @@ class OsmVM : ScreenModel {
     private val maxLevel = 16
     private val minLevel = 1
     private val mapSize = mapSizeAtLevel(maxLevel, tileSize = 256)
-    val state = MapState(levelCount = maxLevel + 1, mapSize, mapSize, workerCount = 4) {
+    val state = MapState(levelCount = maxLevel + 1, mapSize, mapSize, workerCount = 10) {
         minimumScaleMode(Forced(1 / 2.0.pow(maxLevel - minLevel)))
         scroll(0.5064745545387268, 0.3440358340740204)
         // 48.2085, 16.3730 // St. Stephan

@@ -1,3 +1,5 @@
+@file:OptIn(DelicateCoroutinesApi::class)
+
 package ch.fhnw.osmdemo.viewmodel
 
 import kotlin.math.pow
@@ -20,6 +22,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.fhnw.osmdemo.view.Callout
 import io.ktor.utils.io.*
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import ovh.plrapps.mapcompose.api.addCallout
 import ovh.plrapps.mapcompose.api.addLayer
 import ovh.plrapps.mapcompose.api.addMarker
@@ -123,9 +127,9 @@ class OsmViewModel : ViewModel(){
     }
 
     init {
-        addMarker("St_Stephen", ST_STEPHEN)
+        addMarker(ST_STEPHEN_MARKER_ID, ST_STEPHEN_GEOPOS)
         viewModelScope.launch {
-            state.centerOnMarker(id            = "St_Stephen",
+            state.centerOnMarker(id            = ST_STEPHEN_MARKER_ID,
                                  destScale     = 0.1,
                                  animationSpec = SnapSpec())
         }
@@ -161,7 +165,7 @@ class OsmViewModel : ViewModel(){
             state.scrollTo(x             = state.centroidX,
                            y             = state.centroidY,
                            destScale     = state.scale * 1.5f,
-                           animationSpec = TweenSpec(durationMillis = 300,
+                           animationSpec = TweenSpec(durationMillis = 5,
                                                      easing         = FastOutSlowInEasing))
     }
 
@@ -169,8 +173,8 @@ class OsmViewModel : ViewModel(){
         viewModelScope.launch {
             state.scrollTo(x             = state.centroidX,
                            y             = state.centroidY,
-                           destScale     = state.scale / 2.0f,
-                           animationSpec = TweenSpec(durationMillis = 200,
+                           destScale     = state.scale / 1.5f,
+                           animationSpec = TweenSpec(durationMillis = 5,
                                                      easing         = FastOutSlowInEasing))
     }
 

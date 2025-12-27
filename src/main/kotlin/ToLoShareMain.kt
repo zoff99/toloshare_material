@@ -104,6 +104,8 @@ import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -247,6 +249,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.prefs.Preferences
 import javax.swing.JPanel
+import kotlin.math.sign
 
 private const val TAG = "trifa.Main.kt"
 var tox_running_state_wrapper = "start"
@@ -2866,7 +2869,20 @@ fun Modifier.dashedBorder(strokeWidth: Dp, color: Color, cornerRadiusDp: Dp) = c
 
 @Composable
 fun MapWithZoomControl(vm: OsmViewModel, modifier: Modifier = Modifier) {
-    Box(modifier = modifier) {
+    Box(modifier = modifier.onPointerEvent(PointerEventType.Scroll) {
+        val change = it.changes.first()
+        val delta = change.scrollDelta.y.toInt().sign
+        println("mouse wheel: " + delta)
+        if (delta == 1)
+        {
+            vm.zoomOut()
+        }
+        else if (delta == -1)
+        {
+            vm.zoomIn()
+        }
+    })
+    {
         MapPanel(vm.state, Modifier.align(Alignment.TopStart))
         Column(modifier           = Modifier.align(Alignment.TopEnd)
             .padding(top = 10.dp, end = 10.dp)
