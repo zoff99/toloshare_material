@@ -1629,8 +1629,23 @@ class MainActivity
 
                                     try
                                     {
+                                        var fname: String = "name???"
+                                        try
+                                        {
+                                            val fname2 = tox_friend_get_name(friend_number)
+                                            if (!fname2.isNullOrEmpty())
+                                            {
+                                                if (fname2.isNotBlank())
+                                                {
+                                                    fname = fname2
+                                                }
+                                            }
+                                        } catch (_: Exception)
+                                        {
+                                        }
+
                                         Log.i(TAG, "GEO::" + separated)
-                                        geostore.update(item = GeoItem(name = "name", pk_str = fpubkey,
+                                        geostore.update(item = GeoItem(name = fname, pk_str = fpubkey,
                                             lat = lat.toDouble(), lon = lon.toDouble(),
                                             acc = acc,
                                             last_remote_location_ts_millis = 0,

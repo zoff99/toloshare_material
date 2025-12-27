@@ -39,8 +39,7 @@ data class GeoItem(
     val last_remote_location_ts_millis: Long = 0,
     val remote_location_last_ts_millis: Long = 0
 ) {
-    fun updateName(n: String) =
-        copy(name = n)
+    fun updateName(n: String) = copy(name = n)
 }
 
 interface GeoStore

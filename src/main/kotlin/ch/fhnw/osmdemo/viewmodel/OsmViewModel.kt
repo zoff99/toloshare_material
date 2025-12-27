@@ -1,4 +1,4 @@
-@file:OptIn(DelicateCoroutinesApi::class)
+@file:OptIn(DelicateCoroutinesApi::class) @file:Suppress("ConvertToStringTemplate")
 
 package ch.fhnw.osmdemo.viewmodel
 
@@ -7,17 +7,26 @@ import kotlinx.coroutines.launch
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.SnapSpec
 import androidx.compose.animation.core.TweenSpec
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.fhnw.osmdemo.view.Callout
@@ -138,17 +147,35 @@ class OsmViewModel : ViewModel(){
     }
 
     fun addMarker(id: String, geoPos : GeoPosition) = addMarker(id, geoPos.asNormalizedWebMercator())
+    fun addMarker(id: String, geoPos : GeoPosition, name: String) = addMarker(id, geoPos.asNormalizedWebMercator(), name)
 
     fun moveMarker(id: String, geoPos : GeoPosition) = moveMarker(id, geoPos.asNormalizedWebMercator())
 
-    fun addMarker(id: String, point : NormalizedPoint){
+    fun addMarker(id: String, point : NormalizedPoint) {
+        addMarker(id, point, "")
+    }
+
+    fun addMarker(id: String, point : NormalizedPoint, name: String) {
         viewModelScope.launch {
             state.addMarker(id, point.x, point.y) {
-                Icon(imageVector       = Icons.Filled.LocationOn,
-                    contentDescription = id,
-                    modifier           = Modifier.size(50.dp),
-                    tint               = markerColor
-                )
+                Column {
+                    if (!name.isNullOrEmpty())
+                    {
+                        Text(text = "" + name,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape((7.dp)))
+                                .background(markerColor)
+                                .padding(4.dp)
+                                .align(Alignment.CenterHorizontally),
+                            fontSize = 18.sp,
+                            color = Color.Black)
+                    }
+                    Icon(imageVector       = Icons.Filled.LocationOn,
+                        contentDescription = id,
+                        modifier           = Modifier.size(50.dp),
+                        tint               = markerColor
+                    )
+                }
             }
             state.disableMarkerDrag(id)
             markerCount++
