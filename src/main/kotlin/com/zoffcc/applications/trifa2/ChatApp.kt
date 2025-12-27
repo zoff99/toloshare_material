@@ -85,6 +85,7 @@ import com.zoffcc.applications.trifa.createAVStateStoreVideoCaptureFpsState
 import com.zoffcc.applications.trifa.createAVStateStoreVideoPlayFpsState
 import com.zoffcc.applications.trifa.createContactStore
 import com.zoffcc.applications.trifa.createFriendSettingsStore
+import com.zoffcc.applications.trifa.createGeoStore
 import com.zoffcc.applications.trifa.createGlobalStore
 import com.zoffcc.applications.trifa.createGroupPeerStore
 import com.zoffcc.applications.trifa.createGroupSettingsStore
@@ -126,6 +127,7 @@ val avstatestore = CoroutineScope(SupervisorJob()).createAVStateStore()
 val avstatestorecallstate = CoroutineScope(SupervisorJob()).createAVStateStoreCallState()
 val avstatestorevcapfpsstate = CoroutineScope(SupervisorJob()).createAVStateStoreVideoCaptureFpsState()
 val avstatestorevplayfpsstate = CoroutineScope(SupervisorJob()).createAVStateStoreVideoPlayFpsState()
+val geostore = CoroutineScope(SupervisorJob()).createGeoStore()
 
 @OptIn(DelicateCoroutinesApi::class, ExperimentalFoundationApi::class)
 @Composable

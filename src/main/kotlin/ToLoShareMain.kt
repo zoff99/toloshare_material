@@ -348,6 +348,8 @@ fun App()
     var start_button_text by remember { mutableStateOf("start") }
     var tox_running_state: String by remember { mutableStateOf("stopped") }
 
+    val osm = remember { OsmViewModel() }
+
     println("User data dir: " + APPDIRS.getUserDataDir())
     println("User data dir (roaming): " + APPDIRS.getUserDataDir(roaming = true))
     savepathstore.updatePath(APPDIRS.getUserDataDir(roaming = true))
@@ -1413,7 +1415,6 @@ fun App()
                             }
                             UiMode.MAP ->
                             {
-                                val osm = remember { OsmViewModel() }
                                 Box(modifier = Modifier.fillMaxSize()) {
                                     MapWithZoomControl(osm, Modifier.align(Alignment.Center).fillMaxSize())
                                 }
@@ -2909,5 +2910,3 @@ fun MapPanel(state: MapState, modifier: Modifier = Modifier) {
     MapUI(modifier = modifier,
         state    = state)
 }
-
-

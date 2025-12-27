@@ -119,6 +119,7 @@ import com.zoffcc.applications.trifa.VideoInFrame.new_video_in_frame
 import com.zoffcc.applications.trifa.VideoInFrame.setup_video_in_resolution
 import com.zoffcc.applications.trifa2.timestampMs
 import contactstore
+import geostore
 import global_prefs
 import globalfrndstoreunreadmsgs
 import globalgrpstoreunreadmsgs
@@ -1628,11 +1629,15 @@ class MainActivity
 
                                     try
                                     {
-                                       Log.i(TAG, "GEO::" + separated)
+                                        Log.i(TAG, "GEO::" + separated)
+                                        geostore.update(item = GeoItem(name = "name", pk_str = fpubkey,
+                                            lat = lat.toDouble(), lon = lon.toDouble(),
+                                            acc = acc,
+                                            last_remote_location_ts_millis = 0,
+                                            remote_location_last_ts_millis = 0))
                                     } catch (e: java.lang.Exception)
                                     {
                                     }
-
                                 }
                             }
                         }
