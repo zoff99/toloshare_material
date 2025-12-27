@@ -2,12 +2,16 @@
 @file:Suppress("LocalVariableName", "FunctionName", "ConvertToStringTemplate", "SpellCheckingInspection", "UnusedReceiverParameter", "LiftReturnOrAssignment", "CascadeIf", "SENSELESS_COMPARISON", "VARIABLE_WITH_REDUNDANT_INITIALIZER", "UNUSED_ANONYMOUS_PARAMETER", "REDUNDANT_ELSE_IN_WHEN", "ReplaceSizeCheckWithIsNotEmpty", "ReplaceRangeToWithRangeUntil", "ReplaceGetOrSet", "SimplifyBooleanWithConstants")
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.BorderStroke
+import ovh.plrapps.mapcompose.api.scale
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import cafe.adriel.voyager.core.model.rememberScreenModel
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -222,6 +226,12 @@ import org.briarproject.briar.desktop.ui.UiMode
 import org.briarproject.briar.desktop.ui.UiPlaceholder
 import org.briarproject.briar.desktop.ui.VerticalDivider
 import org.briarproject.briar.desktop.utils.InternationalizationUtils.i18n
+import ovh.plrapps.mapcompose.api.centroidX
+import ovh.plrapps.mapcompose.api.centroidY
+import ovh.plrapps.mapcompose.api.scrollTo
+import ovh.plrapps.mapcompose.demo.viewmodels.OsmVM
+import ovh.plrapps.mapcompose.ui.MapUI
+import ovh.plrapps.mapcompose.ui.state.MapState
 import java.awt.Toolkit
 import java.io.File
 import java.net.InetSocketAddress
@@ -1394,7 +1404,11 @@ fun App()
                             }
                             UiMode.MAP ->
                             {
-                                Text("MAP")
+                                val screenModel = rememberScreenModel { OsmVM() }
+
+                                MapWithZoomControl(state = screenModel.state) {
+                                    MapContainer(screenModel)
+                                }
                             }
                             UiMode.GROUPS ->
                             {
@@ -2844,4 +2858,64 @@ fun Modifier.dashedBorder(strokeWidth: Dp, color: Color, cornerRadiusDp: Dp) = c
         )
     }
 )
+
+@Composable
+fun MapContainer(screenModel: OsmVM) {
+    MapUI(
+        Modifier,
+        state = screenModel.state
+    )
+}
+
+@Composable
+fun MapWithZoomControl(state: MapState, content: @Composable () -> Unit) {
+    val coroutineScope = rememberCoroutineScope()
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        content()
+        Column(modifier = Modifier
+            .align(Alignment.TopEnd)
+            .padding(top = 10.dp, end = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            Button(
+                modifier = Modifier.size(40.dp),
+                onClick = {
+                    coroutineScope.launch {
+                        zoomIn(state)
+                    }
+                }
+            ) {
+                Text("+")
+            }
+            Button(
+                modifier = Modifier.size(40.dp),
+                onClick = {
+                    coroutineScope.launch {
+                        zoomOut(state)
+                    }
+                }
+            ) {
+                Text("-")
+            }
+        }
+    }
+}
+suspend fun zoomIn(state: MapState)  {
+    state.scrollTo(
+        state.centroidX,
+        state.centroidY,
+        state.scale * 1.5f, TweenSpec(800, easing = FastOutSlowInEasing)
+    )
+}
+
+suspend fun zoomOut(state: MapState)  {
+    state.scrollTo(
+        state.centroidX,
+        state.centroidY,
+        state.scale / 1.5f,
+        TweenSpec(800, easing = FastOutSlowInEasing)
+    )
+}
+
 

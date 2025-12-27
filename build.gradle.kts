@@ -186,7 +186,14 @@ dependencies {
     implementation("com.vanniktech:emoji-ios:0.21.0")
     implementation("ovh.plrapps:mapcompose-mp:0.11.0")
     // implementation("io.github.theapache64:rebugger:1.0.0-rc02")
-}
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines:0.19.2")
+    implementation("io.ktor:ktor-client-core:2.3.12")
+    implementation("io.ktor:ktor-client-android:2.3.12")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2")
+    val voyagerVersion = "1.1.0-beta02"
+    implementation("cafe.adriel.voyager:voyager-screenmodel:${voyagerVersion}")
+    implementation("cafe.adriel.voyager:voyager-core:${voyagerVersion}")}
 
 val main_class_name = "ToLoShareMainKt"
 
