@@ -7,11 +7,11 @@ import androidx.compose.animation.core.TweenSpec
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.BorderStroke
 import ovh.plrapps.mapcompose.api.scale
+import cafe.adriel.voyager.core.model.rememberScreenModel
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import cafe.adriel.voyager.core.model.rememberScreenModel
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -127,6 +127,8 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import ca.gosyer.appdirs.AppDirs
+import cafe.adriel.voyager.core.model.rememberScreenModel
+import cafe.adriel.voyager.core.screen.Screen
 import com.google.gson.Gson
 import com.kdroid.composetray.utils.SingleInstanceManager
 import com.vanniktech.emoji.Emoji
@@ -1404,11 +1406,7 @@ fun App()
                             }
                             UiMode.MAP ->
                             {
-                                val screenModel = rememberScreenModel { OsmVM() }
-
-                                MapWithZoomControl(state = screenModel.state) {
-                                    MapContainer(screenModel)
-                                }
+                                OsmDemo.Content()
                             }
                             UiMode.GROUPS ->
                             {
@@ -2858,6 +2856,19 @@ fun Modifier.dashedBorder(strokeWidth: Dp, color: Color, cornerRadiusDp: Dp) = c
         )
     }
 )
+
+object OsmDemo : Screen
+{
+    @Composable
+    override fun Content() {
+        val screenModel = rememberScreenModel { OsmVM() }
+
+        MapWithZoomControl(state = screenModel.state) {
+            MapContainer(screenModel)
+        }
+    }
+}
+
 
 @Composable
 fun MapContainer(screenModel: OsmVM) {
