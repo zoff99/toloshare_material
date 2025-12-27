@@ -3,7 +3,6 @@
 <img src="https://github.com/zoff99/toloshare_material/releases/download/nightly/screenshot-macos-15arm.png" width="90%">
 
 Automated screenshots:<br>
-<img src="https://github.com/zoff99/toloshare_material/releases/download/nightly/screenshot-macos-15.png" height="230"></a>
 <img src="https://github.com/zoff99/toloshare_material/releases/download/nightly/screenshot-macos-14arm.png" height="230"></a>
 <img src="https://github.com/zoff99/toloshare_material/releases/download/nightly/screenshot-windows.png" height="230"></a>
 <img src="https://github.com/zoff99/toloshare_material/releases/download/nightly/screenshot-linux.png" height="230"></a>
