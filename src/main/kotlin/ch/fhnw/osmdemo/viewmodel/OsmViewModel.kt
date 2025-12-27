@@ -146,8 +146,8 @@ class OsmViewModel : ViewModel(){
         // state.removeMarker(ST_STEPHEN_MARKER_ID)
     }
 
-    fun addMarker(id: String, geoPos : GeoPosition) = addMarker(id, geoPos.asNormalizedWebMercator())
-    fun addMarker(id: String, geoPos : GeoPosition, name: String) = addMarker(id, geoPos.asNormalizedWebMercator(), name)
+    fun addMarker(id: String, geoPos: GeoPosition) = addMarker(id, geoPos.asNormalizedWebMercator())
+    fun addMarker(id: String, geoPos: GeoPosition, name: String) = addMarker(id, geoPos.asNormalizedWebMercator(), name)
 
     fun moveMarker(id: String, geoPos : GeoPosition) = moveMarker(id, geoPos.asNormalizedWebMercator())
 

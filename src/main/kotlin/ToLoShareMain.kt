@@ -1427,8 +1427,8 @@ fun App()
                                     {
                                         osm.state.removeMarker(ST_STEPHEN_MARKER_ID)
                                         geostate.remote_locations.forEach {
-                                            osm.addMarker(it.pk_str, GeoPosition(latitude = it.lat, longitude = it.lon))
-                                            osm.moveMarker(it.pk_str, GeoPosition(latitude = it.lat, longitude = it.lon))
+                                            osm.addMarker(id = it.pk_str, name = it.name, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon))
+                                            osm.moveMarker(id = it.pk_str, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon))
                                         }
                                     }
                                     MapWithZoomControl(osm, Modifier.align(Alignment.Center).fillMaxSize())
