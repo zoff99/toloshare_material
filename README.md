@@ -10,6 +10,15 @@ Automated screenshots:<br>
 ## Build Status
 
 **Github:** [![Android CI](https://github.com/zoff99/toloshare_material/workflows/Nightly/badge.svg)](https://github.com/zoff99/toloshare_material/actions?query=workflow%3A%22Nightly%22)
-<a href="https://github.com/zoff99/toloshare_material/blob/master/LICENSE">
-<img src="https://img.shields.io/badge/license-GPLv3%2B-blue.svg" alt="GPLv3+" />
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![Liberapay](https://img.shields.io/liberapay/goal/zoff.svg?logo=liberapay)](https://liberapay.com/zoff/donate)
 </a>
+
+&nbsp;&nbsp;&nbsp;&nbsp;Looking for UnderEat Mobile version? [follow me](https://github.com/zoff99/ToLoShare)
+
+<br>
+Any use of this project's code by GitHub Copilot, past or present, is done
+without our permission.  We do not consent to GitHub's use of this project's
+code in Copilot.
+<br>
+No part of this work may be used or reproduced in any manner for the purpose of training artificial intelligence technologies or systems.
