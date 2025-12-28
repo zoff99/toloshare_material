@@ -14,7 +14,7 @@ Automated screenshots:<br>
 [![Liberapay](https://img.shields.io/liberapay/goal/zoff.svg?logo=liberapay)](https://liberapay.com/zoff/donate)
 </a>
 
-&nbsp;&nbsp;&nbsp;&nbsp;Looking for UnderEat Mobile version? [follow me](https://github.com/zoff99/ToLoShare)
+&nbsp;&nbsp;&nbsp;&nbsp;Looking for ToLoShare Mobile version? [follow me](https://github.com/zoff99/ToLoShare)
 
 <br>
 Any use of this project's code by GitHub Copilot, past or present, is done
