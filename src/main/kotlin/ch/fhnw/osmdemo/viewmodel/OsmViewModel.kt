@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.fhnw.osmdemo.view.Callout
+import com.zoffcc.applications.trifa.Log
+import com.zoffcc.applications.trifa.TAG
 import io.ktor.utils.io.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
@@ -160,10 +162,14 @@ class OsmViewModel : ViewModel(){
                 Column {
                     var pin_and_text_color: Color = markerColor
                     val age_millis = location_age_millis(last_location_millis)
+                    Log.i(TAG, "AGE1:" + age_millis + " " + last_location_millis)
                     if (last_location_millis > -1L)
                     {
+                        Log.i(TAG, "AGE2:" + age_millis + " " + last_location_millis)
                         if (age_millis > 2 * 60 * 1000L)
-                        { // HINT: if location is older than 2 minutes, make pin and text color red-ish
+                        {
+                            // HINT: if location is older than 2 minutes, make pin and text color red-ish
+                            Log.i(TAG, "AGE3:" + age_millis + " " + last_location_millis)
                             pin_and_text_color = Color.Red
                         }
                     }
@@ -249,11 +255,11 @@ class OsmViewModel : ViewModel(){
 fun location_age_millis(timestamp_millis: Long): Long
 {
     val current_ts_millis = System.currentTimeMillis()
-    if (timestamp_millis > -1)
+    if (timestamp_millis > -1L)
     {
-        val diff: Long = Date(current_ts_millis).time - Date(timestamp_millis).time
-        val seconds = TimeUnit.MILLISECONDS.toSeconds(diff)
-        return seconds
+        val diff_millis: Long = Date(current_ts_millis).time - Date(timestamp_millis).time
+        // val seconds = TimeUnit.MILLISECONDS.toSeconds(diff)
+        return diff_millis
     }
     // HINT: No age yet, just give -1
     return -1L

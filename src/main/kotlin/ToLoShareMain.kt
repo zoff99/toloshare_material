@@ -69,6 +69,7 @@ import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -255,7 +256,9 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.prefs.Preferences
 import javax.swing.JPanel
+import kotlin.math.ceil
 import kotlin.math.sign
+import kotlin.time.Duration.Companion.seconds
 
 private const val TAG = "trifa.Main.kt"
 var tox_running_state_wrapper = "start"
@@ -1423,14 +1426,23 @@ fun App()
                             {
                                 val geostate by geostore.stateFlow.collectAsState()
                                 Box(modifier = Modifier.fillMaxSize()) {
-                                    // DEBUG // Log.i(TAG, "redraw Map")
+                                    var remaining by remember { mutableStateOf(1) }
+                                    LaunchedEffect(remaining) {
+                                        delay(10.seconds)
+                                        remaining = remaining + 10
+                                    }
+                                    Text("rr" + remaining)
+                                    Log.i(TAG, "redraw Map " + remaining)
+
                                     if (geostate.remote_locations.size > 0)
                                     {
                                         geostate.remote_locations.forEach {
+                                            osm.state.removeMarker(it.pk_str)
                                             osm.addMarker(id = it.pk_str, last_location_millis = it.last_remote_location_ts_millis, name = it.name, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon))
                                             osm.moveMarker(id = it.pk_str, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon))
                                         }
                                     }
+
                                     if (osm.state.hasMarker(ST_STEPHEN_MARKER_ID))
                                     {
                                         osm.state.removeMarker(ST_STEPHEN_MARKER_ID)
