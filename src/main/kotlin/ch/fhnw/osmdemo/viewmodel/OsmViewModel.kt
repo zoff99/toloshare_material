@@ -7,6 +7,8 @@ import androidx.compose.animation.core.SnapSpec
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -185,6 +187,7 @@ class OsmViewModel : ViewModel(){
                     }
                     if (last_location_millis > -1L)
                     {
+                        Spacer(modifier = Modifier.height(2.dp))
                         Text(text = "" + location_age_text(last_location_millis),
                             modifier = Modifier
                                 .clip(RoundedCornerShape((4.dp)))
