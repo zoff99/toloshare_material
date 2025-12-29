@@ -1648,8 +1648,7 @@ class MainActivity
                                         geostore.update(item = GeoItem(name = fname, pk_str = fpubkey,
                                             lat = lat.toDouble(), lon = lon.toDouble(),
                                             acc = acc,
-                                            last_remote_location_ts_millis = 0,
-                                            remote_location_last_ts_millis = 0))
+                                            last_remote_location_ts_millis = System.currentTimeMillis()))
                                     } catch (e: java.lang.Exception)
                                     {
                                     }

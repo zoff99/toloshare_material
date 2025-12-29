@@ -1,15 +1,12 @@
-@file:OptIn(DelicateCoroutinesApi::class) @file:Suppress("ConvertToStringTemplate")
+@file:OptIn(DelicateCoroutinesApi::class) @file:Suppress("ConvertToStringTemplate", "LocalVariableName", "FunctionName")
 
 package ch.fhnw.osmdemo.viewmodel
 
-import kotlin.math.pow
-import kotlinx.coroutines.launch
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.SnapSpec
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,7 +29,7 @@ import androidx.lifecycle.viewModelScope
 import ch.fhnw.osmdemo.view.Callout
 import io.ktor.utils.io.*
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import ovh.plrapps.mapcompose.api.addCallout
 import ovh.plrapps.mapcompose.api.addLayer
 import ovh.plrapps.mapcompose.api.addMarker
@@ -40,7 +37,6 @@ import ovh.plrapps.mapcompose.api.centerOnMarker
 import ovh.plrapps.mapcompose.api.centroidX
 import ovh.plrapps.mapcompose.api.centroidY
 import ovh.plrapps.mapcompose.api.disableMarkerDrag
-import ovh.plrapps.mapcompose.api.enableMarkerDrag
 import ovh.plrapps.mapcompose.api.moveMarker
 import ovh.plrapps.mapcompose.api.onCalloutClick
 import ovh.plrapps.mapcompose.api.onLongPress
@@ -49,7 +45,6 @@ import ovh.plrapps.mapcompose.api.onMarkerLongPress
 import ovh.plrapps.mapcompose.api.onMarkerMove
 import ovh.plrapps.mapcompose.api.onTap
 import ovh.plrapps.mapcompose.api.removeCallout
-import ovh.plrapps.mapcompose.api.removeMarker
 import ovh.plrapps.mapcompose.api.scale
 import ovh.plrapps.mapcompose.api.scrollTo
 import ovh.plrapps.mapcompose.api.setScrollOffsetRatio
@@ -57,6 +52,9 @@ import ovh.plrapps.mapcompose.api.visibleArea
 import ovh.plrapps.mapcompose.core.TileStreamProvider
 import ovh.plrapps.mapcompose.ui.layout.Forced
 import ovh.plrapps.mapcompose.ui.state.MapState
+import java.util.Date
+import java.util.concurrent.TimeUnit
+import kotlin.math.pow
 
 /**
  * Shows how to use WMTS tile servers with MapCompose, such as OpenStreetMap.
@@ -148,6 +146,7 @@ class OsmViewModel : ViewModel(){
 
     fun addMarker(id: String, geoPos: GeoPosition) = addMarker(id, geoPos.asNormalizedWebMercator())
     fun addMarker(id: String, geoPos: GeoPosition, name: String) = addMarker(id, geoPos.asNormalizedWebMercator(), name)
+    fun addMarker(id: String, geoPos: GeoPosition, name: String, last_location_millis: Long) = addMarker(id, geoPos.asNormalizedWebMercator(), name, last_location_millis)
 
     fun moveMarker(id: String, geoPos : GeoPosition) = moveMarker(id, geoPos.asNormalizedWebMercator())
 
@@ -155,25 +154,48 @@ class OsmViewModel : ViewModel(){
         addMarker(id, point, "")
     }
 
-    fun addMarker(id: String, point : NormalizedPoint, name: String) {
+    fun addMarker(id: String, point : NormalizedPoint, name: String, last_location_millis: Long = -1L) {
         viewModelScope.launch {
             state.addMarker(id, point.x, point.y) {
                 Column {
+                    var pin_and_text_color: Color = markerColor
+                    val age_millis = location_age_millis(last_location_millis)
+                    if (last_location_millis > -1L)
+                    {
+                        if (age_millis > 2 * 60 * 1000L)
+                        { // HINT: if location is older than 2 minutes, make pin and text color red-ish
+                            pin_and_text_color = Color.Red
+                        }
+                    }
+
                     if (!name.isNullOrEmpty())
                     {
                         Text(text = "" + name,
                             modifier = Modifier
                                 .clip(RoundedCornerShape((7.dp)))
-                                .background(markerColor)
+                                .background(pin_and_text_color)
+                                .align(Alignment.CenterHorizontally)
                                 .padding(4.dp)
-                                .align(Alignment.CenterHorizontally),
+                            ,
                             fontSize = 18.sp,
+                            color = Color.Black)
+                    }
+                    if (last_location_millis > -1L)
+                    {
+                        Text(text = "" + location_age_text(last_location_millis),
+                            modifier = Modifier
+                                .clip(RoundedCornerShape((4.dp)))
+                                .background(pin_and_text_color)
+                                .align(Alignment.CenterHorizontally)
+                                .padding(4.dp)
+                            ,
+                            fontSize = 15.sp,
                             color = Color.Black)
                     }
                     Icon(imageVector       = Icons.Filled.LocationOn,
                         contentDescription = id,
                         modifier           = Modifier.size(50.dp),
-                        tint               = markerColor
+                        tint               = pin_and_text_color
                     )
                 }
             }
@@ -224,4 +246,43 @@ class OsmViewModel : ViewModel(){
 
 }
 
+fun location_age_millis(timestamp_millis: Long): Long
+{
+    val current_ts_millis = System.currentTimeMillis()
+    if (timestamp_millis > -1)
+    {
+        val diff: Long = Date(current_ts_millis).time - Date(timestamp_millis).time
+        val seconds = TimeUnit.MILLISECONDS.toSeconds(diff)
+        return seconds
+    }
+    // HINT: No age yet, just give -1
+    return -1L
+}
+
+fun location_age_text(timestamp_millis: Long): String
+{
+    val current_ts_millis = System.currentTimeMillis()
+    var location_time_txt = "???"
+
+    if (timestamp_millis > -1)
+    {
+        val diff: Long = Date(current_ts_millis).time - Date(timestamp_millis).time
+        val seconds = TimeUnit.MILLISECONDS.toSeconds(diff)
+        val minutes = TimeUnit.MILLISECONDS.toMinutes(diff)
+
+        if (minutes > 0)
+        {
+            location_time_txt = "" + minutes + " minutes ago"
+        } else if (seconds > 0)
+        {
+            location_time_txt = "" + seconds + " seconds ago"
+        } else
+        {
+            location_time_txt = "" + "now"
+        }
+        return location_time_txt
+    }
+    // HINT: No age yet, just give empty String
+    return ""
+}
 

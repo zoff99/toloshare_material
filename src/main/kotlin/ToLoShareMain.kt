@@ -1427,7 +1427,7 @@ fun App()
                                     if (geostate.remote_locations.size > 0)
                                     {
                                         geostate.remote_locations.forEach {
-                                            osm.addMarker(id = it.pk_str, name = it.name, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon))
+                                            osm.addMarker(id = it.pk_str, last_location_millis = it.last_remote_location_ts_millis, name = it.name, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon))
                                             osm.moveMarker(id = it.pk_str, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon))
                                         }
                                     }
