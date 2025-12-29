@@ -1437,13 +1437,9 @@ fun App()
                                     if (geostate.remote_locations.size > 0)
                                     {
                                         geostate.remote_locations.forEach {
-                                            if ((it.last_remote_location_ts_millis > -1) &&
-                                                ((System.currentTimeMillis() - it.last_remote_location_ts_millis) > 10 * 1 * 1000))
+                                            if (osm.state.hasMarker(it.pk_str))
                                             {
-                                                if (osm.state.hasMarker(it.pk_str))
-                                                {
-                                                    osm.state.removeMarker(it.pk_str)
-                                                }
+                                                osm.state.removeMarker(it.pk_str)
                                             }
                                             osm.addMarker(id = it.pk_str, last_location_millis = it.last_remote_location_ts_millis, name = it.name, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon))
                                             osm.moveMarker(id = it.pk_str, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon))
