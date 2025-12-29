@@ -1426,13 +1426,12 @@ fun App()
                             {
                                 val geostate by geostore.stateFlow.collectAsState()
                                 Box(modifier = Modifier.fillMaxSize()) {
-                                    var remaining by remember { mutableStateOf(1) }
-                                    LaunchedEffect(remaining) {
+                                    var redraw_map by remember { mutableStateOf(1) }
+                                    LaunchedEffect(redraw_map) {
                                         delay(10.seconds)
-                                        remaining = remaining + 10
+                                        redraw_map = redraw_map + 1
                                     }
-                                    Text("rr" + remaining)
-                                    Log.i(TAG, "redraw Map " + remaining)
+                                    // Log.i(TAG, "redraw Map " + redraw_map)
 
                                     if (geostate.remote_locations.size > 0)
                                     {

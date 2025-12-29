@@ -162,14 +162,11 @@ class OsmViewModel : ViewModel(){
                 Column {
                     var pin_and_text_color: Color = markerColor
                     val age_millis = location_age_millis(last_location_millis)
-                    Log.i(TAG, "AGE1:" + age_millis + " " + last_location_millis)
                     if (last_location_millis > -1L)
                     {
-                        Log.i(TAG, "AGE2:" + age_millis + " " + last_location_millis)
                         if (age_millis > 2 * 60 * 1000L)
                         {
                             // HINT: if location is older than 2 minutes, make pin and text color red-ish
-                            Log.i(TAG, "AGE3:" + age_millis + " " + last_location_millis)
                             pin_and_text_color = Color.Red
                         }
                     }
@@ -200,7 +197,8 @@ class OsmViewModel : ViewModel(){
                     }
                     Icon(imageVector       = Icons.Filled.LocationOn,
                         contentDescription = id,
-                        modifier           = Modifier.size(50.dp),
+                        modifier           = Modifier.size(50.dp)
+                            .align(Alignment.CenterHorizontally),
                         tint               = pin_and_text_color
                     )
                 }
