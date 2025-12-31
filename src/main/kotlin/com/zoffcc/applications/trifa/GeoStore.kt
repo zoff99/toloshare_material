@@ -9,7 +9,7 @@ import java.util.*
 import kotlin.collections.forEach
 import kotlin.collections.plus
 
-data class StateGeoLocations(val remote_locations: List<GeoItem> = emptyList()) // , var osm: OsmViewModel? = null)
+data class StateGeoLocations(val remote_locations: List<GeoItem> = emptyList(), val follow_pk: String? = null) // , var osm: OsmViewModel? = null)
 
 data class GeoItem(
     val name: String,
@@ -26,6 +26,8 @@ interface GeoStore
 {
     fun add(item: GeoItem)
     fun update(item: GeoItem)
+    fun setFollowPk(pk: String?)
+    fun getFollowPk(): String?
     fun clear()
     val stateFlow: StateFlow<StateGeoLocations>
     val state get() = stateFlow.value
@@ -74,6 +76,14 @@ fun CoroutineScope.createGeoStore(): GeoStore
             {
                 mutableStateFlow.value = state.copy(remote_locations = state.remote_locations + item)
             }
+        }
+        override fun setFollowPk(pk: String?)
+        {
+            mutableStateFlow.value = state.copy(follow_pk = pk)
+        }
+        override fun getFollowPk(): String?
+        {
+            return state.follow_pk
         }
 
         override fun clear()

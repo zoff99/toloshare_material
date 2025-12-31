@@ -15,6 +15,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -132,6 +133,7 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import androidx.lifecycle.viewModelScope
 import ca.gosyer.appdirs.AppDirs
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
@@ -1441,8 +1443,19 @@ fun App()
                                             {
                                                 osm.state.removeMarker(it.pk_str)
                                             }
+                                            val geo_pos = GeoPosition(latitude = it.lat, longitude = it.lon)
                                             osm.addMarker(id = it.pk_str, last_location_millis = it.last_remote_location_ts_millis, name = it.name, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon))
-                                            osm.moveMarker(id = it.pk_str, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon))
+                                            osm.moveMarker(id = it.pk_str, geoPos = geo_pos)
+                                            if (geostore.getFollowPk().equals(it.pk_str))
+                                            {
+                                                GlobalScope.launch {
+                                                    val geo_pos_normalized = geo_pos.asNormalizedWebMercator()
+                                                    osm.state.scrollTo(x = geo_pos_normalized.x,
+                                                        y             = geo_pos_normalized.y,
+                                                        animationSpec = TweenSpec(durationMillis = 5,
+                                                            easing         = FastOutSlowInEasing))
+                                                }
+                                            }
                                         }
                                     }
 

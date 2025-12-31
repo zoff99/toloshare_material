@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.PinDrop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
@@ -29,8 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.fhnw.osmdemo.view.Callout
-import com.zoffcc.applications.trifa.Log
-import com.zoffcc.applications.trifa.TAG
+import geostore
 import io.ktor.utils.io.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
@@ -96,21 +96,32 @@ class OsmViewModel : ViewModel(){
            * On Marker click, add a callout. If the id is [tapToDismissId], set auto-dismiss
            * to false. For this particular id, we programmatically remove the callout on tap.
            */
-          onMarkerClick { id, x, y ->
+          onMarkerClick { pk_string, x, y ->
               var shouldAnimate by mutableStateOf(true)
-              addCallout(id             = id,
+              if (geostore.getFollowPk().equals(pk_string))
+              {
+                  // on second click reset "follow me" to "null" (do not follow anyone)
+                  geostore.setFollowPk(null)
+              }
+              else
+              {
+                  geostore.setFollowPk(pk_string)
+              }
+              /*
+              addCallout(id             = pk_string,
                          x              = x,
                          y              = y,
                          absoluteOffset = DpOffset(0.dp, (-50).dp),
-                         autoDismiss    = id != tapToDismissId,
-                         clickable      = id == tapToDismissId) {
+                         autoDismiss    = pk_string != tapToDismissId,
+                         clickable      = pk_string == tapToDismissId) {
 
                   Callout(point         = NormalizedPoint(x, y),
-                          title         = id,
+                          title         = pk_string,
                           shouldAnimate = shouldAnimate) {
                       shouldAnimate = false
                   }
               }
+             */
           }
 
           /**
@@ -158,9 +169,9 @@ class OsmViewModel : ViewModel(){
         addMarker(id, point, "")
     }
 
-    fun addMarker(id: String, point : NormalizedPoint, name: String, last_location_millis: Long = -1L) {
+    fun addMarker(pk_string: String, point : NormalizedPoint, name: String, last_location_millis: Long = -1L) {
         viewModelScope.launch {
-            state.addMarker(id, point.x, point.y) {
+            state.addMarker(pk_string, point.x, point.y) {
                 Column {
                     var pin_and_text_color: Color = markerColor
                     val age_millis = location_age_millis(last_location_millis)
@@ -173,6 +184,15 @@ class OsmViewModel : ViewModel(){
                         }
                     }
 
+                    if ((!pk_string.isNullOrEmpty()) && (geostore.getFollowPk().equals(pk_string)))
+                    {
+                        Icon(imageVector       = Icons.Filled.PinDrop,
+                            contentDescription = "follow me",
+                            modifier           = Modifier.size(30.dp)
+                                .align(Alignment.CenterHorizontally),
+                            tint               = pin_and_text_color
+                        )
+                    }
                     if (!name.isNullOrEmpty())
                     {
                         Text(text = "" + name,
@@ -199,14 +219,14 @@ class OsmViewModel : ViewModel(){
                             color = Color.Black)
                     }
                     Icon(imageVector       = Icons.Filled.LocationOn,
-                        contentDescription = id,
+                        contentDescription = pk_string,
                         modifier           = Modifier.size(50.dp)
                             .align(Alignment.CenterHorizontally),
                         tint               = pin_and_text_color
                     )
                 }
             }
-            state.disableMarkerDrag(id)
+            state.disableMarkerDrag(pk_string)
             markerCount++
         }
     }
