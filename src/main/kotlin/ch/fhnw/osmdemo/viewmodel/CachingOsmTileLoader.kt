@@ -1,4 +1,4 @@
-@file:Suppress("SpellCheckingInspection", "LocalVariableName", "ConvertToStringTemplate", "PrivatePropertyName")
+@file:Suppress("SpellCheckingInspection", "LocalVariableName", "ConvertToStringTemplate", "PrivatePropertyName", "CascadeIf")
 
 package ch.fhnw.osmdemo.viewmodel
 
@@ -28,7 +28,7 @@ class CachingOsmTileLoader() {
     private val cacheDir = platformCacheDir()
     private val client = createHttpClient()
     private val MEMCACHE_MAX_ENTRIES = 2000
-    private val HIGHDPI_MODE = 1
+    private val HIGHDPI_MODE = 2
     private val inMemoryCache = LRUCache<String, ByteArray>(MEMCACHE_MAX_ENTRIES, { k, v ->
                                                                     val path = tilePath(k)
                                                                     if(!fs.exists(path)){
@@ -43,10 +43,17 @@ class CachingOsmTileLoader() {
         {
             return "https://tile.openstreetmap.org/$zoomLvl/$col/$row.png"
         }
-        else // (HIGHDPI_MODE == 1)
+        else if (HIGHDPI_MODE == 1)
         {
             val new_x_y = getParentCoordinates(col, row)
             val new_zoom = zoomLvl - 1
+            val new_url = "https://tile.openstreetmap.org/${new_zoom}/${new_x_y.first}/${new_x_y.second}.png" // println("XXXXXXX: $row $col $new_x_y $new_url ")
+            return new_url
+        }
+        else // (HIGHDPI_MODE == 2)
+        {
+            val new_x_y = getGrandParentCoords(col , row)
+            val new_zoom = zoomLvl - 2
             val new_url = "https://tile.openstreetmap.org/${new_zoom}/${new_x_y.first}/${new_x_y.second}.png" // println("XXXXXXX: $row $col $new_x_y $new_url ")
             return new_url
         }
@@ -68,9 +75,15 @@ class CachingOsmTileLoader() {
                                                             inMemoryCache[cacheKey] = tile
                                                             tile
                                                         }
-                                                        else // (HIGHDPI_MODE == 1)
+                                                        else if (HIGHDPI_MODE == 1)
                                                         {
                                                             val tile2 = magnifyTileBytes(tile, getQuadrantIndex(col, row))
+                                                            inMemoryCache[cacheKey] = tile2
+                                                            tile2
+                                                        }
+                                                        else // (HIGHDPI_MODE == 2)
+                                                        {
+                                                            val tile2 = magnifyTwoZoomLevels(tile, getSubQuadrantOffset(col, row))
                                                             inMemoryCache[cacheKey] = tile2
                                                             tile2
                                                         }
@@ -84,9 +97,15 @@ class CachingOsmTileLoader() {
                                                                  inMemoryCache[cacheKey] = tile
                                                                  tile
                                                              }
-                                                             else  // (HIGHDPI_MODE == 1)
+                                                             else if (HIGHDPI_MODE == 1)
                                                              {
                                                                  val tile2 = magnifyTileBytes(tile, getQuadrantIndex(col, row))
+                                                                 inMemoryCache[cacheKey] = tile2
+                                                                 tile2
+                                                             }
+                                                             else // (HIGHDPI_MODE == 2)
+                                                             {
+                                                                 val tile2 = magnifyTwoZoomLevels(tile, getSubQuadrantOffset(col, row))
                                                                  inMemoryCache[cacheKey] = tile2
                                                                  tile2
                                                              }
@@ -216,6 +235,49 @@ class CachingOsmTileLoader() {
     }
 
     /**
+     * Magnifies a specific sub-tile from a tile 2 zoom levels higher.
+     *
+     * @param tileData Raw ByteArray of the parent tile (Zoom Z).
+     * @param offsetX The x-offset (0-3) in the 4x4 grid.
+     * @param offsetY The y-offset (0-3) in the 4x4 grid.
+     */
+    fun magnifyTwoZoomLevels(tileData: ByteArray, offset: Pair<Int, Int>): ByteArray {
+        val source = Image.makeFromEncoded(tileData)
+
+        // Each sub-tile at Z+2 is 1/4 the width/height of Z (256 / 4 = 64px)
+        val subSize = 64f
+        val targetSize = 256f
+
+        // 1. Define the 64x64 source rectangle
+        val srcRect = Rect.makeXYWH(
+            offset.first * subSize,
+            offset.second * subSize,
+            subSize,
+            subSize
+        )
+
+        // 2. Define the 256x256 destination rectangle
+        val dstRect = Rect.makeWH(targetSize, targetSize)
+
+        // 3. Render and Scale
+        val surface = Surface.makeRasterN32Premul(256, 256)
+        val canvas = surface.canvas
+
+        // Use CATMULL_ROM or MITCHELL for extreme 4x upscaling in 2026
+        canvas.drawImageRect(
+            source,
+            srcRect,
+            dstRect,
+            SamplingMode.CATMULL_ROM,
+            null,
+            true
+        )
+
+        val data = surface.makeImageSnapshot().encodeToData(EncodedImageFormat.PNG, 100)
+        return data?.bytes ?: byteArrayOf()
+    }
+
+    /**
      * Calculates which quadrant index (0-3) a child tile occupies within its parent.
      */
     fun getQuadrantIndex(childX: Int, childY: Int): Int {
@@ -229,6 +291,16 @@ class CachingOsmTileLoader() {
      */
     fun getParentCoordinates(childX: Int, childY: Int): Pair<Int, Int> {
         return Pair(childX / 2, childY / 2)
+    }
+
+    fun getSubQuadrantOffset(targetX: Int, targetY: Int): Pair<Int, Int> {
+        // Returns the (0-3, 0-3) grid position within the parent tile
+        return Pair(targetX % 4, targetY % 4)
+    }
+
+    fun getGrandParentCoords(targetX: Int, targetY: Int): Pair<Int, Int> {
+        // Returns the coordinates of the tile 2 zoom levels up
+        return Pair(targetX / 4, targetY / 4)
     }
 
 }
