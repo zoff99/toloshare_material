@@ -16,6 +16,11 @@ import okio.Path
 import okio.Path.Companion.toPath
 import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManager
 import org.apache.hc.core5.util.TimeValue
+import org.jetbrains.skia.EncodedImageFormat
+import org.jetbrains.skia.Image
+import org.jetbrains.skia.Rect
+import org.jetbrains.skia.SamplingMode
+import org.jetbrains.skia.Surface
 import java.io.File
 
 class CachingOsmTileLoader() {
@@ -23,13 +28,30 @@ class CachingOsmTileLoader() {
     private val cacheDir = platformCacheDir()
     private val client = createHttpClient()
     private val MEMCACHE_MAX_ENTRIES = 2000
+    private val HIGHDPI_MODE = 1
     private val inMemoryCache = LRUCache<String, ByteArray>(MEMCACHE_MAX_ENTRIES, { k, v ->
                                                                     val path = tilePath(k)
                                                                     if(!fs.exists(path)){
                                                                         writeTile(path = path, bytes = v)
                                                                     }})
 
-    private fun createOSMUrl(row: Int, col: Int, zoomLvl: Int): String = "https://tile.openstreetmap.org/$zoomLvl/$col/$row.png"
+    // private fun createOSMUrl(row: Int, col: Int, zoomLvl: Int): String = "https://tile.openstreetmap.org/$zoomLvl/$col/$row.png"
+
+    private fun createOSMUrl(row: Int, col: Int, zoomLvl: Int): String
+    {
+        if (HIGHDPI_MODE == 0)
+        {
+            return "https://tile.openstreetmap.org/$zoomLvl/$col/$row.png"
+        }
+        else // (HIGHDPI_MODE == 1)
+        {
+            val new_x_y = getParentCoordinates(col, row)
+            val new_zoom = zoomLvl - 1
+            val new_url = "https://tile.openstreetmap.org/${new_zoom}/${new_x_y.first}/${new_x_y.second}.png" // println("XXXXXXX: $row $col $new_x_y $new_url ")
+            return new_url
+        }
+    }
+
     //private fun createOSMUrl(row: Int, col: Int, zoomLvl: Int): String = "https://tile.osm.ch/osm-swiss-style/$zoomLvl/$col/$row.png"
     //private fun createOSMUrl(row: Int, col: Int, zoomLvl: Int): String = "https://tile.osm.ch/switzerland/$zoomLvl/$col/$row.png"
     //private fun createOSMUrl(row: Int, col: Int, zoomLvl: Int): String = "https://b.tile.opentopomap.org/$zoomLvl/$col/$row.png"
@@ -40,18 +62,34 @@ class CachingOsmTileLoader() {
         val cacheKey = "$zoomLvl/$col/$row"
         return when {
             inMemoryCache.containsKey(cacheKey) -> { inMemoryCache[cacheKey]!! }
-
             tileExists(zoomLvl, col, row)       -> { val tile = readTile(tilePath(zoomLvl, col, row))
-                                                     inMemoryCache[cacheKey] = tile
-                                                     tile
+                                                        if (HIGHDPI_MODE == 0)
+                                                        {
+                                                            inMemoryCache[cacheKey] = tile
+                                                            tile
+                                                        }
+                                                        else // (HIGHDPI_MODE == 1)
+                                                        {
+                                                            val tile2 = magnifyTileBytes(tile, getQuadrantIndex(col, row))
+                                                            inMemoryCache[cacheKey] = tile2
+                                                            tile2
+                                                        }
                                                    }
-
             else                                -> { try {
                                                          val response = client.get(createOSMUrl(row, col, zoomLvl))
                                                          if (response.status == HttpStatusCode.OK) {
                                                              val tile = response.readRawBytes()
-                                                             inMemoryCache[cacheKey] = tile
-                                                             tile
+                                                             if (HIGHDPI_MODE == 0)
+                                                             {
+                                                                 inMemoryCache[cacheKey] = tile
+                                                                 tile
+                                                             }
+                                                             else  // (HIGHDPI_MODE == 1)
+                                                             {
+                                                                 val tile2 = magnifyTileBytes(tile, getQuadrantIndex(col, row))
+                                                                 inMemoryCache[cacheKey] = tile2
+                                                                 tile2
+                                                             }
                                                          } else {
                                                              ByteArray(tileSize)
                                                          }
@@ -60,7 +98,7 @@ class CachingOsmTileLoader() {
                                                      }
                                                    }
         }
-            }
+    }
 
 
     private fun readTile(path: Path)                     = fs.read(path) { readByteArray() }
@@ -86,6 +124,111 @@ class CachingOsmTileLoader() {
     private fun tileExists(z: Int, x: Int, y: Int) : Boolean {
         val dir = cacheDir / z.toString() / x.toString()
         return fs.exists(dir) && fs.exists(dir / "$y.png" )
+    }
+
+    /**
+     * Extracts a quarter from an OSM tile (ByteArray), magnifies it to 256x256,
+     * and returns the result as a new ByteArray.
+     *
+     * @param tileData Raw ByteArray of the source 256x256 tile (PNG/JPG).
+     * @param quarter Index (0: Top-Left, 1: Top-Right, 2: Bottom-Left, 3: Bottom-Right).
+     * @return A magnified 256x256 tile as an encoded ByteArray (PNG).
+     */
+    fun magnifyTileBytes(tileData: ByteArray, quarter: Int): ByteArray {
+        // 1. Decode input bytes into a Skia Image
+        val source = Image.makeFromEncoded(tileData)
+
+        val size = 256f
+        val half = size / 2f
+
+        // 2. Define the source 128x128 crop area
+        val srcRect = when (quarter) {
+            0 -> Rect.makeXYWH(0f, 0f, half, half)        // Top-Left
+            1 -> Rect.makeXYWH(half, 0f, half, half)     // Top-Right
+            2 -> Rect.makeXYWH(0f, half, half, half)     // Bottom-Left
+            3 -> Rect.makeXYWH(half, half, half, half)  // Bottom-Right
+            else -> throw IllegalArgumentException("Quarter must be 0-3")
+        }
+
+        // 3. Create a surface to draw the magnified 256x256 result
+        val surface = Surface.makeRasterN32Premul(256, 256)
+        val canvas = surface.canvas
+
+        // 4. Draw the crop with high-quality cubic upscaling (MITCHELL)
+        canvas.drawImageRect(
+            source,
+            srcRect,
+            Rect.makeWH(size, size),
+            SamplingMode.MITCHELL,
+            null,
+            true
+        )
+
+        // 5. Capture the result and encode it back to bytes
+        val magnifiedImage = surface.makeImageSnapshot()
+        val data = magnifiedImage.encodeToData(EncodedImageFormat.PNG, 100)
+            ?: throw IllegalStateException("Failed to encode result image")
+
+        return data.bytes
+    }
+
+
+    /**
+     * Extracts and magnifies an OSM tile quarter using Skiko (Skia).
+     *
+     * @param source The original 256x256 Skia Image.
+     * @param quarter Index (0: Top-Left, 1: Top-Right, 2: Bottom-Left, 3: Bottom-Right).
+     * @return A new 256x256 magnified Image.
+     */
+    fun magnifyTileQuarterSkiko(source: Image, quarter: Int): Image {
+        val size = 256f
+        val half = size / 2f
+
+        // 1. Define the source 128x128 crop area (src)
+        val srcRect = when (quarter) {
+            0 -> Rect.makeXYWH(0f, 0f, half, half)        // Top-Left
+            1 -> Rect.makeXYWH(half, 0f, half, half)     // Top-Right
+            2 -> Rect.makeXYWH(0f, half, half, half)     // Bottom-Left
+            3 -> Rect.makeXYWH(half, half, half, half)  // Bottom-Right
+            else -> throw IllegalArgumentException("Quarter must be 0-3")
+        }
+
+        // 2. Define the destination 256x256 area (dst)
+        val dstRect = Rect.makeWH(size, size)
+
+        // 3. Create a surface to draw the result
+        val surface = Surface.makeRasterN32Premul(256, 256)
+        val canvas = surface.canvas
+
+        // 4. Draw with high-quality sampling to minimize aliasing
+        // drawImageRect automatically scales the 'src' selection to fill 'dst'
+        canvas.drawImageRect(
+            source,
+            srcRect,
+            dstRect,
+            SamplingMode.MITCHELL, // High quality cubic sampling for 2026 standards
+            null,
+            true
+        )
+
+        // 5. Capture the result as a new Image
+        return surface.makeImageSnapshot()
+    }
+
+    /**
+     * Calculates which quadrant index (0-3) a child tile occupies within its parent.
+     */
+    fun getQuadrantIndex(childX: Int, childY: Int): Int {
+        val xMod = childX % 2
+        val yMod = childY % 2
+        return yMod * 2 + xMod
+    }
+
+    /**
+     * Calculates parent tile coordinates from child coordinates.
+     */
+    fun getParentCoordinates(childX: Int, childY: Int): Pair<Int, Int> {
+        return Pair(childX / 2, childY / 2)
     }
 
 }

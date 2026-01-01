@@ -1,4 +1,4 @@
-@file:OptIn(DelicateCoroutinesApi::class) @file:Suppress("ConvertToStringTemplate", "LocalVariableName", "FunctionName")
+@file:OptIn(DelicateCoroutinesApi::class) @file:Suppress("ConvertToStringTemplate", "LocalVariableName", "FunctionName", "SpellCheckingInspection")
 
 package ch.fhnw.osmdemo.viewmodel
 
@@ -83,7 +83,7 @@ class OsmViewModel : ViewModel(){
     val state = MapState(levelCount  = maxLevel + 1,
                          fullWidth   = mapSize,
                          fullHeight  = mapSize,
-                         workerCount = 4) {
+                         workerCount = 10) {
         minimumScaleMode(Forced(1 / 2.0.pow(maxLevel - minLevel))) }
                              .apply {
           addLayer(tileStreamProvider)
