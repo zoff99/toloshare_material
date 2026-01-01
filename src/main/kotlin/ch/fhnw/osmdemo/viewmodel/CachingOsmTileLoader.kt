@@ -1,5 +1,10 @@
+@file:Suppress("SpellCheckingInspection", "LocalVariableName", "ConvertToStringTemplate", "PrivatePropertyName")
+
 package ch.fhnw.osmdemo.viewmodel
 
+import APPDIRS
+import com.kdroid.composetray.utils.SingleInstanceManager.configuration
+import com.zoffcc.applications.trifa.MainActivity.Companion.PREF__tox_savefile_dir
 import io.ktor.client.*
 import io.ktor.client.engine.apache5.*
 import io.ktor.client.plugins.*
@@ -11,15 +16,14 @@ import okio.Path
 import okio.Path.Companion.toPath
 import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManager
 import org.apache.hc.core5.util.TimeValue
+import java.io.File
 
 class CachingOsmTileLoader() {
     private val fs: FileSystem = FileSystem.SYSTEM
-
     private val cacheDir = platformCacheDir()
-
     private val client = createHttpClient()
-
-    private val inMemoryCache = LRUCache<String, ByteArray>(1000, { k, v ->
+    private val MEMCACHE_MAX_ENTRIES = 2000
+    private val inMemoryCache = LRUCache<String, ByteArray>(MEMCACHE_MAX_ENTRIES, { k, v ->
                                                                     val path = tilePath(k)
                                                                     if(!fs.exists(path)){
                                                                         writeTile(path = path, bytes = v)
@@ -81,16 +85,16 @@ class CachingOsmTileLoader() {
 
     private fun tileExists(z: Int, x: Int, y: Int) : Boolean {
         val dir = cacheDir / z.toString() / x.toString()
-
         return fs.exists(dir) && fs.exists(dir / "$y.png" )
     }
 
 }
 
 fun platformCacheDir(): Path {
-    val userHome = System.getProperty("user.home")
-
-    return "$userHome/.tilecache".toPath()
+    // HINT: make this more elegant?
+    val tilecache_dir = (APPDIRS.getUserCacheDir() + File.separator + "/tilecache/")
+    File(tilecache_dir).mkdirs()
+    return tilecache_dir.toPath()
 }
 
 fun createHttpClient(): HttpClient = HttpClient(Apache5) {
