@@ -41,7 +41,7 @@ echo "$next_m_version"
 
 
 sed -i -e 's#version = ".*#version = "'"$next_m_version"'"#' "$f1"
-sed -i -e 's#trifa_material-linux-x64-'"$cur_m_version"'.jar#trifa_material-linux-x64-'"$next_m_version"'.jar#' "$f2"
+sed -i -e 's#toloshare_material-linux-x64-'"$cur_m_version"'.jar#toloshare_material-linux-x64-'"$next_m_version"'.jar#' "$f2"
 
 
 commit_message="new version ""$next_m_version"
