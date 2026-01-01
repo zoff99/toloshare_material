@@ -24,17 +24,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import ch.fhnw.osmdemo.view.Callout
 import geostore
 import io.ktor.utils.io.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
-import ovh.plrapps.mapcompose.api.addCallout
 import ovh.plrapps.mapcompose.api.addLayer
 import ovh.plrapps.mapcompose.api.addMarker
 import ovh.plrapps.mapcompose.api.centerOnMarker
@@ -56,7 +53,7 @@ import ovh.plrapps.mapcompose.api.visibleArea
 import ovh.plrapps.mapcompose.core.TileStreamProvider
 import ovh.plrapps.mapcompose.ui.layout.Forced
 import ovh.plrapps.mapcompose.ui.state.MapState
-import java.util.Date
+import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.pow
 
@@ -73,7 +70,7 @@ class OsmViewModel : ViewModel(){
     private val tapToDismissId = "Tap me to dismiss"
     private val markerColor = Color(0xCC2196F3)
 
-    private val maxLevel = 19
+    private val maxLevel = 20
     private val minLevel = 2
     private val tileSize = 256
     private val mapSize  = mapSizeAtLevel(wmtsLevel = maxLevel, tileSize = tileSize)
