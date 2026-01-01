@@ -2,8 +2,10 @@
 @file:Suppress("LocalVariableName", "FunctionName", "ConvertToStringTemplate", "SpellCheckingInspection", "UnusedReceiverParameter", "LiftReturnOrAssignment", "CascadeIf", "SENSELESS_COMPARISON", "VARIABLE_WITH_REDUNDANT_INITIALIZER", "UNUSED_ANONYMOUS_PARAMETER", "REDUNDANT_ELSE_IN_WHEN", "ReplaceSizeCheckWithIsNotEmpty", "ReplaceRangeToWithRangeUntil", "ReplaceGetOrSet", "SimplifyBooleanWithConstants")
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.spring
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.BorderStroke
 import ovh.plrapps.mapcompose.api.scale
@@ -213,12 +215,17 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.yield
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.briarproject.briar.desktop.SettingDetails
@@ -243,6 +250,8 @@ import ovh.plrapps.mapcompose.api.addMarker
 import ovh.plrapps.mapcompose.api.centroidX
 import ovh.plrapps.mapcompose.api.centroidY
 import ovh.plrapps.mapcompose.api.hasMarker
+import ovh.plrapps.mapcompose.api.maxScale
+import ovh.plrapps.mapcompose.api.minScale
 import ovh.plrapps.mapcompose.api.moveMarker
 import ovh.plrapps.mapcompose.api.removeMarker
 import ovh.plrapps.mapcompose.api.scrollTo
@@ -258,6 +267,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.prefs.Preferences
 import javax.swing.JPanel
+import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.sign
 import kotlin.time.Duration.Companion.seconds
@@ -2917,17 +2927,23 @@ fun Modifier.dashedBorder(strokeWidth: Dp, color: Color, cornerRadiusDp: Dp) = c
 
 @Composable
 fun MapWithZoomControl(vm: OsmViewModel, modifier: Modifier = Modifier) {
-    Box(modifier = modifier.onPointerEvent(PointerEventType.Scroll) {
-        val change = it.changes.first()
-        val delta = change.scrollDelta.y.toInt().sign
-        // println("mouse wheel: " + delta)
-        if (delta == 1)
-        {
-            vm.zoomOut()
-        }
-        else if (delta == -1)
-        {
-            vm.zoomIn()
+    // Track the scroll state
+    var accumulatedDelta by remember { mutableStateOf(0f) }
+    val zoomThreshold = 1.0f // Adjust sensitivity (e.g., 1 full wheel tick)
+
+    Box(modifier = modifier.onPointerEvent(PointerEventType.Scroll) { event ->
+        val delta = event.changes.first().scrollDelta.y
+        accumulatedDelta += delta
+
+        // Only trigger when the user has scrolled enough
+        if (abs(accumulatedDelta) >= zoomThreshold) {
+            if (accumulatedDelta > 0) {
+                vm.zoomOut()
+            } else {
+                vm.zoomIn()
+            }
+            // Reset after triggering
+            accumulatedDelta = 0f
         }
     })
     {

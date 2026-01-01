@@ -2,6 +2,7 @@
 
 package ch.fhnw.osmdemo.viewmodel
 
+import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.SnapSpec
 import androidx.compose.animation.core.TweenSpec
@@ -28,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.zoffcc.applications.trifa.Log
+import com.zoffcc.applications.trifa.TAG
 import geostore
 import io.ktor.utils.io.*
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -246,20 +249,20 @@ class OsmViewModel : ViewModel(){
     fun zoomIn() =
         viewModelScope.launch {
             state.scrollTo(x             = state.centroidX,
-                           y             = state.centroidY,
-                           destScale     = state.scale * 1.5f,
-                           animationSpec = TweenSpec(durationMillis = 5,
-                                                     easing         = FastOutSlowInEasing))
-    }
+                y             = state.centroidY,
+                destScale     = state.scale * 1.5f,
+                animationSpec = TweenSpec(durationMillis = 0,
+                easing         = FastOutLinearInEasing))
+        }
 
     fun zoomOut() =
         viewModelScope.launch {
             state.scrollTo(x             = state.centroidX,
-                           y             = state.centroidY,
-                           destScale     = state.scale / 1.5f,
-                           animationSpec = TweenSpec(durationMillis = 5,
-                                                     easing         = FastOutSlowInEasing))
-    }
+                y             = state.centroidY,
+                destScale     = state.scale / 1.5f,
+                animationSpec = TweenSpec(durationMillis = 0,
+                easing         = FastOutLinearInEasing))
+        }
 
     /**
      * WMTS levels are 0-based. At level 0, the map corresponds to just one tile.
