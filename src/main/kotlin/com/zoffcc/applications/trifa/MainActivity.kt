@@ -77,7 +77,6 @@ import com.zoffcc.applications.trifa.HelperRelay.send_all_friend_pubkeys_to_rela
 import com.zoffcc.applications.trifa.HelperRelay.send_friend_pubkey_to_relay
 import com.zoffcc.applications.trifa.HelperRelay.send_pushtoken_to_relay
 import com.zoffcc.applications.trifa.HelperRelay.send_relay_pubkey_to_friend
-import com.zoffcc.applications.trifa.Log.i
 import com.zoffcc.applications.trifa.TRIFAGlobals.ABSOLUTE_MINIMUM_GLOBAL_VIDEO_BITRATE
 import com.zoffcc.applications.trifa.TRIFAGlobals.AVATAR_INCOMING_MAX_BYTE_SIZE
 import com.zoffcc.applications.trifa.TRIFAGlobals.GEO_COORDS_CUSTOM_LOSSLESS_ID
@@ -138,7 +137,6 @@ import myUser
 import org.briarproject.briar.desktop.contact.ContactItem
 import org.briarproject.briar.desktop.contact.GroupItem
 import org.briarproject.briar.desktop.contact.GroupPeerItem
-import org.jetbrains.skia.Bitmap
 import set_tox_online_state
 import toxdatastore
 import java.io.File
@@ -222,6 +220,8 @@ class MainActivity
         var video_buffer_1: ByteBuffer? = null
         var buffer_size_in_bytes = 0
         var _recBuffer: ByteBuffer? = null
+
+        const val INVALID_BEARING: String = "FFF"
 
         @JvmField
         var PREF__database_files_dir = "."
@@ -1599,59 +1599,73 @@ class MainActivity
                     }
                 } else if (data[0].toUByte().toInt() == TRIFAGlobals.GEO_COORDS_CUSTOM_LOSSLESS_ID)
                 {
-                    if (length > 0)
+                    if (data[0] === GEO_COORDS_CUSTOM_LOSSLESS_ID.toByte())
                     {
-                        if (data[0] === GEO_COORDS_CUSTOM_LOSSLESS_ID.toByte())
+                        val geo_data_raw = String(Arrays.copyOfRange(data, 1, data.size), StandardCharsets.UTF_8)
+                        // example data: TzGeo00:BEGINGEO:<lat>>:<lon>:0.0:22.03:124.1:ENDGEO
+                        val separated: List<String> = geo_data_raw.split(":")
+                        if (separated[0] == "TzGeo00")
                         {
-                            val geo_data_raw = String(Arrays.copyOfRange(data, 1, data.size), StandardCharsets.UTF_8)
-                            // example data: TzGeo00:BEGINGEO:<lat>>:<lon>:0.0:22.03:124.1:ENDGEO
-                            val separated: List<String> = geo_data_raw.split(":")
-                            if (separated[0] == "TzGeo00")
+                            if (separated[1] == "BEGINGEO")
                             {
-                                if (separated[1] == "BEGINGEO")
+                                val current_ts_millis = System.currentTimeMillis()
+                                val lat = separated[2].toFloat()
+                                val lon = separated[3].toFloat()
+                                // float alt = Float.parseFloat(separated[4]); // not used
+                                val acc = separated[5].toFloat()
+                                var bearing: Float = 0.0f
+                                var has_bearing = true
+                                try
                                 {
-                                    val current_ts_millis = System.currentTimeMillis()
-                                    val lat = separated[2].toFloat()
-                                    val lon = separated[3].toFloat()
-                                    // float alt = Float.parseFloat(separated[4]); // not used
-                                    val acc = separated[5].toFloat()
-                                    val bearing = separated[6].toFloat()
-                                    var f_pubkey: String? = null
-                                    try
+                                    if (separated[6].equals(INVALID_BEARING))
                                     {
-                                        f_pubkey = tox_friend_get_public_key(friend_number)
-                                        if ((f_pubkey != null) && (f_pubkey.length > 10))
-                                        {
-                                        }
-                                    } catch (e: java.lang.Exception)
+                                        // HINT: invalid bearing, do not show a direction arrow on the map
+                                        bearing = 0.0f
+                                        has_bearing = false
+                                    } else
+                                    {
+                                        bearing = separated[6].toFloat()
+                                        has_bearing = true
+                                    }
+                                }
+                                catch(_: Exception)
+                                {
+                                }
+                                var f_pubkey: String? = null
+                                try
+                                {
+                                    f_pubkey = tox_friend_get_public_key(friend_number)
+                                    if ((f_pubkey != null) && (f_pubkey.length > 10))
                                     {
                                     }
+                                } catch (e: java.lang.Exception)
+                                {
+                                }
 
+                                try
+                                {
+                                    var fname: String = "name???"
                                     try
                                     {
-                                        var fname: String = "name???"
-                                        try
+                                        val fname2 = tox_friend_get_name(friend_number)
+                                        if (!fname2.isNullOrEmpty())
                                         {
-                                            val fname2 = tox_friend_get_name(friend_number)
-                                            if (!fname2.isNullOrEmpty())
+                                            if (fname2.isNotBlank())
                                             {
-                                                if (fname2.isNotBlank())
-                                                {
-                                                    fname = fname2
-                                                }
+                                                fname = fname2
                                             }
-                                        } catch (_: Exception)
-                                        {
                                         }
-
-                                        // Log.i(TAG, "GEO::" + separated)
-                                        geostore.update(item = GeoItem(name = fname, pk_str = fpubkey,
-                                            lat = lat.toDouble(), lon = lon.toDouble(),
-                                            acc = acc,
-                                            last_remote_location_ts_millis = System.currentTimeMillis()))
-                                    } catch (e: java.lang.Exception)
+                                    } catch (_: Exception)
                                     {
                                     }
+
+                                    // Log.i(TAG, "GEO::" + separated)
+                                    geostore.update(item = GeoItem(name = fname, pk_str = fpubkey,
+                                        lat = lat.toDouble(), lon = lon.toDouble(),
+                                        acc = acc, bearing = bearing, has_bearing = has_bearing,
+                                        last_remote_location_ts_millis = System.currentTimeMillis()))
+                                } catch (e: java.lang.Exception)
+                                {
                                 }
                             }
                         }

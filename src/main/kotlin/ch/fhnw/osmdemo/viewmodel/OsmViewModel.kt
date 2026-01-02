@@ -1,4 +1,4 @@
-@file:OptIn(DelicateCoroutinesApi::class) @file:Suppress("ConvertToStringTemplate", "LocalVariableName", "FunctionName", "SpellCheckingInspection")
+@file:OptIn(DelicateCoroutinesApi::class) @file:Suppress("ConvertToStringTemplate", "LocalVariableName", "FunctionName", "SpellCheckingInspection", "LiftReturnOrAssignment")
 
 package ch.fhnw.osmdemo.viewmodel
 
