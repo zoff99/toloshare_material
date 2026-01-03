@@ -1,3 +1,5 @@
+@file:Suppress("SpellCheckingInspection")
+
 package ch.fhnw.osmdemo.viewmodel
 
 import kotlin.math.PI
