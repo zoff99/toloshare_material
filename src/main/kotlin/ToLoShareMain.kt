@@ -2,14 +2,10 @@
 @file:Suppress("LocalVariableName", "FunctionName", "ConvertToStringTemplate", "SpellCheckingInspection", "UnusedReceiverParameter", "LiftReturnOrAssignment", "CascadeIf", "SENSELESS_COMPARISON", "VARIABLE_WITH_REDUNDANT_INITIALIZER", "UNUSED_ANONYMOUS_PARAMETER", "REDUNDANT_ELSE_IN_WHEN", "ReplaceSizeCheckWithIsNotEmpty", "ReplaceRangeToWithRangeUntil", "ReplaceGetOrSet", "SimplifyBooleanWithConstants")
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.TweenSpec
-import androidx.compose.animation.core.spring
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.BorderStroke
-import ovh.plrapps.mapcompose.api.scale
-import cafe.adriel.voyager.core.model.rememberScreenModel
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,7 +13,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -29,7 +24,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -72,7 +66,6 @@ import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -135,10 +128,7 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import androidx.lifecycle.viewModelScope
 import ca.gosyer.appdirs.AppDirs
-import cafe.adriel.voyager.core.model.rememberScreenModel
-import cafe.adriel.voyager.core.screen.Screen
 import ch.fhnw.osmdemo.viewmodel.GeoPosition
 import ch.fhnw.osmdemo.viewmodel.OsmViewModel
 import ch.fhnw.osmdemo.viewmodel.ST_STEPHEN_MARKER_ID
@@ -215,17 +205,12 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.yield
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.briarproject.briar.desktop.SettingDetails
@@ -246,16 +231,9 @@ import org.briarproject.briar.desktop.ui.UiMode
 import org.briarproject.briar.desktop.ui.UiPlaceholder
 import org.briarproject.briar.desktop.ui.VerticalDivider
 import org.briarproject.briar.desktop.utils.InternationalizationUtils.i18n
-import ovh.plrapps.mapcompose.api.addMarker
-import ovh.plrapps.mapcompose.api.centroidX
-import ovh.plrapps.mapcompose.api.centroidY
 import ovh.plrapps.mapcompose.api.hasMarker
-import ovh.plrapps.mapcompose.api.maxScale
-import ovh.plrapps.mapcompose.api.minScale
-import ovh.plrapps.mapcompose.api.moveMarker
 import ovh.plrapps.mapcompose.api.removeMarker
 import ovh.plrapps.mapcompose.api.scrollTo
-import ovh.plrapps.mapcompose.demo.viewmodels.OsmVM
 import ovh.plrapps.mapcompose.ui.MapUI
 import ovh.plrapps.mapcompose.ui.state.MapState
 import java.awt.Toolkit
@@ -268,8 +246,6 @@ import java.util.concurrent.TimeUnit
 import java.util.prefs.Preferences
 import javax.swing.JPanel
 import kotlin.math.abs
-import kotlin.math.ceil
-import kotlin.math.sign
 import kotlin.time.Duration.Companion.seconds
 
 private const val TAG = "trifa.Main.kt"
@@ -2932,15 +2908,20 @@ fun MapWithZoomControl(vm: OsmViewModel, modifier: Modifier = Modifier) {
     val zoomThreshold = 1.0f // Adjust sensitivity (e.g., 1 full wheel tick)
 
     Box(modifier = modifier.onPointerEvent(PointerEventType.Scroll) { event ->
+        // println("Mouse at: $position")
+        val relativeX: Double = (event.changes.first().position.x / size.width).toDouble()
+        val relativeY: Double = (event.changes.first().position.y / size.height).toDouble()
+        // println("Relative Position: x=${relativeX}, y=${relativeY}")
+
         val delta = event.changes.first().scrollDelta.y
         accumulatedDelta += delta
 
         // Only trigger when the user has scrolled enough
         if (abs(accumulatedDelta) >= zoomThreshold) {
             if (accumulatedDelta > 0) {
-                vm.zoomOut()
+                vm.zoomOut(relativeX, relativeY)
             } else {
-                vm.zoomIn()
+                vm.zoomIn(relativeX, relativeY)
             }
             // Reset after triggering
             accumulatedDelta = 0f

@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,6 +54,7 @@ import ovh.plrapps.mapcompose.api.scale
 import ovh.plrapps.mapcompose.api.scrollTo
 import ovh.plrapps.mapcompose.api.setScrollOffsetRatio
 import ovh.plrapps.mapcompose.api.visibleArea
+import ovh.plrapps.mapcompose.api.visibleBoundingBox
 import ovh.plrapps.mapcompose.core.TileStreamProvider
 import ovh.plrapps.mapcompose.ui.layout.Forced
 import ovh.plrapps.mapcompose.ui.state.MapState
@@ -260,6 +262,42 @@ class OsmViewModel : ViewModel(){
             state.scrollTo(x             = state.centroidX,
                 y             = state.centroidY,
                 destScale     = state.scale / 1.5f,
+                animationSpec = TweenSpec(durationMillis = 0,
+                easing         = FastOutLinearInEasing))
+        }
+
+    /*
+     * Zoom in to the given center coordinates but do NOT move the map center to them
+     * this is more like the expected behaviour
+     */
+    fun zoomIn(center_x: Double, center_y: Double) =
+        viewModelScope.launch {
+            var bbox = state.visibleBoundingBox()
+            val new_center_x = bbox.xLeft + (center_x * (bbox.xRight - bbox.xLeft))
+            val new_center_y = bbox.yTop + (center_y * (bbox.yBottom - bbox.yTop))
+
+            state.scrollTo(x             = new_center_x,
+                y             = new_center_y,
+                destScale     = state.scale * 1.5f,
+                screenOffset = Offset((-center_x).toFloat(), (-center_y).toFloat()),
+                animationSpec = TweenSpec(durationMillis = 0,
+                easing         = FastOutLinearInEasing))
+        }
+
+    /*
+     * Zoom out to the given center coordinates but do NOT move the map center to them
+     * this is more like the expected behaviour
+     */
+    fun zoomOut(center_x: Double, center_y: Double) =
+        viewModelScope.launch {
+            var bbox = state.visibleBoundingBox()
+            val new_center_x = bbox.xLeft + (center_x * (bbox.xRight - bbox.xLeft))
+            val new_center_y = bbox.yTop + (center_y * (bbox.yBottom - bbox.yTop))
+
+            state.scrollTo(x             = new_center_x,
+                y             = new_center_y,
+                destScale     = state.scale / 1.5f,
+                screenOffset = Offset((-center_x).toFloat(), (-center_y).toFloat()),
                 animationSpec = TweenSpec(durationMillis = 0,
                 easing         = FastOutLinearInEasing))
         }
