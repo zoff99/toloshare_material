@@ -1439,10 +1439,10 @@ fun App()
                                 val geostate by geostore.stateFlow.collectAsState()
                                 Box(modifier = Modifier.fillMaxSize()) {
                                     // HINT: redraw map every 30 seconds
-                                    var redraw_map by remember { mutableStateOf(1) }
+                                    var redraw_map: Long by remember { mutableStateOf(1L) }
                                     LaunchedEffect(redraw_map) {
                                         delay(30.seconds)
-                                        redraw_map = redraw_map + 1
+                                        redraw_map = redraw_map + 1L
                                     }
                                     // Log.i(TAG, "redraw Map " + redraw_map)
 
