@@ -29,7 +29,7 @@ class CachingOsmTileLoader() {
     private val fs: FileSystem = FileSystem.SYSTEM
     private val cacheDir = platformCacheDir()
     private val client = createHttpClient()
-    private val MEMCACHE_MAX_ENTRIES = 2
+    private val MEMCACHE_MAX_ENTRIES = 2000
     private val HIGHDPI_MODE = 0
     private val inMemoryCache = LRUCache<String, ByteArray>(MEMCACHE_MAX_ENTRIES, { k, v ->
                                                                     val path = tilePath(k)
