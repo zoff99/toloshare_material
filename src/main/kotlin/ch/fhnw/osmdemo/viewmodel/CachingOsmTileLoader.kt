@@ -101,18 +101,32 @@ class CachingOsmTileLoader() {
                                                              if (HIGHDPI_MODE == 0)
                                                              {
                                                                  inMemoryCache[cacheKey] = tile
+                                                                 inMemoryCache[cacheKey] = tile
+                                                                 val path = tilePath(cacheKey)
+                                                                 if(!fs.exists(path)){
+                                                                     writeTile(path = path, bytes = tile)
+                                                                 }
                                                                  tile
                                                              }
                                                              else if (HIGHDPI_MODE == 1)
                                                              {
                                                                  val tile2 = magnifyTileBytes(tile, getQuadrantIndex(col, row))
                                                                  inMemoryCache[cacheKey] = tile2
+                                                                 inMemoryCache[cacheKey] = tile2
+                                                                 val path = tilePath(cacheKey)
+                                                                 if(!fs.exists(path)){
+                                                                     writeTile(path = path, bytes = tile2)
+                                                                 }
                                                                  tile2
                                                              }
                                                              else // (HIGHDPI_MODE == 2)
                                                              {
                                                                  val tile2 = magnifyTwoZoomLevels(tile, getSubQuadrantOffset(col, row))
                                                                  inMemoryCache[cacheKey] = tile2
+                                                                 val path = tilePath(cacheKey)
+                                                                 if(!fs.exists(path)){
+                                                                     writeTile(path = path, bytes = tile2)
+                                                                 }
                                                                  tile2
                                                              }
                                                          } else {
