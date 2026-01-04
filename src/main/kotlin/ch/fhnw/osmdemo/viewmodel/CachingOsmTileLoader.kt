@@ -4,7 +4,9 @@ package ch.fhnw.osmdemo.viewmodel
 
 import APPDIRS
 import com.kdroid.composetray.utils.SingleInstanceManager.configuration
+import com.zoffcc.applications.trifa.Log
 import com.zoffcc.applications.trifa.MainActivity.Companion.PREF__tox_savefile_dir
+import com.zoffcc.applications.trifa.TAG
 import io.ktor.client.*
 import io.ktor.client.engine.apache5.*
 import io.ktor.client.plugins.*
@@ -89,6 +91,7 @@ class CachingOsmTileLoader() {
                                                         }
                                                    }
             else                                -> { try {
+                                                         Log.i(TAG, "DDDDDDDDDD:")
                                                          val response = client.get(createOSMUrl(row, col, zoomLvl))
                                                          if (response.status == HttpStatusCode.OK) {
                                                              val tile = response.readRawBytes()
@@ -120,8 +123,14 @@ class CachingOsmTileLoader() {
     }
 
 
-    private fun readTile(path: Path)                     = fs.read(path) { readByteArray() }
-    private fun writeTile(path: Path, bytes: ByteArray)  = fs.write(path) { write(bytes) }
+    private fun readTile(path: Path)                     = fs.read(path) {
+        Log.i(TAG, "readTile:" + path)
+        readByteArray()
+    }
+    private fun writeTile(path: Path, bytes: ByteArray)  = fs.write(path) {
+        Log.i(TAG, "writeTile:" + path)
+        write(bytes)
+    }
 
     private fun tilePath(cacheKey: String) : Path {
         val parts = cacheKey.split("/")
@@ -129,7 +138,7 @@ class CachingOsmTileLoader() {
         if (!fs.exists(dir)) {
             fs.createDirectories(dir)
         }
-        return dir / "${parts[1]}.png"
+        return dir / "${parts[2]}.png"
     }
 
     private fun tilePath(z: Int, x: Int, y: Int): Path {
