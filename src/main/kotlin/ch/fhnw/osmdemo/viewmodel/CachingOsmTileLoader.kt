@@ -1,11 +1,9 @@
-@file:Suppress("SpellCheckingInspection", "LocalVariableName", "ConvertToStringTemplate", "PrivatePropertyName", "CascadeIf")
+@file:Suppress("SpellCheckingInspection", "LocalVariableName", "ConvertToStringTemplate", "PrivatePropertyName", "CascadeIf", "FunctionName", "MoveLambdaOutsideParentheses", "unused")
 
 package ch.fhnw.osmdemo.viewmodel
 
 import APPDIRS
-import com.kdroid.composetray.utils.SingleInstanceManager.configuration
 import com.zoffcc.applications.trifa.Log
-import com.zoffcc.applications.trifa.MainActivity.Companion.PREF__tox_savefile_dir
 import com.zoffcc.applications.trifa.TAG
 import io.ktor.client.*
 import io.ktor.client.engine.apache5.*
@@ -29,119 +27,104 @@ class CachingOsmTileLoader() {
     private val fs: FileSystem = FileSystem.SYSTEM
     private val cacheDir = platformCacheDir()
     private val client = createHttpClient()
+    private val tileSize = 256
     private val MEMCACHE_MAX_ENTRIES = 2000
-    private val HIGHDPI_MODE = 0
-    private val inMemoryCache = LRUCache<String, ByteArray>(MEMCACHE_MAX_ENTRIES, { k, v ->
-                                                                    val path = tilePath(k)
-                                                                    if(!fs.exists(path)){
-                                                                        writeTile(path = path, bytes = v)
-                                                                    }})
+    private val HIGHDPI_MODE: Int = 2
+    private val inMemoryCache = LRUCache<String, ByteArray>(MEMCACHE_MAX_ENTRIES,
+        { k, v ->
+            // HINT: we dont write the tiles to disk cache right after we download them
+        })
 
-    // private fun createOSMUrl(row: Int, col: Int, zoomLvl: Int): String = "https://tile.openstreetmap.org/$zoomLvl/$col/$row.png"
-
-    private fun createOSMUrl(row: Int, col: Int, zoomLvl: Int): String
+    @Suppress("SameParameterValue")
+    private fun convert_xyz(row: Int, col: Int, zoomLvl: Int, highdpi_mode: Int): Triple<Int, Int, Int>
     {
-        if (HIGHDPI_MODE == 0)
-        {
-            return "https://tile.openstreetmap.org/$zoomLvl/$col/$row.png"
-        }
-        else if (HIGHDPI_MODE == 1)
+        if (highdpi_mode == 1)
         {
             val new_x_y = getParentCoordinates(col, row)
             val new_zoom = zoomLvl - 1
-            val new_url = "https://tile.openstreetmap.org/${new_zoom}/${new_x_y.first}/${new_x_y.second}.png" // println("XXXXXXX: $row $col $new_x_y $new_url ")
-            return new_url
+            return Triple(new_x_y.second, new_x_y.first, new_zoom)
         }
-        else // (HIGHDPI_MODE == 2)
+        else if (highdpi_mode == 2)
         {
-            val new_x_y = getGrandParentCoords(col , row)
+            val new_x_y = getGrandParentCoords(col, row)
             val new_zoom = zoomLvl - 2
-            val new_url = "https://tile.openstreetmap.org/${new_zoom}/${new_x_y.first}/${new_x_y.second}.png" // println("XXXXXXX: $row $col $new_x_y $new_url ")
-            return new_url
+            return Triple(new_x_y.second, new_x_y.first, new_zoom)
         }
+        return Triple(row, col, zoomLvl)
     }
 
-    //private fun createOSMUrl(row: Int, col: Int, zoomLvl: Int): String = "https://tile.osm.ch/osm-swiss-style/$zoomLvl/$col/$row.png"
-    //private fun createOSMUrl(row: Int, col: Int, zoomLvl: Int): String = "https://tile.osm.ch/switzerland/$zoomLvl/$col/$row.png"
-    //private fun createOSMUrl(row: Int, col: Int, zoomLvl: Int): String = "https://b.tile.opentopomap.org/$zoomLvl/$col/$row.png"
+    private fun createOSMUrl(row: Int, col: Int, zoomLvl: Int): String
+    {
+        val res = convert_xyz(row, col, zoomLvl, HIGHDPI_MODE)
+        val row_new = res.first
+        val col_new = res.second
+        val zoomLvl_new = res.third
+        return "https://tile.openstreetmap.org/$zoomLvl_new/$col_new/$row_new.png"
+    }
 
-    private val tileSize = 256
+    fun get_cachekey(row: Int, col: Int, zoomLvl: Int): String
+    {
+        return ("$zoomLvl/$col/$row")
+    }
 
     suspend fun loadTile(row: Int, col: Int, zoomLvl: Int): ByteArray {
-        val cacheKey = "$zoomLvl/$col/$row"
         return when {
-            inMemoryCache.containsKey(cacheKey) -> { inMemoryCache[cacheKey]!! }
-            tileExists(zoomLvl, col, row)       -> {
-                val path_ = tilePath(zoomLvl, col, row)
+            inMemoryCache.containsKey(get_cachekey(row, col, zoomLvl)) -> { inMemoryCache[get_cachekey(row, col, zoomLvl)]!! }
+            tileExists(zoomLvl, col, row) -> {
+                val path_ = tilePath_on_disk(zoomLvl, col, row)
                 Log.i(TAG, "EXISTS: path_=" + path_)
                 val tile = readTile(path_)
-                                                        if (HIGHDPI_MODE == 0)
-                                                        {
-                                                            inMemoryCache[cacheKey] = tile
-                                                            tile
-                                                        }
-                                                        else if (HIGHDPI_MODE == 1)
-                                                        {
-                                                            val tile2 = magnifyTileBytes(tile, getQuadrantIndex(col, row))
-                                                            inMemoryCache[cacheKey] = tile2
-                                                            tile2
-                                                        }
-                                                        else // (HIGHDPI_MODE == 2)
-                                                        {
-                                                            val tile2 = magnifyTwoZoomLevels(tile, getSubQuadrantOffset(col, row))
-                                                            inMemoryCache[cacheKey] = tile2
-                                                            tile2
-                                                        }
-                                                   }
-            else                                -> { try {
-                                                         val osm_url = createOSMUrl(row, col, zoomLvl)
-                                                         Log.i(TAG, "DDDDDDDDDD:osm_url=" + osm_url)
-                                                         val response = client.get(osm_url)
-                                                         // val response = client.get("http://127.0.0.1/")
-                                                         Log.i(TAG, "DDDDDDDDDD:****")
-                                                         if (response.status == HttpStatusCode.OK) {
-                                                             val tile = response.readRawBytes()
-                                                             if (HIGHDPI_MODE == 0)
-                                                             {
-                                                                 inMemoryCache[cacheKey] = tile
-                                                                 inMemoryCache[cacheKey] = tile
-                                                                 val path = tilePath(cacheKey)
-                                                                 if(!fs.exists(path)){
-                                                                     writeTile(path = path, bytes = tile)
-                                                                 }
-                                                                 tile
-                                                             }
-                                                             else if (HIGHDPI_MODE == 1)
-                                                             {
-                                                                 val tile2 = magnifyTileBytes(tile, getQuadrantIndex(col, row))
-                                                                 inMemoryCache[cacheKey] = tile2
-                                                                 inMemoryCache[cacheKey] = tile2
-                                                                 val path = tilePath(cacheKey)
-                                                                 if(!fs.exists(path)){
-                                                                     writeTile(path = path, bytes = tile2)
-                                                                 }
-                                                                 tile2
-                                                             }
-                                                             else // (HIGHDPI_MODE == 2)
-                                                             {
-                                                                 val tile2 = magnifyTwoZoomLevels(tile, getSubQuadrantOffset(col, row))
-                                                                 inMemoryCache[cacheKey] = tile2
-                                                                 val path = tilePath(cacheKey)
-                                                                 if(!fs.exists(path)){
-                                                                     writeTile(path = path, bytes = tile2)
-                                                                 }
-                                                                 tile2
-                                                             }
-                                                         } else {
-                                                             Log.i(TAG, "DDDDDD:res=" + response.status)
-                                                             ByteArray(tileSize)
-                                                         }
-                                                     } catch (e: Exception) {
-                                                         e.printStackTrace()
-                                                         Log.i(TAG, "DDDDDD:EE02")
-                                                         ByteArray(tileSize)
-                                                     }
-                                                   }
+                inMemoryCache[get_cachekey(row, col, zoomLvl)] = tile
+                tile
+            }
+            else -> {
+                try {
+                    val osm_url = createOSMUrl(row, col, zoomLvl)
+                    Log.i(TAG, "DDDDDDDDDD:osm_url=" + osm_url)
+                    val response = client.get(osm_url)
+                    // val response = client.get("http://127.0.0.1/")
+                    Log.i(TAG, "DDDDDDDDDD:****")
+                    if (response.status == HttpStatusCode.OK) {
+                        val tile = response.readRawBytes()
+                        if (HIGHDPI_MODE == 0)
+                        {
+                            inMemoryCache[get_cachekey(row, col, zoomLvl)] = tile
+                            val path = tilePath_on_disk(row, col, zoomLvl)
+                            if(!fs.exists(path)){
+                                writeTile(path = path, bytes = tile)
+                            }
+                            tile
+                        }
+                        else if (HIGHDPI_MODE == 1)
+                        {
+                            val tile2 = magnifyTileBytes(tile, getQuadrantIndex(col, row))
+                            inMemoryCache[get_cachekey(row, col, zoomLvl)] = tile2
+                            val path = tilePath_on_disk(row, col, zoomLvl)
+                            if(!fs.exists(path)){
+                                writeTile(path = path, bytes = tile2)
+                            }
+                            tile2
+                        }
+                        else // (HIGHDPI_MODE == 2)
+                        {
+                            val tile2 = magnifyTwoZoomLevels(tile, getSubQuadrantOffset(col, row))
+                            inMemoryCache[get_cachekey(row, col, zoomLvl)] = tile2
+                            val path = tilePath_on_disk(row, col, zoomLvl)
+                           if(!fs.exists(path)){
+                                writeTile(path = path, bytes = tile2)
+                            }
+                            tile2
+                        }
+                     } else {
+                         Log.i(TAG, "DDDDDD:res=" + response.status)
+                         ByteArray(tileSize)
+                     }
+                } catch (e: Exception) {
+                     e.printStackTrace()
+                     Log.i(TAG, "DDDDDD:EE02")
+                     ByteArray(tileSize)
+                }
+            }
         }
     }
 
@@ -155,28 +138,18 @@ class CachingOsmTileLoader() {
         write(bytes)
     }
 
-    private fun tilePath(cacheKey: String) : Path {
-        val parts = cacheKey.split("/")
-        val dir = cacheDir / parts[0] / parts[1]
+    private fun tilePath_on_disk(row: Int, col: Int, zoomLvl: Int): Path {
+        val dir = cacheDir / zoomLvl.toString() / col.toString()
         if (!fs.exists(dir)) {
             fs.createDirectories(dir)
         }
-        Log.i(TAG, "tilePath:1:" + (dir / "${parts[2]}.png"))
-        return dir / "${parts[2]}.png"
+        return dir / "$row.png"
     }
 
-    private fun tilePath(z: Int, x: Int, y: Int): Path {
-        val dir = cacheDir / z.toString() / x.toString()
-        if (!fs.exists(dir)) {
-            fs.createDirectories(dir)
-        }
-        return dir / "$y.png"
-    }
-
-    private fun tileExists(z: Int, x: Int, y: Int) : Boolean {
-        val dir = cacheDir / z.toString() / x.toString()
-        Log.i(TAG, "tileExists:1:" + (dir / "$y.png" ))
-        return fs.exists(dir) && fs.exists(dir / "$y.png" )
+    private fun tileExists(row: Int, col: Int, zoomLvl: Int) : Boolean {
+        val dir = cacheDir / zoomLvl.toString() / col.toString()
+        Log.i(TAG, "tileExists:1:" + (dir / "$row.png" ))
+        return fs.exists(dir) && fs.exists(dir / "$row.png" )
     }
 
     /**
@@ -275,6 +248,7 @@ class CachingOsmTileLoader() {
      * @param offsetX The x-offset (0-3) in the 4x4 grid.
      * @param offsetY The y-offset (0-3) in the 4x4 grid.
      */
+    @Suppress("unused")
     fun magnifyTwoZoomLevels(tileData: ByteArray, offset: Pair<Int, Int>): ByteArray {
         val source = Image.makeFromEncoded(tileData)
 
