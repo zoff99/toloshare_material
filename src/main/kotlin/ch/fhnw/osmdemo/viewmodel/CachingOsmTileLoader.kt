@@ -29,8 +29,8 @@ class CachingOsmTileLoader() {
     private val fs: FileSystem = FileSystem.SYSTEM
     private val cacheDir = platformCacheDir()
     private val client = createHttpClient()
-    private val MEMCACHE_MAX_ENTRIES = 2000
-    private val HIGHDPI_MODE = 2
+    private val MEMCACHE_MAX_ENTRIES = 2
+    private val HIGHDPI_MODE = 0
     private val inMemoryCache = LRUCache<String, ByteArray>(MEMCACHE_MAX_ENTRIES, { k, v ->
                                                                     val path = tilePath(k)
                                                                     if(!fs.exists(path)){
@@ -71,7 +71,8 @@ class CachingOsmTileLoader() {
         val cacheKey = "$zoomLvl/$col/$row"
         return when {
             inMemoryCache.containsKey(cacheKey) -> { inMemoryCache[cacheKey]!! }
-            tileExists(zoomLvl, col, row)       -> { val tile = readTile(tilePath(zoomLvl, col, row))
+            tileExists(zoomLvl, col, row)       -> {
+                val tile = readTile(tilePath(zoomLvl, col, row))
                                                         if (HIGHDPI_MODE == 0)
                                                         {
                                                             inMemoryCache[cacheKey] = tile
@@ -93,6 +94,8 @@ class CachingOsmTileLoader() {
             else                                -> { try {
                                                          Log.i(TAG, "DDDDDDDDDD:")
                                                          val response = client.get(createOSMUrl(row, col, zoomLvl))
+                                                         // val response = client.get("http://127.0.0.1/")
+                                                         Log.i(TAG, "DDDDDDDDDD:****")
                                                          if (response.status == HttpStatusCode.OK) {
                                                              val tile = response.readRawBytes()
                                                              if (HIGHDPI_MODE == 0)
@@ -113,9 +116,12 @@ class CachingOsmTileLoader() {
                                                                  tile2
                                                              }
                                                          } else {
+                                                             Log.i(TAG, "DDDDDD:res=" + response.status)
                                                              ByteArray(tileSize)
                                                          }
-                                                     } catch (_: Exception) {
+                                                     } catch (e: Exception) {
+                                                         e.printStackTrace()
+                                                         Log.i(TAG, "DDDDDD:EE02")
                                                          ByteArray(tileSize)
                                                      }
                                                    }
@@ -323,9 +329,9 @@ fun platformCacheDir(): Path {
 
 fun createHttpClient(): HttpClient = HttpClient(Apache5) {
     engine {
-        connectTimeout           = 3_000 // 3 seconds
-        socketTimeout            = 3_000
-        connectionRequestTimeout = 3_000
+        connectTimeout           = 1_000 // 3 seconds
+        socketTimeout            = 1_000
+        connectionRequestTimeout = 300
 
         // Configure async connection pooling
         customizeClient {
@@ -341,9 +347,9 @@ fun createHttpClient(): HttpClient = HttpClient(Apache5) {
 
     // Add timeout plugin for request-level control
     install(HttpTimeout) {
-        requestTimeoutMillis = 5000
-        connectTimeoutMillis = 5000
-        socketTimeoutMillis  = 5000
+        requestTimeoutMillis = 500
+        connectTimeoutMillis = 500
+        socketTimeoutMillis  = 500
     }
 
     // Add default request configuration
