@@ -72,7 +72,9 @@ class CachingOsmTileLoader() {
         return when {
             inMemoryCache.containsKey(cacheKey) -> { inMemoryCache[cacheKey]!! }
             tileExists(zoomLvl, col, row)       -> {
-                val tile = readTile(tilePath(zoomLvl, col, row))
+                val path_ = tilePath(zoomLvl, col, row)
+                Log.i(TAG, "EXISTS: path_=" + path_)
+                val tile = readTile(path_)
                                                         if (HIGHDPI_MODE == 0)
                                                         {
                                                             inMemoryCache[cacheKey] = tile
@@ -92,8 +94,9 @@ class CachingOsmTileLoader() {
                                                         }
                                                    }
             else                                -> { try {
-                                                         Log.i(TAG, "DDDDDDDDDD:")
-                                                         val response = client.get(createOSMUrl(row, col, zoomLvl))
+                                                         val osm_url = createOSMUrl(row, col, zoomLvl)
+                                                         Log.i(TAG, "DDDDDDDDDD:osm_url=" + osm_url)
+                                                         val response = client.get(osm_url)
                                                          // val response = client.get("http://127.0.0.1/")
                                                          Log.i(TAG, "DDDDDDDDDD:****")
                                                          if (response.status == HttpStatusCode.OK) {
@@ -158,6 +161,7 @@ class CachingOsmTileLoader() {
         if (!fs.exists(dir)) {
             fs.createDirectories(dir)
         }
+        Log.i(TAG, "tilePath:1:" + (dir / "${parts[2]}.png"))
         return dir / "${parts[2]}.png"
     }
 
@@ -171,6 +175,7 @@ class CachingOsmTileLoader() {
 
     private fun tileExists(z: Int, x: Int, y: Int) : Boolean {
         val dir = cacheDir / z.toString() / x.toString()
+        Log.i(TAG, "tileExists:1:" + (dir / "$y.png" ))
         return fs.exists(dir) && fs.exists(dir / "$y.png" )
     }
 
@@ -337,20 +342,21 @@ class CachingOsmTileLoader() {
 fun platformCacheDir(): Path {
     // HINT: make this more elegant?
     val tilecache_dir = (APPDIRS.getUserCacheDir() + File.separator + "/tilecache/")
+    Log.i(TAG, "CCCCCCD: " + tilecache_dir)
     File(tilecache_dir).mkdirs()
     return tilecache_dir.toPath()
 }
 
 fun createHttpClient(): HttpClient = HttpClient(Apache5) {
     engine {
-        connectTimeout           = 1_000 // 3 seconds
-        socketTimeout            = 1_000
-        connectionRequestTimeout = 300
+        connectTimeout           = 3_000 // 3 seconds
+        socketTimeout            = 3_000
+        connectionRequestTimeout = 3_000
 
         // Configure async connection pooling
         customizeClient {
             val connectionManager = PoolingAsyncClientConnectionManager().apply {
-                maxTotal           = 100
+                maxTotal           = 20
                 defaultMaxPerRoute = 8
             }
 
@@ -361,9 +367,9 @@ fun createHttpClient(): HttpClient = HttpClient(Apache5) {
 
     // Add timeout plugin for request-level control
     install(HttpTimeout) {
-        requestTimeoutMillis = 500
-        connectTimeoutMillis = 500
-        socketTimeoutMillis  = 500
+        requestTimeoutMillis = 2500
+        connectTimeoutMillis = 2500
+        socketTimeoutMillis  = 2500
     }
 
     // Add default request configuration

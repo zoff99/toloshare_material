@@ -69,13 +69,14 @@ class OsmViewModel : ViewModel(){
     private val tileLoader = CachingOsmTileLoader()
 
     private val tileStreamProvider = TileStreamProvider { row, col, zoomLvl ->
+                                                           Log.i(TAG, "TileStreamProvider: " + row + " " + col + " " + zoomLvl)
                                                            tileLoader.loadTile(row, col, zoomLvl).asRawSource()
                                                         }
 
     private val tapToDismissId = "Tap me to dismiss"
     private val markerColor = Color(0xCC2196F3)
 
-    private val maxLevel = 21
+    private val maxLevel = 19
     private val minLevel = 2
     private val tileSize = 256
     private val mapSize  = mapSizeAtLevel(wmtsLevel = maxLevel, tileSize = tileSize)

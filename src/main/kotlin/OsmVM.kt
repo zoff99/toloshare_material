@@ -1,3 +1,5 @@
+@file:Suppress("SpellCheckingInspection")
+
 package ovh.plrapps.mapcompose.demo.viewmodels
 
 import cafe.adriel.voyager.core.model.ScreenModel
@@ -49,7 +51,7 @@ fun makeOsmTileStreamProvider() : TileStreamProvider {
             val url = URL("https://tile.openstreetmap.org/$zoomLvl/$col/$row.png")
             val connection = url.openConnection() as HttpURLConnection
             // OSM requires a user-agent
-            connection.setRequestProperty("User-Agent", "com.zoffcc.applications.toloshare_material")
+            connection.setRequestProperty("User-Agent", "com.zoffcc.applications.toloshare_material_osm")
             connection.doInput = true
             connection.connect()
             connection.inputStream.asSource()
