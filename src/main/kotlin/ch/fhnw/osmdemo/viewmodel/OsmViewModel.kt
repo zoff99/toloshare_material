@@ -76,7 +76,7 @@ class OsmViewModel : ViewModel(){
     private val tapToDismissId = "Tap me to dismiss"
     private val markerColor = Color(0xCC2196F3)
 
-    private val maxLevel = 19
+    private val maxLevel = 21
     private val minLevel = 2
     private val tileSize = 256
     private val mapSize  = mapSizeAtLevel(wmtsLevel = maxLevel, tileSize = tileSize)

@@ -70,8 +70,8 @@ class CachingOsmTileLoader() {
     suspend fun loadTile(row: Int, col: Int, zoomLvl: Int): ByteArray {
         return when {
             inMemoryCache.containsKey(get_cachekey(row, col, zoomLvl)) -> { inMemoryCache[get_cachekey(row, col, zoomLvl)]!! }
-            tileExists(zoomLvl, col, row) -> {
-                val path_ = tilePath_on_disk(zoomLvl, col, row)
+            tileExists(row, col, zoomLvl) -> {
+                val path_ = tilePath_on_disk(row, col, zoomLvl)
                 Log.i(TAG, "EXISTS: path_=" + path_)
                 val tile = readTile(path_)
                 inMemoryCache[get_cachekey(row, col, zoomLvl)] = tile
@@ -80,7 +80,7 @@ class CachingOsmTileLoader() {
             else -> {
                 try {
                     val osm_url = createOSMUrl(row, col, zoomLvl)
-                    Log.i(TAG, "DDDDDDDDDD:osm_url=" + osm_url)
+                    Log.i(TAG, "DDDDDDDDDD: $zoomLvl, $col, $row osm_url=" + osm_url)
                     val response = client.get(osm_url)
                     // val response = client.get("http://127.0.0.1/")
                     Log.i(TAG, "DDDDDDDDDD:****")
