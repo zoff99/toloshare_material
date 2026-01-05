@@ -30,7 +30,7 @@ object SingleInstanceManager {
      */
 
     // Use unified app ID provider to avoid cross-app conflicts and allow explicit override
-    private const val APP_IDENTIFIER = "7774da26-11dd-4ea4-bd08-f4950d252504"
+    private const val APP_IDENTIFIER = "019b8d02-9b93-7ac2-ba4d-7b49b0e2e02a"
 
     /**
      * Configuration for a locking mechanism.
