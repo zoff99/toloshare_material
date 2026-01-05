@@ -2058,7 +2058,7 @@ fun main(args: Array<String>) = application(exitProcessOnExit = true) {
                 Column {
                     Spacer(modifier = Modifier.height(5.dp))
                     Text(
-                        text = "TRIfA is already running",
+                        text = "ToLoShare is already running",
                         style = MaterialTheme.typography.body1.copy(
                             fontSize = 22.sp,
                         ),
@@ -2068,7 +2068,7 @@ fun main(args: Array<String>) = application(exitProcessOnExit = true) {
                         jump_single_instance = true
                         isOpenSingleInstance = false
                     }) {
-                        Text("Start TRIfA anyway (in case of Error)")
+                        Text("Start ToLoShare anyway (in case of Error)")
                     }
                     if (isAskingToCloseSingleInstance)
                     {
