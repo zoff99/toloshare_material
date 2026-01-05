@@ -2544,10 +2544,10 @@ private fun MainAppStart()
                         showIntroScreen = false
                         isOpen = false
                     }) {
-                        Text("Start TRIfA")
+                        Text("Start ToLoShare")
                     }
                     Text(
-                        text = "\n    Welcome to TRIfA Material \n\n    A Tox Client for Desktop",
+                        text = "\n    Welcome to ToLoShare Material \n\n    A Tox Client for Desktop",
                         style = MaterialTheme.typography.body1.copy(
                             fontSize = 22.sp,
                         ),
