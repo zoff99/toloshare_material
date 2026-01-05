@@ -2094,8 +2094,8 @@ fun main(args: Array<String>) = application(exitProcessOnExit = true) {
         {
             // HINT: show proper name in MacOS Menubar
             // https://alvinalexander.com/java/java-application-name-mac-menu-bar-menubar-class-name/
-            System.setProperty("com.apple.mrj.application.apple.menu.about.name", "TRIfA - Material")
-            System.setProperty("apple.awt.application.name", "TRIfA - Material")
+            System.setProperty("com.apple.mrj.application.apple.menu.about.name", "ToLoShare - Material")
+            System.setProperty("apple.awt.application.name", "ToLoShare - Material")
             System.setProperty("apple.laf.useScreenMenuBar", "true")
         } catch (e: java.lang.Exception)
         {
@@ -2535,7 +2535,7 @@ private fun MainAppStart()
 
         if (isOpen)
         {
-            Window(onCloseRequest = { isAskingToClose = true }, title = "TRIfA Material - Welcome", icon = appIcon) {
+            Window(onCloseRequest = { isAskingToClose = true }, title = "ToLoShare Material - Welcome", icon = appIcon) {
                 @OptIn(ExperimentalComposeUiApi::class)
                 window.exceptionHandler = WindowExceptionHandler { e -> println("Exception in Compose: $e") }
                 Column(Modifier.fillMaxSize()) {
@@ -2623,7 +2623,7 @@ private fun MainAppStart()
             {
             }
             Window(onCloseRequest = { isAskingToClose = true },
-                title = "TRIfA - " + win_title_addon,
+                title = "ToLoShare - " + win_title_addon,
                 icon = appIcon, state = state,
                 focusable = true,
                 onKeyEvent = {

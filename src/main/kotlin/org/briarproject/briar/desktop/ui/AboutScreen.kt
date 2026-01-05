@@ -102,7 +102,7 @@ fun AboutScreen(modifier: Modifier = Modifier.padding(16.dp)) {
         ) {
             TrifaLogo(modifier = Modifier.height(48.dp))
             Text(
-                "TRIfA Material",
+                "ToLoShare Material",
                 style = MaterialTheme.typography.h4,
                 modifier = Modifier.padding(start = 16.dp),
                 maxLines = 1,
