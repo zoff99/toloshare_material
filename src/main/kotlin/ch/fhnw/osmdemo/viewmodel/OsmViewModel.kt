@@ -69,7 +69,7 @@ class OsmViewModel : ViewModel(){
     private val tileLoader = CachingOsmTileLoader()
 
     private val tileStreamProvider = TileStreamProvider { row, col, zoomLvl ->
-                                                           Log.i(TAG, "TileStreamProvider: " + row + " " + col + " " + zoomLvl)
+                                                           // Log.i(TAG, "TileStreamProvider: " + row + " " + col + " " + zoomLvl)
                                                            tileLoader.loadTile(row, col, zoomLvl).asRawSource()
                                                         }
 

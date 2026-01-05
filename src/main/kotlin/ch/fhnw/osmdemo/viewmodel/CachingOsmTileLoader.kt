@@ -72,7 +72,7 @@ class CachingOsmTileLoader() {
             inMemoryCache.containsKey(get_cachekey(row, col, zoomLvl)) -> { inMemoryCache[get_cachekey(row, col, zoomLvl)]!! }
             tileExists(row, col, zoomLvl) -> {
                 val path_ = tilePath_on_disk(row, col, zoomLvl)
-                Log.i(TAG, "EXISTS: path_=" + path_)
+                //Log.i(TAG, "EXISTS: path_=" + path_)
                 val tile = readTile(path_)
                 inMemoryCache[get_cachekey(row, col, zoomLvl)] = tile
                 tile
@@ -83,7 +83,7 @@ class CachingOsmTileLoader() {
                     Log.i(TAG, "DDDDDDDDDD: $zoomLvl, $col, $row osm_url=" + osm_url)
                     val response = client.get(osm_url)
                     // val response = client.get("http://127.0.0.1/")
-                    Log.i(TAG, "DDDDDDDDDD:****")
+                    //Log.i(TAG, "DDDDDDDDDD:****")
                     if (response.status == HttpStatusCode.OK) {
                         val tile = response.readRawBytes()
                         if (HIGHDPI_MODE == 0)
@@ -116,12 +116,12 @@ class CachingOsmTileLoader() {
                             tile2
                         }
                      } else {
-                         Log.i(TAG, "DDDDDD:res=" + response.status)
+                         //Log.i(TAG, "DDDDDD:res=" + response.status)
                          ByteArray(tileSize)
                      }
                 } catch (e: Exception) {
                      e.printStackTrace()
-                     Log.i(TAG, "DDDDDD:EE02")
+                    //Log.i(TAG, "DDDDDD:EE02")
                      ByteArray(tileSize)
                 }
             }
@@ -130,11 +130,11 @@ class CachingOsmTileLoader() {
 
 
     private fun readTile(path: Path)                     = fs.read(path) {
-        Log.i(TAG, "readTile:" + path)
+        //Log.i(TAG, "readTile:" + path)
         readByteArray()
     }
     private fun writeTile(path: Path, bytes: ByteArray)  = fs.write(path) {
-        Log.i(TAG, "writeTile:" + path)
+        //Log.i(TAG, "writeTile:" + path)
         write(bytes)
     }
 
@@ -148,7 +148,7 @@ class CachingOsmTileLoader() {
 
     private fun tileExists(row: Int, col: Int, zoomLvl: Int) : Boolean {
         val dir = cacheDir / zoomLvl.toString() / col.toString()
-        Log.i(TAG, "tileExists:1:" + (dir / "$row.png" ))
+        //Log.i(TAG, "tileExists:1:" + (dir / "$row.png" ))
         return fs.exists(dir) && fs.exists(dir / "$row.png" )
     }
 
@@ -316,7 +316,7 @@ class CachingOsmTileLoader() {
 fun platformCacheDir(): Path {
     // HINT: make this more elegant?
     val tilecache_dir = (APPDIRS.getUserCacheDir() + File.separator + "/tilecache/")
-    Log.i(TAG, "CCCCCCD: " + tilecache_dir)
+    //Log.i(TAG, "CCCCCCD: " + tilecache_dir)
     File(tilecache_dir).mkdirs()
     return tilecache_dir.toPath()
 }
