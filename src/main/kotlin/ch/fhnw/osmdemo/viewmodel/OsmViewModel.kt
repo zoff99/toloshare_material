@@ -183,7 +183,7 @@ class OsmViewModel : ViewModel(){
     fun addMarker(pk_string: String, bearing: Float, has_bearing: Boolean, point : NormalizedPoint, name: String, last_location_millis: Long = -1L) {
         viewModelScope.launch {
             state.addMarker(pk_string, point.x, point.y,
-                relativeOffset = if (has_bearing) Offset(-0.5f, -0.5f) else Offset(-0.5f, -1f)) {
+                relativeOffset = if (has_bearing) Offset(-0.5f, -0.76f) else Offset(-0.5f, -0.93f)) {
                 Column(modifier = Modifier.randomDebugBorder()) {
                     var pin_and_text_color: Color = markerColor
                     val age_millis = location_age_millis(last_location_millis)
