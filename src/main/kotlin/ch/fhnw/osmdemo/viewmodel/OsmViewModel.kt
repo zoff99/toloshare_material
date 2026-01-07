@@ -153,7 +153,7 @@ class OsmViewModel : ViewModel(){
     }
 
     init {
-        addMarker(ST_STEPHEN_MARKER_ID, ST_STEPHEN_GEOPOS)
+        addMarker1(ST_STEPHEN_MARKER_ID, ST_STEPHEN_GEOPOS)
         viewModelScope.launch {
             state.centerOnMarker(id            = ST_STEPHEN_MARKER_ID,
                                  destScale     = 0.1,
@@ -162,17 +162,18 @@ class OsmViewModel : ViewModel(){
         // state.removeMarker(ST_STEPHEN_MARKER_ID)
     }
 
-    fun addMarker(id: String, geoPos: GeoPosition) = addMarker(id, geoPos.asNormalizedWebMercator())
-    fun addMarker(id: String, geoPos: GeoPosition, name: String) = addMarker(id, geoPos.asNormalizedWebMercator(), name)
-    fun addMarker(id: String, geoPos: GeoPosition, name: String, last_location_millis: Long) = addMarker(id, geoPos.asNormalizedWebMercator(), name, last_location_millis)
-
     fun moveMarker(id: String, geoPos : GeoPosition) = moveMarker(id, geoPos.asNormalizedWebMercator())
 
-    fun addMarker(id: String, point : NormalizedPoint) {
-        addMarker(id, point, "")
-    }
+    fun addMarker1(id: String, geoPos: GeoPosition) = addMarker(id, 0.0f,
+        true, geoPos.asNormalizedWebMercator(), name = id, last_location_millis = -1)
 
-    fun addMarker(pk_string: String, point : NormalizedPoint, name: String, last_location_millis: Long = -1L) {
+    fun addMarker2(id: String, geoPos: GeoPosition, name: String) =
+        addMarker(id, bearing = 0.0f, has_bearing = false,geoPos.asNormalizedWebMercator(), name)
+
+    fun addMarker3(id: String, bearing: Float, has_bearing: Boolean, geoPos: GeoPosition, name: String, last_location_millis: Long) =
+        addMarker(id, bearing, has_bearing, geoPos.asNormalizedWebMercator(), name, last_location_millis)
+
+    fun addMarker(pk_string: String, bearing: Float, has_bearing: Boolean, point : NormalizedPoint, name: String, last_location_millis: Long = -1L) {
         viewModelScope.launch {
             state.addMarker(pk_string, point.x, point.y) {
                 Column {
@@ -237,15 +238,6 @@ class OsmViewModel : ViewModel(){
     fun moveMarker(id: String, point : NormalizedPoint){
         viewModelScope.launch {
             state.moveMarker(id, point.x, point.y)
-        }
-    }
-
-    fun addMarkerInCenter() {
-        viewModelScope.launch {
-            val area = state.visibleArea()
-            val centerX = area.p1x + ((area.p2x - area.p1x) * 0.5)
-            val centerY = area.p1y + ((area.p4y - area.p1y) * 0.5)
-            addMarker("marker$markerCount", NormalizedPoint(centerX, centerY))
         }
     }
 

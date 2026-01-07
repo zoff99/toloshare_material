@@ -19,7 +19,7 @@ data class GeoItem(
     val acc: Float,
     val last_remote_location_ts_millis: Long = 0,
     val bearing: Float,
-    val has_bearing: Any = true,
+    val has_bearing: Boolean = true,
 ) {
     fun updateName(n: String) = copy(name = n)
 }

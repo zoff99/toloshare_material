@@ -1430,7 +1430,9 @@ fun App()
                                                 osm.state.removeMarker(it.pk_str)
                                             }
                                             val geo_pos = GeoPosition(latitude = it.lat, longitude = it.lon)
-                                            osm.addMarker(id = it.pk_str, last_location_millis = it.last_remote_location_ts_millis, name = it.name, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon))
+                                            osm.addMarker3(id = it.pk_str, bearing = it.bearing, has_bearing = it.has_bearing,
+                                                last_location_millis = it.last_remote_location_ts_millis,
+                                                name = it.name, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon))
                                             osm.moveMarker(id = it.pk_str, geoPos = geo_pos)
                                             if (geostore.getFollowPk().equals(it.pk_str))
                                             {
