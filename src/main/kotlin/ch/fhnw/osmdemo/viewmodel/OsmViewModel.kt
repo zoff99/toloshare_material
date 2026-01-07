@@ -7,14 +7,19 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.SnapSpec
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.PinDrop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -26,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
@@ -58,6 +64,7 @@ import ovh.plrapps.mapcompose.api.visibleBoundingBox
 import ovh.plrapps.mapcompose.core.TileStreamProvider
 import ovh.plrapps.mapcompose.ui.layout.Forced
 import ovh.plrapps.mapcompose.ui.state.MapState
+import randomDebugBorder
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.pow
@@ -175,8 +182,9 @@ class OsmViewModel : ViewModel(){
 
     fun addMarker(pk_string: String, bearing: Float, has_bearing: Boolean, point : NormalizedPoint, name: String, last_location_millis: Long = -1L) {
         viewModelScope.launch {
-            state.addMarker(pk_string, point.x, point.y) {
-                Column {
+            state.addMarker(pk_string, point.x, point.y,
+                relativeOffset = if (has_bearing) Offset(-0.5f, -0.5f) else Offset(-0.5f, -1f)) {
+                Column(modifier = Modifier.randomDebugBorder()) {
                     var pin_and_text_color: Color = markerColor
                     val age_millis = location_age_millis(last_location_millis)
                     if (last_location_millis > -1L)
@@ -222,12 +230,42 @@ class OsmViewModel : ViewModel(){
                             fontSize = 15.sp,
                             color = Color.Black)
                     }
-                    Icon(imageVector       = Icons.Filled.LocationOn,
-                        contentDescription = pk_string,
-                        modifier           = Modifier.size(50.dp)
-                            .align(Alignment.CenterHorizontally),
-                        tint               = pin_and_text_color
-                    )
+
+                    var icon = if (has_bearing) {
+                        Icons.Filled.Navigation // Use appropriate navigation arrow icon
+                    } else {
+                        Icons.Filled.LocationOn // Use location icon
+                    }
+                    Box(contentAlignment = Alignment.Center) {
+                        val iconSize = 50.dp
+                        val outlineWidth = 2.dp // Adjust for border thickness
+
+                        // Render the "Border" by placing offset versions behind the main icon
+                        listOf(
+                            Offset(-1f, -1f), Offset(1f, -1f),
+                            Offset(-1f, 1f), Offset(1f, 1f)
+                        ).forEach { offset ->
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = null,
+                                tint = Color.Black, // Border color
+                                modifier = Modifier
+                                    .size(iconSize)
+                                    .offset(x = offset.x.dp, y = offset.y.dp) // Manual stroke simulation
+                                    .graphicsLayer(rotationZ = if (has_bearing) bearing else 0.0f)
+                            )
+                        }
+
+                        // Main Icon
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = pk_string,
+                            modifier = Modifier
+                                .size(iconSize)
+                                .graphicsLayer(rotationZ = if (has_bearing) bearing else 0.0f),
+                            tint = pin_and_text_color
+                        )
+                    }
                 }
             }
             state.disableMarkerDrag(pk_string)
