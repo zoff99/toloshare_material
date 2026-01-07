@@ -1,4 +1,4 @@
-@file:OptIn(DelicateCoroutinesApi::class) @file:Suppress("ConvertToStringTemplate", "LocalVariableName", "FunctionName", "SpellCheckingInspection", "LiftReturnOrAssignment")
+@file:OptIn(DelicateCoroutinesApi::class) @file:Suppress("ConvertToStringTemplate", "LocalVariableName", "FunctionName", "SpellCheckingInspection", "LiftReturnOrAssignment", "RedundantIf")
 
 package ch.fhnw.osmdemo.viewmodel
 
@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.PinDrop
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,8 +32,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
@@ -182,8 +187,47 @@ class OsmViewModel : ViewModel(){
 
     fun addMarker(pk_string: String, bearing: Float, has_bearing: Boolean, point : NormalizedPoint, name: String, last_location_millis: Long = -1L) {
         viewModelScope.launch {
+            val is_pinned: Boolean
+            if ((!pk_string.isNullOrEmpty()) && (geostore.getFollowPk().equals(pk_string)))
+            {
+                is_pinned = true
+            }
+            else
+            {
+                is_pinned = false
+            }
+
+            val has_name: Boolean
+            var name_ = name
+            if (!name.isNullOrEmpty())
+            {
+                has_name = true
+            }
+            else
+            {
+                has_name = true
+                name_ = "???"
+            }
+
+            val has_delta_time: Boolean
+            if (last_location_millis > -1L)
+            {
+                has_delta_time = true
+            }
+            else
+            {
+                has_delta_time = false
+            }
+            var offset_y_bearing = -0.76f
+            var offset_y_no_bearing = -0.93f
+            if (is_pinned)
+            {
+                offset_y_bearing = -0.81f
+                offset_y_no_bearing = -0.946f
+            }
             state.addMarker(pk_string, point.x, point.y,
-                relativeOffset = if (has_bearing) Offset(-0.5f, -0.76f) else Offset(-0.5f, -0.93f)) {
+                relativeOffset = if (has_bearing) Offset(-0.5f, offset_y_bearing) else
+                    Offset(-0.5f, offset_y_no_bearing)) {
                 Column(modifier = Modifier.randomDebugBorder()) {
                     var pin_and_text_color: Color = markerColor
                     val age_millis = location_age_millis(last_location_millis)
@@ -196,7 +240,7 @@ class OsmViewModel : ViewModel(){
                         }
                     }
 
-                    if ((!pk_string.isNullOrEmpty()) && (geostore.getFollowPk().equals(pk_string)))
+                    if (is_pinned)
                     {
                         Icon(imageVector       = Icons.Filled.PinDrop,
                             contentDescription = "follow me",
@@ -205,9 +249,9 @@ class OsmViewModel : ViewModel(){
                             tint               = pin_and_text_color
                         )
                     }
-                    if (!name.isNullOrEmpty())
+                    if (has_name)
                     {
-                        Text(text = "" + name,
+                        Text(text = "" + name_,
                             modifier = Modifier
                                 .clip(RoundedCornerShape((7.dp)))
                                 .background(pin_and_text_color)
@@ -217,7 +261,8 @@ class OsmViewModel : ViewModel(){
                             fontSize = 18.sp,
                             color = Color.Black)
                     }
-                    if (last_location_millis > -1L)
+
+                    if (has_delta_time)
                     {
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(text = "" + location_age_text(last_location_millis),
@@ -231,41 +276,52 @@ class OsmViewModel : ViewModel(){
                             color = Color.Black)
                     }
 
-                    var icon = if (has_bearing) {
-                        Icons.Filled.Navigation // Use appropriate navigation arrow icon
-                    } else {
-                        Icons.Filled.LocationOn // Use location icon
-                    }
-                    Box(contentAlignment = Alignment.Center) {
-                        val iconSize = 50.dp
-                        val outlineWidth = 2.dp // Adjust for border thickness
+                    Spacer(modifier = Modifier.height(4.dp))
 
-                        // Render the "Border" by placing offset versions behind the main icon
-                        listOf(
-                            Offset(-1f, -1f), Offset(1f, -1f),
-                            Offset(-1f, 1f), Offset(1f, 1f)
-                        ).forEach { offset ->
-                            Icon(
-                                imageVector = icon,
-                                contentDescription = null,
-                                tint = Color.Black, // Border color
-                                modifier = Modifier
-                                    .size(iconSize)
-                                    .offset(x = offset.x.dp, y = offset.y.dp) // Manual stroke simulation
-                                    .graphicsLayer(rotationZ = if (has_bearing) bearing else 0.0f)
-                            )
-                        }
+                    // 1. Prepare your icon and painter
+                    val icon = if (has_bearing) Icons.Filled.Navigation else Icons.Filled.LocationOn
+                    val iconPainter = rememberVectorPainter(icon)
+                    val iconSize = 50.dp
 
-                        // Main Icon
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .size(iconSize + 5.dp)
+                            .randomDebugBorder()
+                            .align(Alignment.CenterHorizontally)
+                    ) {
+                        val rotation = if (has_bearing) bearing else 0.0f
+
+                        // 2. Background "Shadow" Icon (The solid border/outline)
+                        // We draw this slightly larger and blur it to fill all "holes"
                         Icon(
-                            imageVector = icon,
-                            contentDescription = pk_string,
+                            painter = iconPainter,
+                            contentDescription = null,
+                            tint = Color.Black,
                             modifier = Modifier
                                 .size(iconSize)
-                                .graphicsLayer(rotationZ = if (has_bearing) bearing else 0.0f),
-                            tint = pin_and_text_color
+                                .graphicsLayer {
+                                    rotationZ = rotation
+                                    // Apply a small blur to act as a solid outline/shadow
+                                    // This eliminates the "holes" caused by vector path gaps
+                                    renderEffect = BlurEffect(2f, 2f, TileMode.Decal)
+                                    // Slightly scale up to ensure it peeks out from behind
+                                    scaleX = 1.1f
+                                    scaleY = 1.1f
+                                }
+                        )
+
+                        // 3. Main Foreground Icon
+                        Icon(
+                            painter = iconPainter,
+                            contentDescription = pk_string,
+                            tint = pin_and_text_color,
+                            modifier = Modifier
+                                .size(iconSize)
+                                .graphicsLayer { rotationZ = rotation }
                         )
                     }
+
                 }
             }
             state.disableMarkerDrag(pk_string)
