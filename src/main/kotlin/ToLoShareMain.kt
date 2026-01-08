@@ -1,5 +1,5 @@
 @file:OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
-@file:Suppress("LocalVariableName", "FunctionName", "ConvertToStringTemplate", "SpellCheckingInspection", "UnusedReceiverParameter", "LiftReturnOrAssignment", "CascadeIf", "SENSELESS_COMPARISON", "VARIABLE_WITH_REDUNDANT_INITIALIZER", "UNUSED_ANONYMOUS_PARAMETER", "REDUNDANT_ELSE_IN_WHEN", "ReplaceSizeCheckWithIsNotEmpty", "ReplaceRangeToWithRangeUntil", "ReplaceGetOrSet", "SimplifyBooleanWithConstants")
+@file:Suppress("LocalVariableName", "FunctionName", "ConvertToStringTemplate", "SpellCheckingInspection", "UnusedReceiverParameter", "LiftReturnOrAssignment", "CascadeIf", "SENSELESS_COMPARISON", "VARIABLE_WITH_REDUNDANT_INITIALIZER", "UNUSED_ANONYMOUS_PARAMETER", "REDUNDANT_ELSE_IN_WHEN", "ReplaceSizeCheckWithIsNotEmpty", "ReplaceRangeToWithRangeUntil", "ReplaceGetOrSet", "SimplifyBooleanWithConstants", "ObjectPropertyName")
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -243,6 +243,8 @@ import java.net.InetSocketAddress
 import java.net.Proxy
 import java.util.*
 import java.util.concurrent.Executors
+import java.util.concurrent.SynchronousQueue
+import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 import java.util.prefs.Preferences
 import javax.swing.JPanel
@@ -338,8 +340,19 @@ var NotoEmojiFont: FontFamily? = null
 var DefaultFont: FontFamily? = null
 const val DISPLAY_SINGLE_INSTANCE_INFO = 1000L
 
-val NUMBER_OF_MOCK_FRIENDS = 1
-var friendSimulator = mutableListOf<MockFriendLocationSimulator>()
+const val ___MOCK_FRIEND_LOCATION___ = false
+const val NUMBER_OF_MOCK_FRIENDS = 1
+const val SMOOTH_GPS_INTER_STEPS = 5
+var friendSimulator: MutableList<MockFriendLocationSimulator>? = null
+
+val singleTaskExecutor = ThreadPoolExecutor(
+    1,                   // corePoolSize: Keep 1 thread alive
+    1,                   // maximumPoolSize: Allow max 1 thread
+    0L,                  // keepAliveTime: No need to wait for idle threads to die
+    TimeUnit.MILLISECONDS,
+    SynchronousQueue<Runnable>(), // Queue with 0 capacity
+    ThreadPoolExecutor.DiscardPolicy() // Silently drop new tasks if busy
+)
 
 @OptIn(DelicateCoroutinesApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -376,9 +389,16 @@ fun App()
 
     Log.i(TAG, "CCCC:" + PrefsSettings::class.java)
 
-    friendSimulator = MutableList(NUMBER_OF_MOCK_FRIENDS) { j ->
-        MockFriendLocationSimulator((6L + j).toLong()).apply {
-            startSimulation()
+    if (___MOCK_FRIEND_LOCATION___)
+    {
+        if (friendSimulator == null)
+        {
+            friendSimulator = MutableList(NUMBER_OF_MOCK_FRIENDS) { j ->
+                Log.i(TAG, "new MockFriendLocationSimulator " + j)
+                MockFriendLocationSimulator((6L + j).toLong()).apply {
+                    startSimulation()
+                }
+            }
         }
     }
 

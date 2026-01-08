@@ -1,13 +1,15 @@
-@file:Suppress("UNUSED_PARAMETER", "LocalVariableName", "PropertyName", "ClassName", "FunctionName", "unused", "UNUSED_VARIABLE", "SpellCheckingInspection", "UnnecessaryVariable", "ConvertToStringTemplate", "UNUSED_VALUE", "ReplaceCallWithBinaryOperator", "CascadeIf", "VARIABLE_WITH_REDUNDANT_INITIALIZER", "ControlFlowWithEmptyBody", "MemberVisibilityCanBePrivate", "ConstPropertyName", "ConstPropertyName", "ObjectPropertyName", "ReplaceJavaStaticMethodWithKotlinAnalog", "KotlinConstantConditions", "FoldInitializerAndIfToElvis", "SENSELESS_COMPARISON")
+@file:Suppress("UNUSED_PARAMETER", "LocalVariableName", "PropertyName", "ClassName", "FunctionName", "unused", "UNUSED_VARIABLE", "SpellCheckingInspection", "UnnecessaryVariable", "ConvertToStringTemplate", "UNUSED_VALUE", "ReplaceCallWithBinaryOperator", "CascadeIf", "VARIABLE_WITH_REDUNDANT_INITIALIZER", "ControlFlowWithEmptyBody", "MemberVisibilityCanBePrivate", "ConstPropertyName", "ConstPropertyName", "ObjectPropertyName", "ReplaceJavaStaticMethodWithKotlinAnalog", "KotlinConstantConditions", "FoldInitializerAndIfToElvis", "SENSELESS_COMPARISON", "SimplifyBooleanWithConstants")
 package com.zoffcc.applications.trifa
 
 import ColorProvider
 import GroupMessageAction
 import MessageAction
+import SMOOTH_GPS_INTER_STEPS
 import SnackBarToast
 import UIGroupMessage
 import UIMessage
 import User
+import ___MOCK_FRIEND_LOCATION___
 import avstatestore
 import avstatestorecallstate
 import avstatestorevcapfpsstate
@@ -138,6 +140,7 @@ import org.briarproject.briar.desktop.contact.ContactItem
 import org.briarproject.briar.desktop.contact.GroupItem
 import org.briarproject.briar.desktop.contact.GroupPeerItem
 import set_tox_online_state
+import singleTaskExecutor
 import toxdatastore
 import java.io.File
 import java.io.PrintWriter
@@ -217,7 +220,7 @@ class MainActivity
         const val AUDIO_VU_MIN_VALUE = -20f
         var ROTATE_INCOMING_NGC_VIDEO = true
         //
-        @JvmField var PREF__gps_smooth_friends = false
+        @JvmField var PREF__gps_smooth_friends = true
         //
         var video_buffer_1: ByteBuffer? = null
         var buffer_size_in_bytes = 0
@@ -1537,6 +1540,7 @@ class MainActivity
             }
         }
 
+        @OptIn(DelicateCoroutinesApi::class)
         @JvmStatic
         @Suppress("unused")
         fun android_tox_callback_friend_lossless_packet_cb_method(friend_number: Long, data: ByteArray?, length: Long)
@@ -1545,9 +1549,13 @@ class MainActivity
             {
                 var fpubkey = tox_friend_get_public_key(friend_number)
                 //**MOCK**//
-                if ((fpubkey == null) || (fpubkey.equals("-1")))
+                if (___MOCK_FRIEND_LOCATION___)
                 {
-                    fpubkey = "AAAAAAAAAAAA" + friend_number + "BB" + friend_number + "BB" + friend_number + "BB" + friend_number;
+                    if ((fpubkey == null) || (fpubkey.equals("-1")))
+                    {
+                        fpubkey = "AAAAAAAAAAAA" + friend_number + "BB" + friend_number + "BB" +
+                                friend_number + "BB" + friend_number;
+                    }
                 }
                 //**MOCK**//
                 if (fpubkey == null)
@@ -1658,9 +1666,55 @@ class MainActivity
                                     }
 
                                     // Log.i(TAG, "GEO::" + separated)
-                                    if (PREF__gps_smooth_friends)
+                                    if (((PREF__gps_smooth_friends) && (geostore.getFollowPk().equals(fpubkey)))
+                                        || (___MOCK_FRIEND_LOCATION___))
                                     {
                                         val current_values = geostore.get(fpubkey)
+                                        val nowTs = System.currentTimeMillis()
+                                        if (current_values == null)
+                                        {
+                                            geostore.update(item = GeoItem(name = fname, pk_str = fpubkey,
+                                                lat = lat.toDouble(), lon = lon.toDouble(),
+                                                acc = acc, bearing = bearing, has_bearing = has_bearing,
+                                                last_remote_location_ts_millis = System.currentTimeMillis()))
+                                        }
+                                        else
+                                        {
+                                            // Calculate the actual delay between this update and the last one stored
+                                            val totalDuration = nowTs - current_values.last_remote_location_ts_millis
+                                            val interval = totalDuration / SMOOTH_GPS_INTER_STEPS
+                                            val startLat = current_values.lat
+                                            val startLon = current_values.lon
+                                            val targetLat = lat.toDouble()
+                                            val targetLon = lon.toDouble() // Launch interpolation in a coroutine
+                                            // Log.i(TAG, "SSSSSSSSSSSS: 00000000 " + totalDuration)
+
+                                            singleTaskExecutor.execute {
+                                                try {
+                                                    for (i in 1..SMOOTH_GPS_INTER_STEPS)
+                                                    {
+                                                        // Log.i(TAG, "SSSSSSSSSSSS: " + i + " " + SMOOTH_GPS_INTER_STEPS)
+                                                        val fraction = i.toDouble() / SMOOTH_GPS_INTER_STEPS
+                                                        val interpLat = startLat + (targetLat - startLat) * fraction
+                                                        val interpLon = startLon + (targetLon - startLon) * fraction
+
+                                                        geostore.update(item = current_values.copy(lat = interpLat,
+                                                            lon = interpLon, acc = acc, bearing = bearing,
+                                                            has_bearing = has_bearing,
+                                                            last_remote_location_ts_millis =
+                                                                current_values.last_remote_location_ts_millis + (interval * i)))
+
+                                                        if (i < SMOOTH_GPS_INTER_STEPS)
+                                                        {
+                                                            // Log.i(TAG, "SSSSSSSSSSSS: delay=" + interval)
+                                                            Thread.sleep(interval)
+                                                        }
+                                                    }
+                                                } catch (e: InterruptedException) {
+                                                    Thread.currentThread().interrupt()
+                                                }
+                                            }
+                                        }
                                     }
                                     else
                                     {
