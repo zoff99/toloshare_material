@@ -1479,7 +1479,8 @@ fun App()
                                                     //mapScope.launch {
                                                         val geo_pos_normalized = geo_pos.asNormalizedWebMercator()
                                                         osm.state.scrollTo(x = geo_pos_normalized.x, y = geo_pos_normalized.y,
-                                                            animationSpec = TweenSpec(durationMillis = 0, easing = LinearEasing))
+                                                            animationSpec = TweenSpec(durationMillis = 0,
+                                                                easing = LinearEasing))
                                                     //}
                                                 }
                                             }
