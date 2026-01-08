@@ -131,6 +131,7 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import ca.gosyer.appdirs.AppDirs
 import ch.fhnw.osmdemo.viewmodel.GeoPosition
+import ch.fhnw.osmdemo.viewmodel.HOTSPOT_MARKER_ID_ADDON
 import ch.fhnw.osmdemo.viewmodel.OsmViewModel
 import ch.fhnw.osmdemo.viewmodel.ST_STEPHEN_MARKER_ID
 import com.google.gson.Gson
@@ -1462,6 +1463,10 @@ fun App()
                                             if (osm.state.hasMarker(it.pk_str))
                                             {
                                                 osm.state.removeMarker(it.pk_str)
+                                            }
+                                            if (osm.state.hasMarker(it.pk_str + HOTSPOT_MARKER_ID_ADDON))
+                                            {
+                                                osm.state.removeMarker(it.pk_str + HOTSPOT_MARKER_ID_ADDON)
                                             }
                                             val geo_pos = GeoPosition(latitude = it.lat, longitude = it.lon)
                                             osm.addMarker3(id = it.pk_str, bearing = it.bearing, has_bearing = it.has_bearing,

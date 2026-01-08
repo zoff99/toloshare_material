@@ -1,4 +1,4 @@
-@file:OptIn(DelicateCoroutinesApi::class) @file:Suppress("ConvertToStringTemplate", "LocalVariableName", "FunctionName", "SpellCheckingInspection", "LiftReturnOrAssignment", "RedundantIf")
+@file:OptIn(DelicateCoroutinesApi::class) @file:Suppress("ConvertToStringTemplate", "LocalVariableName", "FunctionName", "SpellCheckingInspection", "LiftReturnOrAssignment", "RedundantIf", "PropertyName")
 
 package ch.fhnw.osmdemo.viewmodel
 
@@ -6,6 +6,7 @@ import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.SnapSpec
 import androidx.compose.animation.core.TweenSpec
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -25,6 +27,7 @@ import androidx.compose.material.icons.filled.PinDrop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -73,6 +76,8 @@ import randomDebugBorder
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.pow
+
+const val HOTSPOT_MARKER_ID_ADDON = "x_marks_the_spot"
 
 /**
  * Shows how to use WMTS tile servers with MapCompose, such as OpenStreetMap.
@@ -182,10 +187,14 @@ class OsmViewModel : ViewModel(){
     fun addMarker2(id: String, geoPos: GeoPosition, name: String) =
         addMarker(id, bearing = 0.0f, has_bearing = false,geoPos.asNormalizedWebMercator(), name)
 
-    fun addMarker3(id: String, bearing: Float, has_bearing: Boolean, geoPos: GeoPosition, name: String, last_location_millis: Long) =
-        addMarker(id, bearing, has_bearing, geoPos.asNormalizedWebMercator(), name, last_location_millis)
+    fun addMarker3(id: String, bearing: Float, has_bearing: Boolean, geoPos: GeoPosition, name: String,
+                   last_location_millis: Long) =
+        addMarker(id, bearing, has_bearing, geoPos.asNormalizedWebMercator(), name,
+            last_location_millis, true)
 
-    fun addMarker(pk_string: String, bearing: Float, has_bearing: Boolean, point : NormalizedPoint, name: String, last_location_millis: Long = -1L) {
+    fun addMarker(pk_string: String, bearing: Float, has_bearing: Boolean,
+                  point : NormalizedPoint, name: String, last_location_millis: Long = -1L,
+                  hotspot: Boolean = false) {
         viewModelScope.launch {
             val is_pinned: Boolean
             if ((!pk_string.isNullOrEmpty()) && (geostore.getFollowPk().equals(pk_string)))
@@ -226,6 +235,7 @@ class OsmViewModel : ViewModel(){
                 offset_y_no_bearing = -0.946f
             }
             state.addMarker(pk_string, point.x, point.y,
+                zIndex = 10f,
                 relativeOffset = if (has_bearing) Offset(-0.5f, offset_y_bearing) else
                     Offset(-0.5f, offset_y_no_bearing)) {
                 Column(modifier = Modifier.randomDebugBorder()) {
@@ -325,6 +335,14 @@ class OsmViewModel : ViewModel(){
                 }
             }
             state.disableMarkerDrag(pk_string)
+            if (hotspot)
+            {
+                state.addMarker(pk_string + HOTSPOT_MARKER_ID_ADDON, point.x, point.y,
+                    zIndex = 20f, relativeOffset = Offset(-0.5f, -0.5f)) {
+                    SmallFilledRedCircle()
+                }
+                state.disableMarkerDrag(pk_string + HOTSPOT_MARKER_ID_ADDON)
+            }
             markerCount++
         }
     }
@@ -438,3 +456,20 @@ fun location_age_text(timestamp_millis: Long): String
     return ""
 }
 
+@Composable
+fun SmallFilledRedCircle()
+{
+    // The Canvas composable acts as a drawing area.
+    // The size modifier controls the total area this composable occupies in the layout.
+    Canvas(modifier = Modifier.size(8.dp) // Make the Canvas area small, e.g., 40x40 dp
+        .padding(1.dp) // Add some padding around the circle if needed
+    ) {
+        // Inside the DrawScope, 'center' refers to the center of the Canvas area,
+        // and 'size.minDimension / 2f' calculates the maximum possible radius that fits.
+        // You can specify an explicit radius for a fixed size circle relative to the Canvas size.
+        drawCircle(color = Color.Red, // Set the fill color to Red
+            radius = size.minDimension / 2f, // Fills the available canvas size
+            center = center // Draws the circle at the center of the Canvas
+        )
+    }
+}
