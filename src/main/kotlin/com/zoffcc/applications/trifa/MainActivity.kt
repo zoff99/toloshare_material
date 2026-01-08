@@ -1660,7 +1660,7 @@ class MainActivity
                                     // Log.i(TAG, "GEO::" + separated)
                                     if (PREF__gps_smooth_friends)
                                     {
-
+                                        val current_values = geostore.get(fpubkey)
                                     }
                                     else
                                     {

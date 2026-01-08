@@ -1,4 +1,4 @@
-@file:Suppress("PropertyName", "LocalVariableName", "FunctionName")
+@file:Suppress("PropertyName", "LocalVariableName", "FunctionName", "LiftReturnOrAssignment")
 
 package com.zoffcc.applications.trifa
 
@@ -24,6 +24,7 @@ data class GeoItem(
     var prev_has_bearing: Boolean = false,
     val acc: Float,
     val last_remote_location_ts_millis: Long = 0,
+    var prev_last_remote_location_ts_millis: Long = 0,
 ) {
     fun updateName(n: String) = copy(name = n)
 }
@@ -32,6 +33,7 @@ interface GeoStore
 {
     // fun add(item: GeoItem)
     fun update(item: GeoItem)
+    fun get(pk: String): GeoItem?
     fun setFollowPk(pk: String?)
     fun getFollowPk(): String?
     fun clear()
@@ -78,6 +80,7 @@ fun CoroutineScope.createGeoStore(): GeoStore
                     item.prev_bearing = to_remove_item.bearing
                     item.prev_lat = to_remove_item.lat
                     item.prev_lon = to_remove_item.lon
+                    item.prev_last_remote_location_ts_millis = to_remove_item.prev_last_remote_location_ts_millis
                     new_remote_locations.remove(to_remove_item)
                 }
                 new_remote_locations.add(item)
@@ -87,6 +90,27 @@ fun CoroutineScope.createGeoStore(): GeoStore
                 mutableStateFlow.value = state.copy(remote_locations = state.remote_locations + item)
             }
         }
+
+        override fun get(pk: String): GeoItem?
+        {
+            var update_item: GeoItem? = null
+            state.remote_locations.forEach {
+                if (pk == it.pk_str)
+                {
+                    update_item = it.copy()
+                }
+            }
+
+            if (update_item != null)
+            {
+                return update_item
+            }
+            else
+            {
+                return null
+            }
+        }
+
         override fun setFollowPk(pk: String?)
         {
             mutableStateFlow.value = state.copy(follow_pk = pk)
