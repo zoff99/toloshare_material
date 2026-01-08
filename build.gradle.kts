@@ -197,7 +197,7 @@ dependencies {
     implementation("cafe.adriel.voyager:voyager-core:${voyagerVersion}")
     implementation("com.squareup.okio:okio:3.16.4")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose")
-    implementation("org.jetbrains.skiko:skiko-awt:0.9.40")
+    implementation("org.jetbrains.skiko:skiko-awt:0.9.39")
 }
 
 val main_class_name = "ToLoShareMainKt"
