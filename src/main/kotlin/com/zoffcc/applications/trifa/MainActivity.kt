@@ -217,6 +217,8 @@ class MainActivity
         const val AUDIO_VU_MIN_VALUE = -20f
         var ROTATE_INCOMING_NGC_VIDEO = true
         //
+        @JvmField var PREF__gps_smooth_friends = false
+        //
         var video_buffer_1: ByteBuffer? = null
         var buffer_size_in_bytes = 0
         var _recBuffer: ByteBuffer? = null
@@ -1541,7 +1543,13 @@ class MainActivity
         {
             if (length > 0)
             {
-                val fpubkey = tox_friend_get_public_key(friend_number)
+                var fpubkey = tox_friend_get_public_key(friend_number)
+                //**MOCK**//
+                if ((fpubkey == null) || (fpubkey.equals("-1")))
+                {
+                    fpubkey = "AAAAAAAAAAAA" + friend_number + "BB" + friend_number + "BB" + friend_number + "BB" + friend_number;
+                }
+                //**MOCK**//
                 if (fpubkey == null)
                 {
                     return
@@ -1631,20 +1639,10 @@ class MainActivity
                                 catch(_: Exception)
                                 {
                                 }
-                                var f_pubkey: String? = null
-                                try
-                                {
-                                    f_pubkey = tox_friend_get_public_key(friend_number)
-                                    if ((f_pubkey != null) && (f_pubkey.length > 10))
-                                    {
-                                    }
-                                } catch (e: java.lang.Exception)
-                                {
-                                }
 
                                 try
                                 {
-                                    var fname: String = "name???"
+                                    var fname: String = "Friend " + fpubkey.take(5)
                                     try
                                     {
                                         val fname2 = tox_friend_get_name(friend_number)
@@ -1660,10 +1658,17 @@ class MainActivity
                                     }
 
                                     // Log.i(TAG, "GEO::" + separated)
-                                    geostore.update(item = GeoItem(name = fname, pk_str = fpubkey,
-                                        lat = lat.toDouble(), lon = lon.toDouble(),
-                                        acc = acc, bearing = bearing, has_bearing = has_bearing,
-                                        last_remote_location_ts_millis = System.currentTimeMillis()))
+                                    if (PREF__gps_smooth_friends)
+                                    {
+
+                                    }
+                                    else
+                                    {
+                                        geostore.update(item = GeoItem(name = fname, pk_str = fpubkey,
+                                            lat = lat.toDouble(), lon = lon.toDouble(),
+                                            acc = acc, bearing = bearing, has_bearing = has_bearing,
+                                            last_remote_location_ts_millis = System.currentTimeMillis()))
+                                    }
                                 } catch (e: java.lang.Exception)
                                 {
                                 }

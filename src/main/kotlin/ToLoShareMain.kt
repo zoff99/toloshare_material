@@ -184,6 +184,7 @@ import com.zoffcc.applications.trifa.MainActivity.Companion.tox_friend_by_public
 import com.zoffcc.applications.trifa.MainActivity.Companion.tox_friend_get_name
 import com.zoffcc.applications.trifa.MainActivity.Companion.tox_group_peer_get_name
 import com.zoffcc.applications.trifa.MainActivity.Companion.toxav_option_set
+import com.zoffcc.applications.trifa.MockFriendLocationSimulator
 import com.zoffcc.applications.trifa.NodeListJS
 import com.zoffcc.applications.trifa.OperatingSystem
 import com.zoffcc.applications.trifa.RandomNameGenerator
@@ -337,6 +338,9 @@ var NotoEmojiFont: FontFamily? = null
 var DefaultFont: FontFamily? = null
 const val DISPLAY_SINGLE_INSTANCE_INFO = 1000L
 
+val NUMBER_OF_MOCK_FRIENDS = 1
+var friendSimulator = mutableListOf<MockFriendLocationSimulator>()
+
 @OptIn(DelicateCoroutinesApi::class, ExperimentalFoundationApi::class)
 @Composable
 @Preview
@@ -371,6 +375,12 @@ fun App()
     Log.i(TAG, "resources dir canonical: " + RESOURCESDIR.canonicalPath + File.separator)
 
     Log.i(TAG, "CCCC:" + PrefsSettings::class.java)
+
+    friendSimulator = MutableList(NUMBER_OF_MOCK_FRIENDS) { j ->
+        MockFriendLocationSimulator((6L + j).toLong()).apply {
+            startSimulation()
+        }
+    }
 
     globalstore.loadUiScale()
     var ui_scale by remember { mutableStateOf(globalstore.getUiScale()) }

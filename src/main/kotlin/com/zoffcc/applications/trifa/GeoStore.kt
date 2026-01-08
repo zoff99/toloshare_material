@@ -16,17 +16,21 @@ data class GeoItem(
     val pk_str: String,
     val lat: Double,
     val lon: Double,
-    val acc: Float,
-    val last_remote_location_ts_millis: Long = 0,
     val bearing: Float,
     val has_bearing: Boolean = true,
+    var prev_lat: Double = -1.0,
+    var prev_lon: Double = -1.0,
+    var prev_bearing: Float = -1f,
+    var prev_has_bearing: Boolean = false,
+    val acc: Float,
+    val last_remote_location_ts_millis: Long = 0,
 ) {
     fun updateName(n: String) = copy(name = n)
 }
 
 interface GeoStore
 {
-    fun add(item: GeoItem)
+    // fun add(item: GeoItem)
     fun update(item: GeoItem)
     fun setFollowPk(pk: String?)
     fun getFollowPk(): String?
@@ -43,10 +47,10 @@ fun CoroutineScope.createGeoStore(): GeoStore
     {
         override val stateFlow: StateFlow<StateGeoLocations> = mutableStateFlow
 
-        override fun add(item: GeoItem)
-        {
-            mutableStateFlow.value = state.copy(remote_locations = state.remote_locations + item)
-        }
+        //override fun add(item: GeoItem)
+        //{
+        //    mutableStateFlow.value = state.copy(remote_locations = state.remote_locations + item)
+        //}
 
         override fun update(item: GeoItem)
         {
@@ -70,6 +74,10 @@ fun CoroutineScope.createGeoStore(): GeoStore
                 }
                 if (to_remove_item != null)
                 {
+                    item.prev_has_bearing = to_remove_item.has_bearing
+                    item.prev_bearing = to_remove_item.bearing
+                    item.prev_lat = to_remove_item.lat
+                    item.prev_lon = to_remove_item.lon
                     new_remote_locations.remove(to_remove_item)
                 }
                 new_remote_locations.add(item)
