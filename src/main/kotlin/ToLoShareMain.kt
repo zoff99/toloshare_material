@@ -3,6 +3,7 @@
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.BorderStroke
@@ -1472,15 +1473,15 @@ fun App()
                                             osm.addMarker3(id = it.pk_str, bearing = it.bearing, has_bearing = it.has_bearing,
                                                 last_location_millis = it.last_remote_location_ts_millis,
                                                 name = it.name, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon))
-                                            osm.moveMarker(id = it.pk_str, geoPos = geo_pos)
+                                            // osm.moveMarker(id = it.pk_str, geoPos = geo_pos)
                                             if (geostore.getFollowPk().equals(it.pk_str))
                                             {
                                                 GlobalScope.launch {
                                                     val geo_pos_normalized = geo_pos.asNormalizedWebMercator()
                                                     osm.state.scrollTo(x = geo_pos_normalized.x,
                                                         y             = geo_pos_normalized.y,
-                                                        animationSpec = TweenSpec(durationMillis = 5,
-                                                            easing         = FastOutSlowInEasing))
+                                                        animationSpec = TweenSpec(durationMillis = 10,
+                                                            easing         = LinearEasing))
                                                 }
                                             }
                                         }
