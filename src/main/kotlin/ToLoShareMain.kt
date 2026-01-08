@@ -344,7 +344,7 @@ var NotoEmojiFont: FontFamily? = null
 var DefaultFont: FontFamily? = null
 const val DISPLAY_SINGLE_INSTANCE_INFO = 1000L
 
-const val ___MOCK_FRIEND_LOCATION___ = true
+const val ___MOCK_FRIEND_LOCATION___ = false
 const val NUMBER_OF_MOCK_FRIENDS = 1
 const val SMOOTH_GPS_INTER_STEPS = 14
 var friendSimulator: MutableList<MockFriendLocationSimulator>? = null
