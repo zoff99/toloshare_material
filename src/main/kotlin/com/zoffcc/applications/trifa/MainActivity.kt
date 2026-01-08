@@ -140,6 +140,7 @@ import org.briarproject.briar.desktop.contact.ContactItem
 import org.briarproject.briar.desktop.contact.GroupItem
 import org.briarproject.briar.desktop.contact.GroupPeerItem
 import set_tox_online_state
+import singleTaskController
 import singleTaskExecutor
 import toxdatastore
 import java.io.File
@@ -1689,29 +1690,40 @@ class MainActivity
                                             val targetLon = lon.toDouble() // Launch interpolation in a coroutine
                                             // Log.i(TAG, "SSSSSSSSSSSS: 00000000 " + totalDuration)
 
-                                            singleTaskExecutor.execute {
+                                            // singleTaskExecutor.execute {
+                                            singleTaskController.execute {
                                                 try {
-                                                    for (i in 1..SMOOTH_GPS_INTER_STEPS)
+                                                    try
                                                     {
-                                                        // Log.i(TAG, "SSSSSSSSSSSS: " + i + " " + SMOOTH_GPS_INTER_STEPS)
-                                                        val fraction = i.toDouble() / SMOOTH_GPS_INTER_STEPS
-                                                        val interpLat = startLat + (targetLat - startLat) * fraction
-                                                        val interpLon = startLon + (targetLon - startLon) * fraction
-
-                                                        geostore.update(item = current_values.copy(lat = interpLat,
-                                                            lon = interpLon, acc = acc, bearing = bearing,
-                                                            has_bearing = has_bearing,
-                                                            last_remote_location_ts_millis =
-                                                                current_values.last_remote_location_ts_millis + (interval * i)))
-
-                                                        if (i < SMOOTH_GPS_INTER_STEPS)
+                                                        for (i in 1..SMOOTH_GPS_INTER_STEPS)
                                                         {
-                                                            // Log.i(TAG, "SSSSSSSSSSSS: delay=" + interval)
-                                                            Thread.sleep(interval)
+                                                            // Log.i(TAG, "SSSSSSSSSSSS: " + i + " " + SMOOTH_GPS_INTER_STEPS)
+                                                            val fraction = i.toDouble() / SMOOTH_GPS_INTER_STEPS
+                                                            val interpLat = startLat + (targetLat - startLat) * fraction
+                                                            val interpLon = startLon + (targetLon - startLon) * fraction
+
+                                                            geostore.update(item = current_values.copy(lat = interpLat, lon = interpLon, acc = acc, bearing = bearing, has_bearing = has_bearing, last_remote_location_ts_millis = current_values.last_remote_location_ts_millis + (interval * i)))
+
+                                                            if (i < SMOOTH_GPS_INTER_STEPS)
+                                                            {
+                                                                // Log.i(TAG, "SSSSSSSSSSSS: delay=" + interval)
+                                                                Thread.sleep(interval)
+                                                            }
                                                         }
                                                     }
-                                                } catch (e: InterruptedException) {
-                                                    Thread.currentThread().interrupt()
+                                                    catch(_: Exception)
+                                                    {
+
+                                                    }
+                                                } catch (e: InterruptedException)
+                                                {
+                                                    try
+                                                    {
+                                                        Thread.currentThread().interrupt()
+                                                    }
+                                                    catch(_: Exception)
+                                                    {
+                                                    }
                                                 }
                                             }
                                         }

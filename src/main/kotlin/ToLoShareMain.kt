@@ -121,6 +121,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowExceptionHandler
@@ -243,6 +244,7 @@ import java.net.InetSocketAddress
 import java.net.Proxy
 import java.util.*
 import java.util.concurrent.Executors
+import java.util.concurrent.Future
 import java.util.concurrent.SynchronousQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
@@ -340,7 +342,7 @@ var NotoEmojiFont: FontFamily? = null
 var DefaultFont: FontFamily? = null
 const val DISPLAY_SINGLE_INSTANCE_INFO = 1000L
 
-const val ___MOCK_FRIEND_LOCATION___ = false
+const val ___MOCK_FRIEND_LOCATION___ = true
 const val NUMBER_OF_MOCK_FRIENDS = 1
 const val SMOOTH_GPS_INTER_STEPS = 5
 var friendSimulator: MutableList<MockFriendLocationSimulator>? = null
@@ -353,6 +355,8 @@ val singleTaskExecutor = ThreadPoolExecutor(
     SynchronousQueue<Runnable>(), // Queue with 0 capacity
     ThreadPoolExecutor.DiscardPolicy() // Silently drop new tasks if busy
 )
+
+val singleTaskController = RestartableExecutor()
 
 @OptIn(DelicateCoroutinesApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -2051,6 +2055,10 @@ fun set_tox_online_state(new_state: String)
 @OptIn(DelicateCoroutinesApi::class)
 fun main(args: Array<String>) = application(exitProcessOnExit = true) {
 
+    Runtime.getRuntime().addShutdownHook(Thread {
+        println("JVM is shutting down. Final cleanup...")
+    })
+
     try
     {
         println("args START ============")
@@ -2081,7 +2089,7 @@ fun main(args: Array<String>) = application(exitProcessOnExit = true) {
         var isAskingToCloseSingleInstance by remember { mutableStateOf(false) }
         if (isOpenSingleInstance)
         {
-            Window(onCloseRequest = { isAskingToCloseSingleInstance = true }, title = "Info") {
+            Window(onCloseRequest = { appshutdown(3) ; isAskingToCloseSingleInstance = true }, title = "Info") {
                 GlobalScope.launch {
                     delay(DISPLAY_SINGLE_INSTANCE_INFO)
                     isOpenSingleInstance = false
@@ -2113,6 +2121,13 @@ fun main(args: Array<String>) = application(exitProcessOnExit = true) {
         {
             if (!jump_single_instance)
             {
+                try
+                {
+                    singleTaskController.shutdown()
+                }
+                catch(_: Exception)
+                {
+                }
                 exitApplication()
                 return@application
             }
@@ -2253,6 +2268,18 @@ fun main(args: Array<String>) = application(exitProcessOnExit = true) {
 
         MainAppStart()
     }
+}
+
+fun appshutdown(i: Int)
+{
+    try
+    {
+        singleTaskController.shutdown()
+    }
+    catch(_: Exception)
+    {
+    }
+    Log.i(TAG, "==== EXIT ====")
 }
 
 fun update_bootstrap_nodes_from_internet()
@@ -2709,6 +2736,7 @@ private fun MainAppStart()
                                         Log.i(TAG, "waiting ...")
                                     }
                                     Log.i(TAG, "closing application")
+                                    appshutdown(2)
                                     closing_application = true
                                     isOpen = false
                                 }
@@ -2716,6 +2744,7 @@ private fun MainAppStart()
                             {
                                 Log.i(TAG, "closing application")
                                 isOpen = false
+                                appshutdown(1)
                                 closing_application = true
                             }
                         }) {
@@ -2985,4 +3014,23 @@ fun MapWithZoomControl(vm: OsmViewModel, modifier: Modifier = Modifier) {
 fun MapPanel(state: MapState, modifier: Modifier = Modifier) {
     MapUI(modifier = modifier,
         state    = state)
+}
+
+
+class RestartableExecutor {
+    private val executor = Executors.newSingleThreadExecutor()
+    private var currentTask: Future<*>? = null
+
+    @Synchronized
+    fun execute(block: Runnable) {
+        // 1. Kill the currently running task if it exists
+        currentTask?.cancel(true)
+
+        // 2. Submit the new task and store its handle
+        currentTask = executor.submit(block)
+    }
+
+    fun shutdown() {
+        executor.shutdownNow()
+    }
 }
