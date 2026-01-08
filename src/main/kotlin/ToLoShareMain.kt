@@ -346,7 +346,7 @@ const val DISPLAY_SINGLE_INSTANCE_INFO = 1000L
 
 const val ___MOCK_FRIEND_LOCATION___ = true
 const val NUMBER_OF_MOCK_FRIENDS = 1
-const val SMOOTH_GPS_INTER_STEPS = 8
+const val SMOOTH_GPS_INTER_STEPS = 14
 var friendSimulator: MutableList<MockFriendLocationSimulator>? = null
 
 val singleTaskExecutor = ThreadPoolExecutor(
@@ -1449,6 +1449,7 @@ fun App()
                             UiMode.MAP ->
                             {
                                 val geostate by geostore.stateFlow.collectAsState()
+                                val mapScope = rememberCoroutineScope()
                                 Box(modifier = Modifier.fillMaxSize()) {
                                     // HINT: redraw map every 30 seconds
                                     var redraw_map: Long by remember { mutableStateOf(1L) }
@@ -1460,28 +1461,26 @@ fun App()
 
                                     if (geostate.remote_locations.size > 0)
                                     {
-                                        geostate.remote_locations.forEach {
-                                            if (osm.state.hasMarker(it.pk_str))
-                                            {
-                                                osm.state.removeMarker(it.pk_str)
-                                            }
-                                            if (osm.state.hasMarker(it.pk_str + HOTSPOT_MARKER_ID_ADDON))
-                                            {
-                                                osm.state.removeMarker(it.pk_str + HOTSPOT_MARKER_ID_ADDON)
-                                            }
-                                            val geo_pos = GeoPosition(latitude = it.lat, longitude = it.lon)
-                                            osm.addMarker3(id = it.pk_str, bearing = it.bearing, has_bearing = it.has_bearing,
-                                                last_location_millis = it.last_remote_location_ts_millis,
-                                                name = it.name, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon))
-                                            // osm.moveMarker(id = it.pk_str, geoPos = geo_pos)
-                                            if (geostore.getFollowPk().equals(it.pk_str))
-                                            {
-                                                GlobalScope.launch {
-                                                    val geo_pos_normalized = geo_pos.asNormalizedWebMercator()
-                                                    osm.state.scrollTo(x = geo_pos_normalized.x,
-                                                        y             = geo_pos_normalized.y,
-                                                        animationSpec = TweenSpec(durationMillis = 10,
-                                                            easing         = LinearEasing))
+                                        mapScope.launch {
+                                            geostate.remote_locations.forEach {
+                                                if (osm.state.hasMarker(it.pk_str))
+                                                {
+                                                    osm.state.removeMarker(it.pk_str)
+                                                }
+                                                if (osm.state.hasMarker(it.pk_str + HOTSPOT_MARKER_ID_ADDON))
+                                                {
+                                                    osm.state.removeMarker(it.pk_str + HOTSPOT_MARKER_ID_ADDON)
+                                                }
+                                                val geo_pos = GeoPosition(latitude = it.lat, longitude = it.lon)
+                                                osm.addMarker3(id = it.pk_str, bearing = it.bearing,
+                                                    has_bearing = it.has_bearing, last_location_millis = it.last_remote_location_ts_millis, name = it.name, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon))
+                                                if (geostore.getFollowPk().equals(it.pk_str))
+                                                {
+                                                    //mapScope.launch {
+                                                        val geo_pos_normalized = geo_pos.asNormalizedWebMercator()
+                                                        osm.state.scrollTo(x = geo_pos_normalized.x, y = geo_pos_normalized.y,
+                                                            animationSpec = TweenSpec(durationMillis = 0, easing = LinearEasing))
+                                                    //}
                                                 }
                                             }
                                         }
