@@ -97,10 +97,10 @@ public class MockFriendLocationSimulator {
         // 30s: Stop at a red light
         actionHandler.postDelayed(() -> setStopped(true), 30000);
 
-        // 35s: Slow down to 1m/s (~3 km/h)
+        // 35s: Slow down to 3m/s (~10 km/h)
         actionHandler.postDelayed(() -> {
             setStopped(false);
-            setSpeed(1.0f);
+            setSpeed(3.0f);
         }, 35000);
     }
 

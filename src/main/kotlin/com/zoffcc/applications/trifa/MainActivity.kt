@@ -1,4 +1,4 @@
-@file:Suppress("UNUSED_PARAMETER", "LocalVariableName", "PropertyName", "ClassName", "FunctionName", "unused", "UNUSED_VARIABLE", "SpellCheckingInspection", "UnnecessaryVariable", "ConvertToStringTemplate", "UNUSED_VALUE", "ReplaceCallWithBinaryOperator", "CascadeIf", "VARIABLE_WITH_REDUNDANT_INITIALIZER", "ControlFlowWithEmptyBody", "MemberVisibilityCanBePrivate", "ConstPropertyName", "ConstPropertyName", "ObjectPropertyName", "ReplaceJavaStaticMethodWithKotlinAnalog", "KotlinConstantConditions", "FoldInitializerAndIfToElvis", "SENSELESS_COMPARISON", "SimplifyBooleanWithConstants")
+@file:Suppress("UNUSED_PARAMETER", "LocalVariableName", "PropertyName", "ClassName", "FunctionName", "unused", "UNUSED_VARIABLE", "SpellCheckingInspection", "UnnecessaryVariable", "ConvertToStringTemplate", "UNUSED_VALUE", "ReplaceCallWithBinaryOperator", "CascadeIf", "VARIABLE_WITH_REDUNDANT_INITIALIZER", "ControlFlowWithEmptyBody", "MemberVisibilityCanBePrivate", "ConstPropertyName", "ConstPropertyName", "ObjectPropertyName", "ReplaceJavaStaticMethodWithKotlinAnalog", "KotlinConstantConditions", "FoldInitializerAndIfToElvis", "SENSELESS_COMPARISON", "SimplifyBooleanWithConstants", "LiftReturnOrAssignment")
 package com.zoffcc.applications.trifa
 
 import ColorProvider
@@ -1686,9 +1686,19 @@ class MainActivity
                                             val interval = totalDuration / SMOOTH_GPS_INTER_STEPS
                                             val startLat = current_values.lat
                                             val startLon = current_values.lon
+                                            val startBearing = current_values.bearing
                                             val targetLat = lat.toDouble()
-                                            val targetLon = lon.toDouble() // Launch interpolation in a coroutine
-                                            // Log.i(TAG, "SSSSSSSSSSSS: 00000000 " + totalDuration)
+                                            val targetLon = lon.toDouble()
+
+                                            // Calculate the shortest difference between target and start bearing
+                                            // This ensures we turn the "short way" (e.g., from 350 to 10 via 360/0)
+                                            var bearingDiff = (((bearing - startBearing) % 360 + 540) % 360) - 180
+                                            if (!has_bearing)
+                                            {
+                                                bearingDiff = 0.0f
+                                            }
+
+                                            // Log.i(TAG, "SSSSSSSSSSSS: 00000000 " + totalDuration + " " + bearingDiff)
 
                                             // singleTaskExecutor.execute {
                                             singleTaskController.execute {
@@ -1702,7 +1712,21 @@ class MainActivity
                                                             val interpLat = startLat + (targetLat - startLat) * fraction
                                                             val interpLon = startLon + (targetLon - startLon) * fraction
 
-                                                            geostore.update(item = current_values.copy(lat = interpLat, lon = interpLon, acc = acc, bearing = bearing, has_bearing = has_bearing, last_remote_location_ts_millis = current_values.last_remote_location_ts_millis + (interval * i)))
+                                                            // Interpolate bearing using the shortest path difference
+                                                            // We use % 360 at the end to keep the result in the [0, 360) range
+                                                            val interpBearing: Float
+                                                            if (!has_bearing)
+                                                            {
+                                                                interpBearing = startBearing
+                                                            }
+                                                            else
+                                                            {
+                                                                interpBearing = ((startBearing + (bearingDiff * fraction) + 360) % 360).toFloat()
+                                                            }
+
+                                                            geostore.update(item = current_values.copy(lat = interpLat, lon = interpLon,
+                                                                acc = acc, bearing = interpBearing, has_bearing = has_bearing,
+                                                                last_remote_location_ts_millis = current_values.last_remote_location_ts_millis + (interval * i)))
 
                                                             if (i < SMOOTH_GPS_INTER_STEPS)
                                                             {
