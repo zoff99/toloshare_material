@@ -443,7 +443,7 @@ fun location_age_text(timestamp_millis: Long): String
         if (minutes > 0)
         {
             location_time_txt = "" + minutes + " minutes ago"
-        } else if (seconds > 0)
+        } else if (seconds > 1) // to avoid flickering between "now" and "1 seconds ago"
         {
             location_time_txt = "" + seconds + " seconds ago"
         } else
