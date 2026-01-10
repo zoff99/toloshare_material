@@ -30,6 +30,8 @@ class CachingOsmTileLoader() {
     private val tileSize = 256
     private val MEMCACHE_MAX_ENTRIES = 2000
     private val HIGHDPI_MODE: Int = 2
+    private val MAX_CACHE_AGE_DAYS = 28
+    private val MAX_CACHE_AGE_MILLIS = MAX_CACHE_AGE_DAYS * 24L * 60L * 60L * 1000L
     private val inMemoryCache = LRUCache<String, ByteArray>(MEMCACHE_MAX_ENTRIES,
         { k, v ->
             // HINT: we dont write the tiles to disk cache right after we download them
@@ -70,7 +72,7 @@ class CachingOsmTileLoader() {
     suspend fun loadTile(row: Int, col: Int, zoomLvl: Int): ByteArray {
         return when {
             inMemoryCache.containsKey(get_cachekey(row, col, zoomLvl)) -> { inMemoryCache[get_cachekey(row, col, zoomLvl)]!! }
-            tileExists(row, col, zoomLvl) -> {
+            tileExistsWithAge(row, col, zoomLvl) -> {
                 val path_ = tilePath_on_disk(row, col, zoomLvl)
                 //Log.i(TAG, "EXISTS: path_=" + path_)
                 val tile = readTile(path_)
@@ -90,9 +92,7 @@ class CachingOsmTileLoader() {
                         {
                             inMemoryCache[get_cachekey(row, col, zoomLvl)] = tile
                             val path = tilePath_on_disk(row, col, zoomLvl)
-                            if(!fs.exists(path)){
-                                writeTile(path = path, bytes = tile)
-                            }
+                            writeTile(path = path, bytes = tile)
                             tile
                         }
                         else if (HIGHDPI_MODE == 1)
@@ -100,9 +100,7 @@ class CachingOsmTileLoader() {
                             val tile2 = magnifyTileBytes(tile, getQuadrantIndex(col, row))
                             inMemoryCache[get_cachekey(row, col, zoomLvl)] = tile2
                             val path = tilePath_on_disk(row, col, zoomLvl)
-                            if(!fs.exists(path)){
-                                writeTile(path = path, bytes = tile2)
-                            }
+                            writeTile(path = path, bytes = tile2)
                             tile2
                         }
                         else // (HIGHDPI_MODE == 2)
@@ -110,9 +108,7 @@ class CachingOsmTileLoader() {
                             val tile2 = magnifyTwoZoomLevels(tile, getSubQuadrantOffset(col, row))
                             inMemoryCache[get_cachekey(row, col, zoomLvl)] = tile2
                             val path = tilePath_on_disk(row, col, zoomLvl)
-                           if(!fs.exists(path)){
-                                writeTile(path = path, bytes = tile2)
-                            }
+                            writeTile(path = path, bytes = tile2)
                             tile2
                         }
                      } else {
@@ -144,6 +140,26 @@ class CachingOsmTileLoader() {
             fs.createDirectories(dir)
         }
         return dir / "$row.png"
+    }
+
+    private fun tileExistsWithAge(row: Int, col: Int, zoomLvl: Int): Boolean {
+        val dir = cacheDir / zoomLvl.toString() / col.toString()
+        if (!fs.exists(dir))
+        {
+            return false
+        }
+        val tilePath = dir / "$row.png"
+
+        // metadataOrNull returns null if the file doesn't exist
+        val metadata = fs.metadataOrNull(tilePath) ?: return false
+
+        val lastModified = metadata.lastModifiedAtMillis ?: return false
+        val currentTime = System.currentTimeMillis()
+
+        // true only if file exists and is younger than MAX_CACHE_AGE
+        val is_younger = (currentTime - lastModified) < MAX_CACHE_AGE_MILLIS
+        // Log.i(TAG, "tileExistsWithAge:1:" + (dir / "$row.png" ) + " is_younger=" + is_younger)
+        return is_younger
     }
 
     private fun tileExists(row: Int, col: Int, zoomLvl: Int) : Boolean {
