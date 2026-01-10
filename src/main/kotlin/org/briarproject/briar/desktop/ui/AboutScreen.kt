@@ -132,7 +132,7 @@ fun AboutScreen(modifier: Modifier = Modifier.padding(16.dp)) {
                             url + "&trifa_material_version=" + URLEncoder.encode(BuildConfig.APP_VERSION, "UTF-8")
                         } catch (e: java.lang.Exception)
                         {
-                            "$url" + "&trifa_material_version=unknown"
+                            "$url" + "&toloshare_material_version=unknown"
                         }
 
                         url = try
@@ -207,7 +207,7 @@ private fun GeneralInfo() {
         add(Entry(i18n("about.git_commit_hash"), BuildConfig.GIT_COMMIT_HASH))
         add(Entry(i18n("about.git_commit_date"), BuildConfig.GIT_COMMIT_DATE))
         add(Entry(i18n("about.git_commit_msg"), BuildConfig.GIT_COMMIT_MSG))
-        add(Entry(i18n("about.website"), "https://github.com/Zoxcore/trifa_material", true))
+        add(Entry(i18n("about.website"), "https://github.com/zoff99/toloshare_material", true))
         if (global_store.ormaRunning)
         {
             try

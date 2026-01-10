@@ -8,9 +8,9 @@ body:
       value: |
         Some fields should be filled out automatically. If you're filing this report manually, please fill out the following fields to the best of your ability.
   - type: input
-    id: trifa_material_version
+    id: toloshare_material_version
     attributes:
-      label: TRIfA Material Version
+      label: ToLoShare Material Version
       placeholder: 1.0.0
   - type: input
     id: build
@@ -23,7 +23,7 @@ body:
       label: Steps to reproduce
       placeholder: How can we reproduce the bug?
       value: |
-        1. Start TRIfA Material
+        1. Start ToLoShare Material
   - type: textarea
     id: observed
     attributes:

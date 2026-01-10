@@ -153,7 +153,7 @@ public class TRIFAGlobals
     final static String VFS_OWN_AVATAR_DIR = "./datadir/myavatar/";
     static String VFS_PREFIX = ""; // only set for normal (unencrypted) storage
 
-    public final static String TRIFA_GITHUB_REPO_URL = "https://github.com/Zoxcore/trifa_material";
+    public final static String TRIFA_GITHUB_REPO_URL = "https://github.com/zoff99/toloshare_material";
     public final static String TRIFA_GITHUB_NEW_ISSUE_URL = TRIFA_GITHUB_REPO_URL + "/issues/new";
 
     final static String IMAGE_THUMBNAIL_PLACEHOLDER = "image_thumb.png";
