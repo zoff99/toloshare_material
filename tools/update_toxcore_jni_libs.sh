@@ -1,5 +1,5 @@
 #! /bin/bash
-base_url='https://github.com/zoff99/trifa_material/releases/download/nightly/'
+base_url='https://github.com/zoff99/toloshare_material/releases/download/nightly/'
 
 file_mac_arm64='libjni-c-toxcore_arm64.jnilib'
 file_mac='libjni-c-toxcore.jnilib'
