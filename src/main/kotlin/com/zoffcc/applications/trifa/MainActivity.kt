@@ -141,7 +141,6 @@ import org.briarproject.briar.desktop.contact.GroupItem
 import org.briarproject.briar.desktop.contact.GroupPeerItem
 import set_tox_online_state
 import singleTaskController
-import singleTaskExecutor
 import toxdatastore
 import java.io.File
 import java.io.PrintWriter
@@ -1674,79 +1673,82 @@ class MainActivity
                                         val nowTs = System.currentTimeMillis()
                                         if (current_values == null)
                                         {
-                                            geostore.update(item = GeoItem(name = fname, pk_str = fpubkey,
-                                                lat = lat.toDouble(), lon = lon.toDouble(),
-                                                acc = acc, bearing = bearing, has_bearing = has_bearing,
-                                                last_remote_location_ts_millis = System.currentTimeMillis()))
+                                            // add new friend geoitem, it does not exist yet
+                                            update_friend_geoitem(fname, fpubkey, lat.toDouble(), lon.toDouble(),
+                                                acc, bearing,
+                                                has_bearing,
+                                                last_remote_location_ts_ms = System.currentTimeMillis(),
+                                                true)
                                         }
                                         else
                                         {
                                             // Calculate the actual delay between this update and the last one stored
                                             val totalDuration = nowTs - current_values.last_remote_location_ts_millis
-                                            val interval = totalDuration / SMOOTH_GPS_INTER_STEPS
-                                            val startLat = current_values.lat
-                                            val startLon = current_values.lon
-                                            val startBearing = current_values.bearing
-                                            val targetLat = lat.toDouble()
-                                            val targetLon = lon.toDouble()
 
-                                            // Calculate the shortest difference between target and start bearing
-                                            // This ensures we turn the "short way" (e.g., from 350 to 10 via 360/0)
-                                            var bearingDiff = (((bearing - startBearing) % 360 + 540) % 360) - 180
-                                            if (!has_bearing)
+                                            if (totalDuration > 1800)
                                             {
-                                                bearingDiff = 0.0f
+                                                update_friend_geoitem(fname, fpubkey, lat.toDouble(), lon.toDouble(),
+                                                    acc, bearing,
+                                                    has_bearing,
+                                                    last_remote_location_ts_ms = System.currentTimeMillis(),
+                                                    true)
                                             }
-
-                                            // Log.i(TAG, "SSSSSSSSSSSS: 00000000 " + totalDuration + " " + bearingDiff)
-
-                                            // singleTaskExecutor.execute {
-                                            singleTaskController.execute {
-                                                try {
-                                                    try
-                                                    {
-                                                        for (i in 1..SMOOTH_GPS_INTER_STEPS)
-                                                        {
-                                                            // Log.i(TAG, "SSSSSSSSSSSS: " + i + " " + SMOOTH_GPS_INTER_STEPS)
-                                                            val fraction = i.toDouble() / SMOOTH_GPS_INTER_STEPS
-                                                            val interpLat = startLat + (targetLat - startLat) * fraction
-                                                            val interpLon = startLon + (targetLon - startLon) * fraction
-
-                                                            // Interpolate bearing using the shortest path difference
-                                                            // We use % 360 at the end to keep the result in the [0, 360) range
-                                                            val interpBearing: Float
-                                                            if (!has_bearing)
-                                                            {
-                                                                interpBearing = startBearing
-                                                            }
-                                                            else
-                                                            {
-                                                                interpBearing = ((startBearing + (bearingDiff * fraction) + 360) % 360).toFloat()
-                                                            }
-
-                                                            geostore.update(item = current_values.copy(lat = interpLat, lon = interpLon,
-                                                                acc = acc, bearing = interpBearing, has_bearing = has_bearing,
-                                                                last_remote_location_ts_millis = current_values.last_remote_location_ts_millis + (interval * i)))
-
-                                                            if (i < SMOOTH_GPS_INTER_STEPS)
-                                                            {
-                                                                // Log.i(TAG, "SSSSSSSSSSSS: delay=" + interval)
-                                                                Thread.sleep(interval)
-                                                            }
-                                                        }
-                                                    }
-                                                    catch(_: Exception)
-                                                    {
-
-                                                    }
-                                                } catch (e: InterruptedException)
+                                            else
+                                            {
+                                                val interval = totalDuration / SMOOTH_GPS_INTER_STEPS
+                                                val startLat = current_values.lat
+                                                val startLon = current_values.lon
+                                                val startBearing = current_values.bearing
+                                                val targetLat = lat.toDouble()
+                                                val targetLon = lon.toDouble() // Calculate the shortest difference between target and start bearing
+                                                // This ensures we turn the "short way" (e.g., from 350 to 10 via 360/0)
+                                                var bearingDiff = (((bearing - startBearing) % 360 + 540) % 360) - 180
+                                                if (!has_bearing)
                                                 {
+                                                    bearingDiff = 0.0f
+                                                } // Log.i(TAG, "SSSSSSSSSSSS: 00000000 " + totalDuration + " " + bearingDiff)
+                                                // singleTaskExecutor.execute {
+                                                singleTaskController.execute {
                                                     try
                                                     {
-                                                        Thread.currentThread().interrupt()
-                                                    }
-                                                    catch(_: Exception)
+                                                        try
+                                                        {
+                                                            for (i in 1..SMOOTH_GPS_INTER_STEPS)
+                                                            { // Log.i(TAG, "SSSSSSSSSSSS: " + i + " " + SMOOTH_GPS_INTER_STEPS)
+                                                                val fraction = i.toDouble() / SMOOTH_GPS_INTER_STEPS
+                                                                val interpLat = startLat + (targetLat - startLat) * fraction
+                                                                val interpLon = startLon + (targetLon - startLon) * fraction // Interpolate bearing using the shortest path difference
+                                                                // We use % 360 at the end to keep the result in the [0, 360) range
+                                                                val interpBearing: Float
+                                                                if (!has_bearing)
+                                                                {
+                                                                    interpBearing = startBearing
+                                                                } else
+                                                                {
+                                                                    interpBearing = ((startBearing + (bearingDiff * fraction) + 360) % 360).toFloat()
+                                                                }
+                                                                val cur_ts = current_values.last_remote_location_ts_millis
+                                                                update_friend_geoitem(fname, fpubkey, interpLat,
+                                                                    interpLon, acc, interpBearing,
+                                                                    has_bearing,
+                                                                    last_remote_location_ts_ms = cur_ts,
+                                                                    false)
+                                                                if (i < SMOOTH_GPS_INTER_STEPS)
+                                                                { // Log.i(TAG, "SSSSSSSSSSSS: delay=" + interval)
+                                                                    Thread.sleep(interval)
+                                                                }
+                                                            }
+                                                        } catch (_: Exception)
+                                                        {
+                                                        }
+                                                    } catch (e: InterruptedException)
                                                     {
+                                                        try
+                                                        {
+                                                            Thread.currentThread().interrupt()
+                                                        } catch (_: Exception)
+                                                        {
+                                                        }
                                                     }
                                                 }
                                             }
@@ -1754,10 +1756,11 @@ class MainActivity
                                     }
                                     else
                                     {
-                                        geostore.update(item = GeoItem(name = fname, pk_str = fpubkey,
-                                            lat = lat.toDouble(), lon = lon.toDouble(),
-                                            acc = acc, bearing = bearing, has_bearing = has_bearing,
-                                            last_remote_location_ts_millis = System.currentTimeMillis()))
+                                        update_friend_geoitem(fname, fpubkey, lat.toDouble(), lon.toDouble(),
+                                            acc, bearing,
+                                            has_bearing,
+                                            last_remote_location_ts_ms = System.currentTimeMillis(),
+                                            true)
                                     }
                                 } catch (e: java.lang.Exception)
                                 {
@@ -4577,4 +4580,16 @@ class MainActivity
             }
         }
     }
+}
+
+private fun update_friend_geoitem(fname: String, fpubkey: String, lat: Double, lon: Double, acc: Float,
+                                  bearing: Float, has_bearing: Boolean,
+                                  last_remote_location_ts_ms: Long,
+                                  direct: Boolean)
+{
+    geostore.update(item = GeoItem(name = fname, pk_str = fpubkey,
+        lat = lat, lon = lon, acc = acc,
+        bearing = bearing, has_bearing = has_bearing,
+        last_remote_location_ts_millis = last_remote_location_ts_ms,
+        direct = direct))
 }

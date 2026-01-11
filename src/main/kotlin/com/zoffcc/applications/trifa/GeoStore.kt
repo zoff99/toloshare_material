@@ -25,6 +25,7 @@ data class GeoItem(
     val acc: Float,
     val last_remote_location_ts_millis: Long = 0,
     var prev_last_remote_location_ts_millis: Long = 0,
+    val direct: Boolean = true,
 ) {
     fun updateName(n: String) = copy(name = n)
 }
@@ -76,17 +77,36 @@ fun CoroutineScope.createGeoStore(): GeoStore
                 }
                 if (to_remove_item != null)
                 {
-                    item.prev_has_bearing = to_remove_item.has_bearing
-                    item.prev_bearing = to_remove_item.bearing
-                    item.prev_lat = to_remove_item.lat
-                    item.prev_lon = to_remove_item.lon
-                    item.prev_last_remote_location_ts_millis = to_remove_item.prev_last_remote_location_ts_millis
+                    if (item.direct)
+                    {
+                        item.prev_has_bearing = item.has_bearing
+                        item.prev_bearing = item.bearing
+                        item.prev_lat = item.lat
+                        item.prev_lon = item.lon
+                        item.prev_last_remote_location_ts_millis = item.prev_last_remote_location_ts_millis
+                    }
+                    else
+                    {
+                        item.prev_has_bearing = to_remove_item.has_bearing
+                        item.prev_bearing = to_remove_item.bearing
+                        item.prev_lat = to_remove_item.lat
+                        item.prev_lon = to_remove_item.lon
+                        item.prev_last_remote_location_ts_millis = to_remove_item.prev_last_remote_location_ts_millis
+                    }
                     new_remote_locations.remove(to_remove_item)
                 }
                 new_remote_locations.add(item)
                 mutableStateFlow.value = state.copy(remote_locations = new_remote_locations)
             } else
             {
+                if (item.direct)
+                {
+                    item.prev_has_bearing = item.has_bearing
+                    item.prev_bearing = item.bearing
+                    item.prev_lat = item.lat
+                    item.prev_lon = item.lon
+                    item.prev_last_remote_location_ts_millis = item.prev_last_remote_location_ts_millis
+                }
                 mutableStateFlow.value = state.copy(remote_locations = state.remote_locations + item)
             }
         }
