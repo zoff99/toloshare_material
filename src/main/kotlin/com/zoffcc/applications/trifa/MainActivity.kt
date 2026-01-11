@@ -1665,19 +1665,19 @@ class MainActivity
                                     {
                                     }
 
+                                    val nowTs = System.currentTimeMillis()
                                     // Log.i(TAG, "GEO::" + separated)
                                     if (((PREF__gps_smooth_friends) && (geostore.getFollowPk().equals(fpubkey)))
                                         || (___MOCK_FRIEND_LOCATION___))
                                     {
                                         val current_values = geostore.get(fpubkey)
-                                        val nowTs = System.currentTimeMillis()
                                         if (current_values == null)
                                         {
                                             // add new friend geoitem, it does not exist yet
                                             update_friend_geoitem(fname, fpubkey, lat.toDouble(), lon.toDouble(),
                                                 acc, bearing,
                                                 has_bearing,
-                                                last_remote_location_ts_ms = System.currentTimeMillis(),
+                                                last_remote_location_ts_ms = nowTs,
                                                 true)
                                         }
                                         else
@@ -1690,7 +1690,7 @@ class MainActivity
                                                 update_friend_geoitem(fname, fpubkey, lat.toDouble(), lon.toDouble(),
                                                     acc, bearing,
                                                     has_bearing,
-                                                    last_remote_location_ts_ms = System.currentTimeMillis(),
+                                                    last_remote_location_ts_ms = nowTs,
                                                     true)
                                             }
                                             else
@@ -1727,11 +1727,10 @@ class MainActivity
                                                                 {
                                                                     interpBearing = ((startBearing + (bearingDiff * fraction) + 360) % 360).toFloat()
                                                                 }
-                                                                val cur_ts = current_values.last_remote_location_ts_millis
                                                                 update_friend_geoitem(fname, fpubkey, interpLat,
                                                                     interpLon, acc, interpBearing,
                                                                     has_bearing,
-                                                                    last_remote_location_ts_ms = cur_ts,
+                                                                    last_remote_location_ts_ms = nowTs,
                                                                     false)
                                                                 if (i < SMOOTH_GPS_INTER_STEPS)
                                                                 { // Log.i(TAG, "SSSSSSSSSSSS: delay=" + interval)
@@ -1759,7 +1758,7 @@ class MainActivity
                                         update_friend_geoitem(fname, fpubkey, lat.toDouble(), lon.toDouble(),
                                             acc, bearing,
                                             has_bearing,
-                                            last_remote_location_ts_ms = System.currentTimeMillis(),
+                                            last_remote_location_ts_ms = nowTs,
                                             true)
                                     }
                                 } catch (e: java.lang.Exception)
