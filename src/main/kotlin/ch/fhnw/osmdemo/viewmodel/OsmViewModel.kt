@@ -173,7 +173,7 @@ class OsmViewModel : ViewModel(){
         addMarker1(ST_STEPHEN_MARKER_ID, ST_STEPHEN_GEOPOS)
         viewModelScope.launch {
             state.centerOnMarker(id            = ST_STEPHEN_MARKER_ID,
-                                 destScale     = 0.1,
+                                 destScale     = 0.003,
                                  animationSpec = SnapSpec())
         }
         // state.removeMarker(ST_STEPHEN_MARKER_ID)
