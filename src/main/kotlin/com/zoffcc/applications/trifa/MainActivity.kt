@@ -1696,15 +1696,23 @@ class MainActivity
                                             val interval = totalDuration / SMOOTH_GPS_INTER_STEPS
                                             val startLat = current_values.lat
                                             val startLon = current_values.lon
-                                            val startBearing = current_values.bearing
+                                            var startBearing = current_values.bearing
+
                                             val targetLat = lat.toDouble()
                                             val targetLon = lon.toDouble() // Calculate the shortest difference between target and start bearing
                                             // This ensures we turn the "short way" (e.g., from 350 to 10 via 360/0)
                                             var bearingDiff = (((bearing - startBearing) % 360 + 540) % 360) - 180
+                                            if (has_bearing != current_values.has_bearing)
+                                            {
+                                                startBearing = bearing
+                                                bearingDiff = 0.0f
+                                            }
+
                                             if (!has_bearing)
                                             {
                                                 bearingDiff = 0.0f
-                                            } // Log.i(TAG, "SSSSSSSSSSSS: 00000000 " + totalDuration + " " + bearingDiff)
+                                            }
+                                            // Log.i(TAG, "SSSSSSSSSSSS: 00000000 " + totalDuration + " " + bearingDiff)
                                             // singleTaskExecutor.execute {
                                             singleTaskController.execute {
                                                 try
@@ -1712,7 +1720,8 @@ class MainActivity
                                                     try
                                                     {
                                                         for (i in 1..SMOOTH_GPS_INTER_STEPS)
-                                                        { // Log.i(TAG, "SSSSSSSSSSSS: " + i + " " + SMOOTH_GPS_INTER_STEPS)
+                                                        {
+                                                            // Log.i(TAG, "SSSSSSSSSSSS: " + i + " " + SMOOTH_GPS_INTER_STEPS)
                                                             val fraction = i.toDouble() / SMOOTH_GPS_INTER_STEPS
                                                             val interpLat = startLat + (targetLat - startLat) * fraction
                                                             val interpLon = startLon + (targetLon - startLon) * fraction // Interpolate bearing using the shortest path difference
@@ -1731,7 +1740,8 @@ class MainActivity
                                                                 last_remote_location_ts_ms = nowTs,
                                                                 false)
                                                             if (i < SMOOTH_GPS_INTER_STEPS)
-                                                            { // Log.i(TAG, "SSSSSSSSSSSS: delay=" + interval)
+                                                            {
+                                                                // Log.i(TAG, "SSSSSSSSSSSS: delay=" + interval)
                                                                 Thread.sleep(interval)
                                                             }
                                                         }
