@@ -1615,65 +1615,76 @@ class MainActivity
                     }
                 } else if (data[0].toUByte().toInt() == TRIFAGlobals.GEO_COORDS_CUSTOM_LOSSLESS_ID)
                 {
-                    if (data[0] === GEO_COORDS_CUSTOM_LOSSLESS_ID.toByte())
+                    val geo_data_raw = String(Arrays.copyOfRange(data, 1, data.size), StandardCharsets.UTF_8)
+                    // example data: TzGeo00:BEGINGEO:<lat>>:<lon>:0.0:22.03:124.1:ENDGEO
+                    val separated: List<String> = geo_data_raw.split(":")
+                    if (separated[0] == "TzGeo00")
                     {
-                        val geo_data_raw = String(Arrays.copyOfRange(data, 1, data.size), StandardCharsets.UTF_8)
-                        // example data: TzGeo00:BEGINGEO:<lat>>:<lon>:0.0:22.03:124.1:ENDGEO
-                        val separated: List<String> = geo_data_raw.split(":")
-                        if (separated[0] == "TzGeo00")
+                        if (separated[1] == "BEGINGEO")
                         {
-                            if (separated[1] == "BEGINGEO")
+                            val current_ts_millis = System.currentTimeMillis()
+                            val lat = separated[2].toFloat()
+                            val lon = separated[3].toFloat()
+                            // float alt = Float.parseFloat(separated[4]); // not used
+                            val acc = separated[5].toFloat()
+                            var bearing: Float = 0.0f
+                            var has_bearing = true
+                            try
                             {
-                                val current_ts_millis = System.currentTimeMillis()
-                                val lat = separated[2].toFloat()
-                                val lon = separated[3].toFloat()
-                                // float alt = Float.parseFloat(separated[4]); // not used
-                                val acc = separated[5].toFloat()
-                                var bearing: Float = 0.0f
-                                var has_bearing = true
-                                try
+                                if (separated[6].equals(INVALID_BEARING))
                                 {
-                                    if (separated[6].equals(INVALID_BEARING))
-                                    {
-                                        // HINT: invalid bearing, do not show a direction arrow on the map
-                                        bearing = 0.0f
-                                        has_bearing = false
-                                    } else
-                                    {
-                                        bearing = separated[6].toFloat()
-                                        has_bearing = true
-                                    }
-                                }
-                                catch(_: Exception)
+                                    // HINT: invalid bearing, do not show a direction arrow on the map
+                                    bearing = 0.0f
+                                    has_bearing = false
+                                } else
                                 {
+                                    bearing = separated[6].toFloat()
+                                    has_bearing = true
                                 }
+                            }
+                            catch(_: Exception)
+                            {
+                            }
 
+                            try
+                            {
+                                var fname: String = "Friend " + fpubkey.take(5)
                                 try
                                 {
-                                    var fname: String = "Friend " + fpubkey.take(5)
-                                    try
+                                    val fname2 = tox_friend_get_name(friend_number)
+                                    if (!fname2.isNullOrEmpty())
                                     {
-                                        val fname2 = tox_friend_get_name(friend_number)
-                                        if (!fname2.isNullOrEmpty())
+                                        if (fname2.isNotBlank())
                                         {
-                                            if (fname2.isNotBlank())
-                                            {
-                                                fname = fname2
-                                            }
+                                            fname = fname2
                                         }
-                                    } catch (_: Exception)
-                                    {
                                     }
+                                } catch (_: Exception)
+                                {
+                                }
 
-                                    val nowTs = System.currentTimeMillis()
-                                    // Log.i(TAG, "GEO::" + separated)
-                                    if (((PREF__gps_smooth_friends) && (geostore.getFollowPk().equals(fpubkey)))
-                                        || (___MOCK_FRIEND_LOCATION___))
+                                val nowTs = System.currentTimeMillis()
+                                // Log.i(TAG, "GEO::" + separated)
+                                if (((PREF__gps_smooth_friends) && (geostore.getFollowPk().equals(fpubkey)))
+                                    || (___MOCK_FRIEND_LOCATION___))
+                                {
+                                    val current_values = geostore.get(fpubkey)
+                                    if (current_values == null)
                                     {
-                                        val current_values = geostore.get(fpubkey)
-                                        if (current_values == null)
+                                        // add new friend geoitem, it does not exist yet
+                                        update_friend_geoitem(fname, fpubkey, lat.toDouble(), lon.toDouble(),
+                                            acc, bearing,
+                                            has_bearing,
+                                            last_remote_location_ts_ms = nowTs,
+                                            true)
+                                    }
+                                    else
+                                    {
+                                        // Calculate the actual delay between this update and the last one stored
+                                        val totalDuration = nowTs - current_values.last_remote_location_ts_millis
+
+                                        if (totalDuration > 1800)
                                         {
-                                            // add new friend geoitem, it does not exist yet
                                             update_friend_geoitem(fname, fpubkey, lat.toDouble(), lon.toDouble(),
                                                 acc, bearing,
                                                 has_bearing,
@@ -1682,88 +1693,74 @@ class MainActivity
                                         }
                                         else
                                         {
-                                            // Calculate the actual delay between this update and the last one stored
-                                            val totalDuration = nowTs - current_values.last_remote_location_ts_millis
-
-                                            if (totalDuration > 1800)
+                                            val interval = totalDuration / SMOOTH_GPS_INTER_STEPS
+                                            val startLat = current_values.lat
+                                            val startLon = current_values.lon
+                                            val startBearing = current_values.bearing
+                                            val targetLat = lat.toDouble()
+                                            val targetLon = lon.toDouble() // Calculate the shortest difference between target and start bearing
+                                            // This ensures we turn the "short way" (e.g., from 350 to 10 via 360/0)
+                                            var bearingDiff = (((bearing - startBearing) % 360 + 540) % 360) - 180
+                                            if (!has_bearing)
                                             {
-                                                update_friend_geoitem(fname, fpubkey, lat.toDouble(), lon.toDouble(),
-                                                    acc, bearing,
-                                                    has_bearing,
-                                                    last_remote_location_ts_ms = nowTs,
-                                                    true)
-                                            }
-                                            else
-                                            {
-                                                val interval = totalDuration / SMOOTH_GPS_INTER_STEPS
-                                                val startLat = current_values.lat
-                                                val startLon = current_values.lon
-                                                val startBearing = current_values.bearing
-                                                val targetLat = lat.toDouble()
-                                                val targetLon = lon.toDouble() // Calculate the shortest difference between target and start bearing
-                                                // This ensures we turn the "short way" (e.g., from 350 to 10 via 360/0)
-                                                var bearingDiff = (((bearing - startBearing) % 360 + 540) % 360) - 180
-                                                if (!has_bearing)
+                                                bearingDiff = 0.0f
+                                            } // Log.i(TAG, "SSSSSSSSSSSS: 00000000 " + totalDuration + " " + bearingDiff)
+                                            // singleTaskExecutor.execute {
+                                            singleTaskController.execute {
+                                                try
                                                 {
-                                                    bearingDiff = 0.0f
-                                                } // Log.i(TAG, "SSSSSSSSSSSS: 00000000 " + totalDuration + " " + bearingDiff)
-                                                // singleTaskExecutor.execute {
-                                                singleTaskController.execute {
                                                     try
                                                     {
-                                                        try
-                                                        {
-                                                            for (i in 1..SMOOTH_GPS_INTER_STEPS)
-                                                            { // Log.i(TAG, "SSSSSSSSSSSS: " + i + " " + SMOOTH_GPS_INTER_STEPS)
-                                                                val fraction = i.toDouble() / SMOOTH_GPS_INTER_STEPS
-                                                                val interpLat = startLat + (targetLat - startLat) * fraction
-                                                                val interpLon = startLon + (targetLon - startLon) * fraction // Interpolate bearing using the shortest path difference
-                                                                // We use % 360 at the end to keep the result in the [0, 360) range
-                                                                val interpBearing: Float
-                                                                if (!has_bearing)
-                                                                {
-                                                                    interpBearing = startBearing
-                                                                } else
-                                                                {
-                                                                    interpBearing = ((startBearing + (bearingDiff * fraction) + 360) % 360).toFloat()
-                                                                }
-                                                                update_friend_geoitem(fname, fpubkey, interpLat,
-                                                                    interpLon, acc, interpBearing,
-                                                                    has_bearing,
-                                                                    last_remote_location_ts_ms = nowTs,
-                                                                    false)
-                                                                if (i < SMOOTH_GPS_INTER_STEPS)
-                                                                { // Log.i(TAG, "SSSSSSSSSSSS: delay=" + interval)
-                                                                    Thread.sleep(interval)
-                                                                }
+                                                        for (i in 1..SMOOTH_GPS_INTER_STEPS)
+                                                        { // Log.i(TAG, "SSSSSSSSSSSS: " + i + " " + SMOOTH_GPS_INTER_STEPS)
+                                                            val fraction = i.toDouble() / SMOOTH_GPS_INTER_STEPS
+                                                            val interpLat = startLat + (targetLat - startLat) * fraction
+                                                            val interpLon = startLon + (targetLon - startLon) * fraction // Interpolate bearing using the shortest path difference
+                                                            // We use % 360 at the end to keep the result in the [0, 360) range
+                                                            val interpBearing: Float
+                                                            if (!has_bearing)
+                                                            {
+                                                                interpBearing = startBearing
+                                                            } else
+                                                            {
+                                                                interpBearing = ((startBearing + (bearingDiff * fraction) + 360) % 360).toFloat()
                                                             }
-                                                        } catch (_: Exception)
-                                                        {
+                                                            update_friend_geoitem(fname, fpubkey, interpLat,
+                                                                interpLon, acc, interpBearing,
+                                                                has_bearing,
+                                                                last_remote_location_ts_ms = nowTs,
+                                                                false)
+                                                            if (i < SMOOTH_GPS_INTER_STEPS)
+                                                            { // Log.i(TAG, "SSSSSSSSSSSS: delay=" + interval)
+                                                                Thread.sleep(interval)
+                                                            }
                                                         }
-                                                    } catch (e: InterruptedException)
+                                                    } catch (_: Exception)
                                                     {
-                                                        try
-                                                        {
-                                                            Thread.currentThread().interrupt()
-                                                        } catch (_: Exception)
-                                                        {
-                                                        }
+                                                    }
+                                                } catch (e: InterruptedException)
+                                                {
+                                                    try
+                                                    {
+                                                        Thread.currentThread().interrupt()
+                                                    } catch (_: Exception)
+                                                    {
                                                     }
                                                 }
                                             }
                                         }
                                     }
-                                    else
-                                    {
-                                        update_friend_geoitem(fname, fpubkey, lat.toDouble(), lon.toDouble(),
-                                            acc, bearing,
-                                            has_bearing,
-                                            last_remote_location_ts_ms = nowTs,
-                                            true)
-                                    }
-                                } catch (e: java.lang.Exception)
-                                {
                                 }
+                                else
+                                {
+                                    update_friend_geoitem(fname, fpubkey, lat.toDouble(), lon.toDouble(),
+                                        acc, bearing,
+                                        has_bearing,
+                                        last_remote_location_ts_ms = nowTs,
+                                        true)
+                                }
+                            } catch (e: java.lang.Exception)
+                            {
                             }
                         }
                     }
