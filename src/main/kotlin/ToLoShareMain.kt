@@ -236,6 +236,7 @@ import org.briarproject.briar.desktop.ui.UiPlaceholder
 import org.briarproject.briar.desktop.ui.VerticalDivider
 import org.briarproject.briar.desktop.utils.InternationalizationUtils.i18n
 import ovh.plrapps.mapcompose.api.hasMarker
+import ovh.plrapps.mapcompose.api.removeAllMarkers
 import ovh.plrapps.mapcompose.api.removeMarker
 import ovh.plrapps.mapcompose.api.scrollTo
 import ovh.plrapps.mapcompose.ui.MapUI
@@ -486,6 +487,7 @@ fun App()
                                                 Log.i(TAG, "is stopped now")
                                                 tox_running_state = tox_running_state_wrapper
                                                 start_button_text = "start"
+                                                osm.state.removeAllMarkers()
                                             }.start()
                                             TrifaToxService.stop_me = true
                                         } else if (tox_running_state == "stopped")

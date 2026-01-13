@@ -72,6 +72,7 @@ import com.zoffcc.applications.trifa.TRIFAGlobals.global_last_activity_outgoung_
 import com.zoffcc.applications.trifa.TRIFAGlobals.global_self_connection_status
 import com.zoffcc.applications.trifa.TRIFAGlobals.global_self_last_went_offline_timestamp
 import contactstore
+import geostore
 import globalfrndstoreunreadmsgs
 import globalgrpstoreunreadmsgs
 import globalstore
@@ -406,6 +407,13 @@ class TrifaToxService
                     e.printStackTrace()
                 }
 
+                try
+                {
+                    geostore.clear()
+                }
+                catch(_: Exception)
+                {
+                }
                 set_tox_running_state("stopped")
                 globalstore.setToxRunning(false)
 

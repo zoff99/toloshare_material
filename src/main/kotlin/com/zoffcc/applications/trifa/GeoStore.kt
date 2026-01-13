@@ -142,7 +142,7 @@ fun CoroutineScope.createGeoStore(): GeoStore
 
         override fun clear()
         {
-            mutableStateFlow.value = state.copy(remote_locations = emptyList())
+            mutableStateFlow.value = state.copy(remote_locations = emptyList(), follow_pk = null)
         }
 
     }
