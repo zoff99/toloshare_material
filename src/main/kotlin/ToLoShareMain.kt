@@ -243,6 +243,7 @@ import ovh.plrapps.mapcompose.ui.MapUI
 import ovh.plrapps.mapcompose.ui.state.MapState
 import java.awt.Toolkit
 import java.io.File
+import java.lang.reflect.Field
 import java.net.InetSocketAddress
 import java.net.Proxy
 import java.util.*
@@ -262,7 +263,7 @@ var start_button_text_wrapper = "stopped"
 var online_button_text_wrapper = "offline"
 var online_button_color_wrapper = Color.White.toArgb()
 var closing_application = false
-val global_prefs: Preferences = Preferences.userNodeForPackage(com.zoffcc.applications.toloshare.PrefsSettings::class.java)
+val global_prefs: Preferences = Preferences.userNodeForPackage(PrefsSettings::class.java)
 val UISCALE_ITEM_HEIGHT = 30.dp
 val CONTACTITEM_HEIGHT = 50.dp
 val GROUPITEM_HEIGHT = 50.dp
@@ -350,7 +351,7 @@ const val NUMBER_OF_MOCK_FRIENDS = 1
 const val SMOOTH_GPS_INTER_STEPS = 14
 var friendSimulator: MutableList<MockFriendLocationSimulator>? = null
 
-val singleTaskExecutor = ThreadPoolExecutor(
+val singleTaskController3 = ThreadPoolExecutor(
     1,                   // corePoolSize: Keep 1 thread alive
     1,                   // maximumPoolSize: Allow max 1 thread
     0L,                  // keepAliveTime: No need to wait for idle threads to die
@@ -358,7 +359,6 @@ val singleTaskExecutor = ThreadPoolExecutor(
     SynchronousQueue<Runnable>(), // Queue with 0 capacity
     ThreadPoolExecutor.DiscardPolicy() // Silently drop new tasks if busy
 )
-
 val singleTaskController = RestartableExecutor()
 
 @OptIn(DelicateCoroutinesApi::class, ExperimentalFoundationApi::class)
@@ -2164,7 +2164,7 @@ fun main(args: Array<String>) = application(exitProcessOnExit = true) {
             // https://stackoverflow.com/a/29218320
             //
             val xToolkit: Toolkit = Toolkit.getDefaultToolkit()
-            var awtAppClassNameField: java.lang.reflect.Field? = null
+            var awtAppClassNameField: Field? = null
             awtAppClassNameField = xToolkit.javaClass.getDeclaredField("awtAppClassName")
             awtAppClassNameField.isAccessible = true
             awtAppClassNameField[xToolkit] = "ToLoShareKt" // this needs to be exactly the same String as "StartupWMClass" in the "*.desktop" file
@@ -3033,7 +3033,9 @@ class RestartableExecutor {
     @Synchronized
     fun execute(block: Runnable) {
         // 1. Kill the currently running task if it exists
-        currentTask?.cancel(true)
+        // Log.i(TAG, "SSSSSSSSSSSS:**KILL:S**: 00000000 ")
+        val res = currentTask?.cancel(true)
+        // Log.i(TAG, "SSSSSSSSSSSS:**KILL:E**: 00000000 " + res)
 
         // 2. Submit the new task and store its handle
         currentTask = executor.submit(block)
