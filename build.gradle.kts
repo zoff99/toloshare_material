@@ -188,9 +188,9 @@ dependencies {
     // implementation("io.github.theapache64:rebugger:1.0.0-rc02")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines:0.19.2")
-    implementation("io.ktor:ktor-client-core:3.3.3")
+    implementation("io.ktor:ktor-client-core:3.4.0")
     // implementation("io.ktor:ktor-client-android:3.3.3")
-    implementation("io.ktor:ktor-client-apache5:3.3.3")
+    implementation("io.ktor:ktor-client-apache5:3.4.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2")
     val voyagerVersion = "1.1.0-beta03"
     implementation("cafe.adriel.voyager:voyager-screenmodel:${voyagerVersion}")
