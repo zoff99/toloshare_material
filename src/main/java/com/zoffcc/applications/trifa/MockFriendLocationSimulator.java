@@ -84,12 +84,14 @@ public class MockFriendLocationSimulator {
      */
     private void runDrivingScript() {
         // 0s: Start driving straight at 10m/s
+        actionHandler.postDelayed(() -> setSpeed(10.0f), 0);
 
         // 5s: Speed up to 25m/s (~90 km/h)
         actionHandler.postDelayed(() -> setSpeed(25.0f), 5000);
 
-        /*
+
         // 10s: Turn 90 degrees right (East)
+        actionHandler.postDelayed(() -> setSpeed(5.0f), (10000 - 2));
         actionHandler.postDelayed(() -> turn(90), 10000);
 
         // 15s: Stop at a red light
@@ -105,12 +107,12 @@ public class MockFriendLocationSimulator {
         // 30s: Stop at a red light
         actionHandler.postDelayed(() -> setStopped(true), 30000);
 
-        // 35s: Slow down to 3m/s (~10 km/h)
+        // 35s: Slow down
         actionHandler.postDelayed(() -> {
             setStopped(false);
-            setSpeed(3.0f);
+            setSpeed(15.0f);
         }, 35000);
-         */
+
     }
 
     private void updateMockLocation() {
