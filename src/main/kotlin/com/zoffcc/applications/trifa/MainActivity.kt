@@ -1681,75 +1681,73 @@ class MainActivity
                                     else
                                     {
                                         // Calculate the actual delay between this update and the last one stored
-                                        val totalDuration = nowTs - current_values.last_remote_location_ts_millis
+                                        var totalDuration = nowTs - current_values.last_remote_location_ts_millis
 
-                                        if (totalDuration > 1500)
+                                        if (totalDuration < 1)
                                         {
-                                            update_friend_geoitem(fname, fpubkey, lat.toDouble(), lon.toDouble(),
-                                                acc, bearing,
-                                                has_bearing,
-                                                last_remote_location_ts_ms = nowTs,
-                                                true)
+                                            totalDuration = 1
                                         }
-                                        else
+                                        else if (totalDuration > 1300)
                                         {
-                                            val interval = totalDuration / SMOOTH_GPS_INTER_STEPS
-                                            val startLat = current_values.lat
-                                            val startLon = current_values.lon
-                                            var startBearing = current_values.bearing
+                                            totalDuration = 1000
+                                        }
 
-                                            val targetLat = lat.toDouble()
-                                            val targetLon = lon.toDouble() // Calculate the shortest difference between target and start bearing
-                                            // This ensures we turn the "short way" (e.g., from 350 to 10 via 360/0)
-                                            var bearingDiff = (((bearing - startBearing) % 360 + 540) % 360) - 180
-                                            if (has_bearing != current_values.has_bearing)
-                                            {
-                                                startBearing = bearing
-                                                bearingDiff = 0.0f
-                                            }
+                                        val interval = totalDuration / SMOOTH_GPS_INTER_STEPS
+                                        val startLat = current_values.lat
+                                        val startLon = current_values.lon
+                                        var startBearing = current_values.bearing
 
-                                            if (!has_bearing)
+                                        val targetLat = lat.toDouble()
+                                        val targetLon = lon.toDouble() // Calculate the shortest difference between target and start bearing
+                                        // This ensures we turn the "short way" (e.g., from 350 to 10 via 360/0)
+                                        var bearingDiff = (((bearing - startBearing) % 360 + 540) % 360) - 180
+                                        if (has_bearing != current_values.has_bearing)
+                                        {
+                                            startBearing = bearing
+                                            bearingDiff = 0.0f
+                                        }
+
+                                        if (!has_bearing)
+                                        {
+                                            bearingDiff = 0.0f
+                                        }
+                                        // Log.i(TAG, "SSSSSSSSSSSS:**START**: 00000000 " + totalDuration + " " + bearingDiff)
+                                        // singleTaskExecutor.execute {
+                                        singleTaskController.execute {
+                                            try
                                             {
-                                                bearingDiff = 0.0f
-                                            }
-                                            // Log.i(TAG, "SSSSSSSSSSSS:**START**: 00000000 " + totalDuration + " " + bearingDiff)
-                                            // singleTaskExecutor.execute {
-                                            singleTaskController.execute {
-                                                try
+                                                // Log.i(TAG, "SSSSSSSSSSSS:**EXECUTE**: 00000000 " + totalDuration + " " + bearingDiff)
+                                                for (i in 1..SMOOTH_GPS_INTER_STEPS)
                                                 {
-                                                    // Log.i(TAG, "SSSSSSSSSSSS:**EXECUTE**: 00000000 " + totalDuration + " " + bearingDiff)
-                                                    for (i in 1..SMOOTH_GPS_INTER_STEPS)
+                                                    // Log.i(TAG, "SSSSSSSSSSSS: " + i + " " + SMOOTH_GPS_INTER_STEPS)
+                                                    val fraction = i.toDouble() / SMOOTH_GPS_INTER_STEPS
+                                                    val interpLat = startLat + (targetLat - startLat) * fraction
+                                                    val interpLon = startLon + (targetLon - startLon) * fraction // Interpolate bearing using the shortest path difference
+                                                    // We use % 360 at the end to keep the result in the [0, 360) range
+                                                    val interpBearing: Float
+                                                    if (!has_bearing)
                                                     {
-                                                        // Log.i(TAG, "SSSSSSSSSSSS: " + i + " " + SMOOTH_GPS_INTER_STEPS)
-                                                        val fraction = i.toDouble() / SMOOTH_GPS_INTER_STEPS
-                                                        val interpLat = startLat + (targetLat - startLat) * fraction
-                                                        val interpLon = startLon + (targetLon - startLon) * fraction // Interpolate bearing using the shortest path difference
-                                                        // We use % 360 at the end to keep the result in the [0, 360) range
-                                                        val interpBearing: Float
-                                                        if (!has_bearing)
-                                                        {
-                                                            interpBearing = startBearing
-                                                        } else
-                                                        {
-                                                            interpBearing = ((startBearing + (bearingDiff * fraction) + 360) % 360).toFloat()
-                                                        }
-                                                        update_friend_geoitem(fname, fpubkey, interpLat,
-                                                            interpLon, acc, interpBearing,
-                                                            has_bearing,
-                                                            last_remote_location_ts_ms = nowTs,
-                                                            false)
-                                                        if (i < SMOOTH_GPS_INTER_STEPS)
-                                                        {
-                                                            // Log.i(TAG, "SSSSSSSSSSSS: delay=" + interval)
-                                                            Thread.sleep(interval)
-                                                        }
+                                                        interpBearing = startBearing
+                                                    } else
+                                                    {
+                                                        interpBearing = ((startBearing + (bearingDiff * fraction) + 360) % 360).toFloat()
                                                     }
-                                                } catch (e: Exception)
-                                                {
-                                                    // Log.i(TAG, "SSSSSSSSSSSS:**EXCEPTION**: 00000000 " + e.message)
+                                                    update_friend_geoitem(fname, fpubkey, interpLat,
+                                                        interpLon, acc, interpBearing,
+                                                        has_bearing,
+                                                        last_remote_location_ts_ms = nowTs,
+                                                        false)
+                                                    if (i < SMOOTH_GPS_INTER_STEPS)
+                                                    {
+                                                        // Log.i(TAG, "SSSSSSSSSSSS: delay=" + interval)
+                                                        Thread.sleep(interval)
+                                                    }
                                                 }
-                                                // Log.i(TAG, "SSSSSSSSSSSS:**END**: 00000000 " + totalDuration + " " + bearingDiff)
+                                            } catch (e: Exception)
+                                            {
+                                                // Log.i(TAG, "SSSSSSSSSSSS:**EXCEPTION**: 00000000 " + e.message)
                                             }
+                                            // Log.i(TAG, "SSSSSSSSSSSS:**END**: 00000000 " + totalDuration + " " + bearingDiff)
                                         }
                                     }
                                 }
