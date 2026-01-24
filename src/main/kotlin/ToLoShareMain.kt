@@ -348,7 +348,7 @@ const val DISPLAY_SINGLE_INSTANCE_INFO = 1000L
 
 const val ___MOCK_FRIEND_LOCATION___ = true
 const val NUMBER_OF_MOCK_FRIENDS = 1
-const val SMOOTH_GPS_INTER_STEPS = 14
+const val SMOOTH_GPS_INTER_STEPS = 30
 var friendSimulator: MutableList<MockFriendLocationSimulator>? = null
 
 val singleTaskController3 = ThreadPoolExecutor(
