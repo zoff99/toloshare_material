@@ -38,9 +38,13 @@ public class MockFriendLocationSimulator {
             @Override
             public void run() {
                 updateMockLocation();
-                final int baseDelay = 1000;
+                int baseDelay = 1000;
                 final int JITTER = 300;
-                int jitter = new java.util.Random().nextInt(JITTER + 1) - (JITTER /  2);
+                // 30% chance to "drop" the timing and delay by 2000ms instead
+                if (new java.util.Random().nextDouble() < 0.3) {
+                    baseDelay = 2000;
+                }
+                int jitter = new java.util.Random().nextInt(JITTER + 1) - (JITTER / 2);
                 mainHandler.postDelayed(this, baseDelay + jitter);
             }
         });
