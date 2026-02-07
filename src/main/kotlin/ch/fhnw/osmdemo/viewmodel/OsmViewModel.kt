@@ -3,7 +3,6 @@
 package ch.fhnw.osmdemo.viewmodel
 
 import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.SnapSpec
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.Canvas
@@ -11,21 +10,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.PinDrop
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,14 +31,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.zoffcc.applications.trifa.Log
-import com.zoffcc.applications.trifa.TAG
 import geostore
 import io.ktor.utils.io.*
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -67,7 +60,6 @@ import ovh.plrapps.mapcompose.api.removeCallout
 import ovh.plrapps.mapcompose.api.scale
 import ovh.plrapps.mapcompose.api.scrollTo
 import ovh.plrapps.mapcompose.api.setScrollOffsetRatio
-import ovh.plrapps.mapcompose.api.visibleArea
 import ovh.plrapps.mapcompose.api.visibleBoundingBox
 import ovh.plrapps.mapcompose.core.TileStreamProvider
 import ovh.plrapps.mapcompose.ui.layout.Forced
@@ -77,7 +69,8 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.pow
 
-const val HOTSPOT_MARKER_ID_ADDON = "x_marks_the_spot"
+const val HOTSPOT_MARKER_ID_ADDON = "x_marks_the_spot_eeJ3heeg"
+const val ACCURACY_MARKER_ID_ADDON = "y_acc_aeYaiqu5_Daey9ei5"
 
 /**
  * Shows how to use WMTS tile servers with MapCompose, such as OpenStreetMap.
@@ -182,19 +175,23 @@ class OsmViewModel : ViewModel(){
     fun moveMarker(id: String, geoPos : GeoPosition) = moveMarker(id, geoPos.asNormalizedWebMercator())
 
     fun addMarker1(id: String, geoPos: GeoPosition) = addMarker(id, 0.0f,
-        true, geoPos.asNormalizedWebMercator(), name = id, last_location_millis = -1)
+        true, geoPos.asNormalizedWebMercator(), name = id, last_location_millis = -1,
+        accuracy = 0.0f)
 
     fun addMarker2(id: String, geoPos: GeoPosition, name: String) =
-        addMarker(id, bearing = 0.0f, has_bearing = false,geoPos.asNormalizedWebMercator(), name)
+        addMarker(id, bearing = 0.0f, has_bearing = false,geoPos.asNormalizedWebMercator(),
+            name, accuracy = 0.0f)
 
-    fun addMarker3(id: String, bearing: Float, has_bearing: Boolean, geoPos: GeoPosition, name: String,
-                   last_location_millis: Long) =
+    fun addMarker3(
+        id: String, bearing: Float, has_bearing: Boolean, geoPos: GeoPosition, name: String,
+        last_location_millis: Long, accuracy: Float
+    ) =
         addMarker(id, bearing, has_bearing, geoPos.asNormalizedWebMercator(), name,
-            last_location_millis, true)
+            last_location_millis, true, accuracy)
 
     fun addMarker(pk_string: String, bearing: Float, has_bearing: Boolean,
                   point : NormalizedPoint, name: String, last_location_millis: Long = -1L,
-                  hotspot: Boolean = false) {
+                  hotspot: Boolean = false, accuracy: Float) {
         viewModelScope.launch {
             val is_pinned: Boolean
             if ((!pk_string.isNullOrEmpty()) && (geostore.getFollowPk().equals(pk_string)))
@@ -234,6 +231,23 @@ class OsmViewModel : ViewModel(){
                 offset_y_bearing = -0.81f
                 offset_y_no_bearing = -0.946f
             }
+            if (hotspot)
+            {
+                state.addMarker(pk_string + ACCURACY_MARKER_ID_ADDON,
+                    point.x, point.y,
+                    zIndex = 10f,
+                    relativeOffset = Offset(-0.5f, -0.5f)) {
+                    val size = 4 * accuracy * state.scale // TODO: calculate the actual correct size !!
+                    if (!((size < 1) || (size > 5000)))
+                    {
+                        Canvas(modifier = Modifier.size(size.dp)) {
+                            drawCircle(color = Color.Blue.copy(alpha = 0.14f), style = Fill)
+                            drawCircle(color = Color.Blue.copy(alpha = 0.45f), style = Stroke(width = 1.dp.toPx()))
+                        }
+                    }
+                }
+            }
+            state.disableMarkerDrag(pk_string + ACCURACY_MARKER_ID_ADDON)
             state.addMarker(pk_string, point.x, point.y,
                 zIndex = 10f,
                 relativeOffset = if (has_bearing) Offset(-0.5f, offset_y_bearing) else

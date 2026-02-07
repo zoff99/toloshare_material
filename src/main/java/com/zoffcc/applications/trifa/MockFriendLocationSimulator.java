@@ -13,6 +13,7 @@ public class MockFriendLocationSimulator {
     private double currentLng = 16.3730;
     private float currentSpeedMs = 10.0f; // Start at ~36 km/h
     private float internalBearing = 0.0f;
+    private float acc = 0.0f;
     private boolean isStopped = false;
     private long friendnumber = 0;
     Handler mainHandler;
@@ -84,14 +85,14 @@ public class MockFriendLocationSimulator {
      */
     private void runDrivingScript() {
         // 0s: Start driving straight at 10m/s
-        actionHandler.postDelayed(() -> setSpeed(10.0f), 0);
+        actionHandler.postDelayed(() -> { setSpeed(10.0f); setAcc(300.0f); }, 0);
 
         // 5s: Speed up to 25m/s (~90 km/h)
-        actionHandler.postDelayed(() -> setSpeed(25.0f), 5000);
+        actionHandler.postDelayed(() -> { setSpeed(25.0f); setAcc(20.0f); }, 5000);
 
 
         // 10s: Turn 90 degrees right (East)
-        actionHandler.postDelayed(() -> setSpeed(5.0f), (10000 - 2));
+        actionHandler.postDelayed(() -> { setSpeed(5.0f); setAcc(8.0f); }, (10000 - 2));
         actionHandler.postDelayed(() -> turn(90), 10000);
 
         // 15s: Stop at a red light
@@ -130,7 +131,7 @@ public class MockFriendLocationSimulator {
         mockLocation.setLatitude(addMetersToLatitude(currentLat, 40 * this.friendnumber));
         mockLocation.setLongitude(addMetersToLongitude(currentLat, currentLng, 30 * this.friendnumber));
         mockLocation.setSpeed(isStopped ? 0.0f : currentSpeedMs);
-        mockLocation.setAccuracy(1.0f);
+        mockLocation.setAccuracy(acc);
         mockLocation.setTime(System.currentTimeMillis());
 
         if (isStopped)
@@ -155,6 +156,7 @@ public class MockFriendLocationSimulator {
     public void setStopped(boolean stopped) { this.isStopped = stopped; }
     public void turn(float degrees) { this.internalBearing = (this.internalBearing + degrees) % 360; }
     public void setSpeed(float speedMs) { this.currentSpeedMs = speedMs; }
+    public void setAcc(float acc) { this.acc = acc; }
 
     public void stopSimulation() {
         mainHandler.removeCallbacksAndMessages(null);

@@ -2,7 +2,6 @@
 @file:Suppress("LocalVariableName", "FunctionName", "ConvertToStringTemplate", "SpellCheckingInspection", "UnusedReceiverParameter", "LiftReturnOrAssignment", "CascadeIf", "SENSELESS_COMPARISON", "VARIABLE_WITH_REDUNDANT_INITIALIZER", "UNUSED_ANONYMOUS_PARAMETER", "REDUNDANT_ELSE_IN_WHEN", "ReplaceSizeCheckWithIsNotEmpty", "ReplaceRangeToWithRangeUntil", "ReplaceGetOrSet", "SimplifyBooleanWithConstants", "ObjectPropertyName")
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.desktop.ui.tooling.preview.Preview
@@ -122,7 +121,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowExceptionHandler
@@ -131,6 +129,7 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import ca.gosyer.appdirs.AppDirs
+import ch.fhnw.osmdemo.viewmodel.ACCURACY_MARKER_ID_ADDON
 import ch.fhnw.osmdemo.viewmodel.GeoPosition
 import ch.fhnw.osmdemo.viewmodel.HOTSPOT_MARKER_ID_ADDON
 import ch.fhnw.osmdemo.viewmodel.OsmViewModel
@@ -1473,9 +1472,14 @@ fun App()
                                                 {
                                                     osm.state.removeMarker(it.pk_str + HOTSPOT_MARKER_ID_ADDON)
                                                 }
+                                                if (osm.state.hasMarker(it.pk_str + ACCURACY_MARKER_ID_ADDON))
+                                                {
+                                                    osm.state.removeMarker(it.pk_str + ACCURACY_MARKER_ID_ADDON)
+                                                }
                                                 val geo_pos = GeoPosition(latitude = it.lat, longitude = it.lon)
                                                 osm.addMarker3(id = it.pk_str, bearing = it.bearing,
                                                     has_bearing = it.has_bearing, last_location_millis = it.last_remote_location_ts_millis,
+                                                    accuracy = it.acc,
                                                     name = it.name, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon))
                                                 if (geostore.getFollowPk().equals(it.pk_str))
                                                 {
