@@ -237,7 +237,7 @@ class OsmViewModel : ViewModel(){
                     point.x, point.y,
                     zIndex = 10f,
                     relativeOffset = Offset(-0.5f, -0.5f)) {
-                    val size = 4 * accuracy * state.scale // TODO: calculate the actual correct size !!
+                    val size = 18.0 * accuracy * state.scale // TODO: calculate the actual correct size !!
                     if (!((size < 1) || (size > 5000)))
                     {
                         Canvas(modifier = Modifier.size(size.dp)) {
