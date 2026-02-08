@@ -1665,8 +1665,7 @@ class MainActivity
 
                                 val nowTs = System.currentTimeMillis()
                                 // Log.i(TAG, "GEO::" + separated)
-                                if (((PREF__gps_smooth_friends) && (geostore.getFollowPk().equals(fpubkey)))
-                                    || (___MOCK_FRIEND_LOCATION___))
+                                if ((PREF__gps_smooth_friends) && (geostore.getFollowPk().equals(fpubkey)))
                                 {
                                     val current_values = geostore.get(fpubkey)
                                     if (current_values == null)
