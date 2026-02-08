@@ -148,7 +148,7 @@ public class MockFriendLocationSimulator {
         final byte[] data_bin = getGeoMsg(mockLocation);
         int data_bin_len = data_bin.length;
         data_bin[0] = (byte) GEO_COORDS_CUSTOM_LOSSLESS_ID;
-        Log.i(TAG, "fn=" + this.friendnumber + " " + mockLocation);
+        // Log.i(TAG, "fn=" + this.friendnumber + " " + mockLocation);
         android_tox_callback_friend_lossless_packet_cb_method(this.friendnumber, data_bin, data_bin_len);
         // set friends location here -----------------
     }
