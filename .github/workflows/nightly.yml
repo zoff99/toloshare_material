@@ -484,6 +484,10 @@ jobs:
     - name: notifications_off_02
       run: killall NotificationCenter || exit 0
 
+    - name: enable debug stuff
+      shell: bash
+      run:  tools/debug__enable_mocklocation.sh
+
     - name: download tester
       shell: bash
       run: |
@@ -632,6 +636,10 @@ jobs:
 
     - name: notifications_off_02
       run: killall NotificationCenter || exit 0
+
+    - name: enable debug stuff
+      shell: bash
+      run:  tools/debug__enable_mocklocation.sh
 
     - name: download tester
       shell: bash
@@ -814,6 +822,10 @@ jobs:
                sleep 10
                sudo chmod a+rw /dev/video*
                ls -al /dev/video*
+
+        - name: enable debug stuff
+          shell: bash
+          run:  tools/debug__enable_mocklocation.sh
 
         - name: show installed font packages
           run: |
@@ -1017,6 +1029,10 @@ jobs:
       - name: java-version
         run: java -version
         shell: bash
+
+      - name: enable debug stuff
+        shell: bash
+        run:  tools/debug__enable_mocklocation.sh
 
       - name: download tester
         shell: bash
