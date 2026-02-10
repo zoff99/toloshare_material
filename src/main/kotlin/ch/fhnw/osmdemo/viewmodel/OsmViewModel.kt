@@ -231,7 +231,7 @@ class OsmViewModel : ViewModel(){
             {
                 state.addMarker(pk_string + ACCURACY_MARKER_ID_ADDON,
                     point.x, point.y,
-                    zIndex = 10f,
+                    zIndex = if (is_pinned) 10f else 2f,
                     relativeOffset = Offset(-0.5f, -0.5f)) {
                     val size = 18.0 * accuracy * state.scale // TODO: calculate the actual correct size !!
                     if (!((size < 1) || (size > 5000)))
@@ -245,7 +245,7 @@ class OsmViewModel : ViewModel(){
             }
             state.disableMarkerDrag(pk_string + ACCURACY_MARKER_ID_ADDON)
             state.addMarker(pk_string, point.x, point.y,
-                zIndex = 10f,
+                zIndex = if (is_pinned) 10f else 2f,
                 relativeOffset = if (has_bearing) Offset(-0.5f, offset_y_bearing) else
                     Offset(-0.5f, offset_y_no_bearing)) {
                 Column(modifier = Modifier.randomDebugBorder()) {
