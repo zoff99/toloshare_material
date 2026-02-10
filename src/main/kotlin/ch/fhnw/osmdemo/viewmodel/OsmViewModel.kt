@@ -277,7 +277,8 @@ class OsmViewModel : ViewModel(){
                             .padding(4.dp)
                         ,
                         fontSize = 18.sp,
-                        color = Color.Black)
+                        color = if (is_pinned) Color.Black.copy(alpha = 1.0f) else Color.Black.copy(alpha = 0.6f)
+                    )
 
                     if (has_delta_time)
                     {
@@ -290,7 +291,8 @@ class OsmViewModel : ViewModel(){
                                 .padding(4.dp)
                             ,
                             fontSize = 15.sp,
-                            color = Color.Black)
+                            color = if (is_pinned) Color.Black.copy(alpha = 1.0f) else Color.Black.copy(alpha = 0.6f)
+                        )
                     }
 
                     Spacer(modifier = Modifier.height(4.dp))
