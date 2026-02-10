@@ -43,6 +43,7 @@ import geostore
 import io.ktor.utils.io.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.processNextEventInCurrentThread
 import ovh.plrapps.mapcompose.api.addLayer
 import ovh.plrapps.mapcompose.api.addMarker
 import ovh.plrapps.mapcompose.api.centerOnMarker
@@ -172,26 +173,22 @@ class OsmViewModel : ViewModel(){
         // state.removeMarker(ST_STEPHEN_MARKER_ID)
     }
 
-    fun moveMarker(id: String, geoPos : GeoPosition) = moveMarker(id, geoPos.asNormalizedWebMercator())
-
     fun addMarker1(id: String, geoPos: GeoPosition) = addMarker(id, 0.0f,
         true, geoPos.asNormalizedWebMercator(), name = id, last_location_millis = -1,
-        accuracy = 0.0f)
-
-    fun addMarker2(id: String, geoPos: GeoPosition, name: String) =
-        addMarker(id, bearing = 0.0f, has_bearing = false,geoPos.asNormalizedWebMercator(),
-            name, accuracy = 0.0f)
+        accuracy = 0.0f, provider = "unknown")
 
     fun addMarker3(
         id: String, bearing: Float, has_bearing: Boolean, geoPos: GeoPosition, name: String,
-        last_location_millis: Long, accuracy: Float
+        last_location_millis: Long, accuracy: Float,
+        provider: String
     ) =
         addMarker(id, bearing, has_bearing, geoPos.asNormalizedWebMercator(), name,
-            last_location_millis, true, accuracy)
+            last_location_millis, true, accuracy,
+            provider = provider)
 
     fun addMarker(pk_string: String, bearing: Float, has_bearing: Boolean,
                   point : NormalizedPoint, name: String, last_location_millis: Long = -1L,
-                  hotspot: Boolean = false, accuracy: Float) {
+                  hotspot: Boolean = false, accuracy: Float, provider: String,) {
         viewModelScope.launch {
             val is_pinned: Boolean
             if ((!pk_string.isNullOrEmpty()) && (geostore.getFollowPk().equals(pk_string)))
@@ -203,17 +200,16 @@ class OsmViewModel : ViewModel(){
                 is_pinned = false
             }
 
-            val has_name: Boolean
             var name_ = name
             if (!name.isNullOrEmpty())
             {
-                has_name = true
             }
             else
             {
-                has_name = true
                 name_ = "???"
             }
+
+            name_ = name_ + " (" + provider + ")"
 
             val has_delta_time: Boolean
             if (last_location_millis > -1L)
@@ -273,18 +269,15 @@ class OsmViewModel : ViewModel(){
                             tint               = pin_and_text_color
                         )
                     }
-                    if (has_name)
-                    {
-                        Text(text = "" + name_,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape((7.dp)))
-                                .background(pin_and_text_color)
-                                .align(Alignment.CenterHorizontally)
-                                .padding(4.dp)
-                            ,
-                            fontSize = 18.sp,
-                            color = Color.Black)
-                    }
+                    Text(text = "" + name_,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape((7.dp)))
+                            .background(pin_and_text_color)
+                            .align(Alignment.CenterHorizontally)
+                            .padding(4.dp)
+                        ,
+                        fontSize = 18.sp,
+                        color = Color.Black)
 
                     if (has_delta_time)
                     {

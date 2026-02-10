@@ -26,6 +26,7 @@ data class GeoItem(
     val last_remote_location_ts_millis: Long = 0,
     var prev_last_remote_location_ts_millis: Long = 0,
     val direct: Boolean = true,
+    val provider: String = "unknown",
 ) {
     fun updateName(n: String) = copy(name = n)
 }

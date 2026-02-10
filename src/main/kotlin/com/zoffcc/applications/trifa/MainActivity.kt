@@ -1618,15 +1618,53 @@ class MainActivity
                     val geo_data_raw = String(Arrays.copyOfRange(data, 1, data.size), StandardCharsets.UTF_8)
                     // example data: TzGeo00:BEGINGEO:<lat>>:<lon>:0.0:22.03:124.1:ENDGEO
                     val separated: List<String> = geo_data_raw.split(":")
-                    if (separated[0] == "TzGeo00")
+                    if ((separated[0] == "TzGeo00") || (separated[0] == "TzGeo01"))
                     {
                         if (separated[1] == "BEGINGEO")
                         {
-                            val current_ts_millis = System.currentTimeMillis()
-                            val lat = separated[2].toFloat()
-                            val lon = separated[3].toFloat()
-                            // float alt = Float.parseFloat(separated[4]); // not used
-                            val acc = separated[5].toFloat()
+                            var proto_version = 0
+                            if (separated[0].equals("TzGeo01"))
+                            {
+                                proto_version = 1
+                            }
+
+                            var current_ts_millis: Long
+                            var lat: Float
+                            var lon: Float
+                            var acc: Float
+                            var alt: Float
+                            var loc_timestamp: Long
+                            var loc_provider: String = "unknown"
+
+                            if (proto_version == 0)
+                            {
+                                current_ts_millis = System.currentTimeMillis()
+                                lat = separated[2].toFloat()
+                                lon = separated[3].toFloat()
+                                // float alt = Float.parseFloat(separated[4]); // not used
+                                acc = separated[5].toFloat()
+                            }
+                            else if (proto_version == 1)
+                            {
+                                current_ts_millis = System.currentTimeMillis()
+                                lat = separated[2].toFloat()
+                                lon = separated[3].toFloat()
+                                // float alt = Float.parseFloat(separated[4]); // not used
+                                acc = separated[5].toFloat()
+                                loc_timestamp = separated[6].toLong()
+                                try
+                                {
+                                    loc_provider = separated[7]
+                                } catch (e: java.lang.Exception)
+                                {
+                                    loc_provider = "???"
+                                }
+                            }
+                            else
+                            {
+                                return;
+                            }
+
                             var bearing: Float = 0.0f
                             var has_bearing = true
                             try
@@ -1675,7 +1713,8 @@ class MainActivity
                                             acc, bearing,
                                             has_bearing,
                                             last_remote_location_ts_ms = nowTs,
-                                            true)
+                                            true,
+                                            provider = loc_provider)
                                     }
                                     else
                                     {
@@ -1731,11 +1770,14 @@ class MainActivity
                                                     {
                                                         interpBearing = ((startBearing + (bearingDiff * fraction) + 360) % 360).toFloat()
                                                     }
-                                                    update_friend_geoitem(fname, fpubkey, interpLat,
+                                                    update_friend_geoitem(
+                                                        fname, fpubkey, interpLat,
                                                         interpLon, acc, interpBearing,
                                                         has_bearing,
                                                         last_remote_location_ts_ms = nowTs,
-                                                        false)
+                                                        false,
+                                                        provider = loc_provider
+                                                    )
                                                     if (i < SMOOTH_GPS_INTER_STEPS)
                                                     {
                                                         // Log.i(TAG, "SSSSSSSSSSSS: delay=" + interval)
@@ -1752,11 +1794,14 @@ class MainActivity
                                 }
                                 else
                                 {
-                                    update_friend_geoitem(fname, fpubkey, lat.toDouble(), lon.toDouble(),
+                                    update_friend_geoitem(
+                                        fname, fpubkey, lat.toDouble(), lon.toDouble(),
                                         acc, bearing,
                                         has_bearing,
                                         last_remote_location_ts_ms = nowTs,
-                                        true)
+                                        true,
+                                        provider = loc_provider
+                                    )
                                 }
                             } catch (e: java.lang.Exception)
                             {
@@ -4577,14 +4622,15 @@ class MainActivity
     }
 }
 
-private fun update_friend_geoitem(fname: String, fpubkey: String, lat: Double, lon: Double, acc: Float,
-                                  bearing: Float, has_bearing: Boolean,
-                                  last_remote_location_ts_ms: Long,
-                                  direct: Boolean)
+private fun update_friend_geoitem(
+    fname: String, fpubkey: String, lat: Double, lon: Double, acc: Float,
+    bearing: Float, has_bearing: Boolean, last_remote_location_ts_ms: Long, direct: Boolean, provider: String
+)
 {
     geostore.update(item = GeoItem(name = fname, pk_str = fpubkey,
         lat = lat, lon = lon, acc = acc,
         bearing = bearing, has_bearing = has_bearing,
         last_remote_location_ts_millis = last_remote_location_ts_ms,
+        provider = provider,
         direct = direct))
 }
