@@ -1635,6 +1635,7 @@ class MainActivity
                             var alt: Float
                             var loc_timestamp: Long
                             var loc_provider: String = "unknown"
+                            var bearing_index: Int
 
                             if (proto_version == 0)
                             {
@@ -1643,6 +1644,7 @@ class MainActivity
                                 lon = separated[3].toFloat()
                                 // float alt = Float.parseFloat(separated[4]); // not used
                                 acc = separated[5].toFloat()
+                                bearing_index = 6
                             }
                             else if (proto_version == 1)
                             {
@@ -1659,6 +1661,7 @@ class MainActivity
                                 {
                                     loc_provider = "???"
                                 }
+                                bearing_index = 8
                             }
                             else
                             {
@@ -1669,14 +1672,14 @@ class MainActivity
                             var has_bearing = true
                             try
                             {
-                                if (separated[6].equals(INVALID_BEARING))
+                                if (separated[bearing_index].equals(INVALID_BEARING))
                                 {
                                     // HINT: invalid bearing, do not show a direction arrow on the map
                                     bearing = 0.0f
                                     has_bearing = false
                                 } else
                                 {
-                                    bearing = separated[6].toFloat()
+                                    bearing = separated[bearing_index].toFloat()
                                     has_bearing = true
                                 }
                             }
