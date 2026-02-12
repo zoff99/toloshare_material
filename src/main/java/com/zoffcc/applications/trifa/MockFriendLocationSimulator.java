@@ -9,8 +9,8 @@ public class MockFriendLocationSimulator {
 
     private static final String TAG = "MockFrLSim";
 
-    private double currentLat = 48.2085;
-    private double currentLng = 16.3730;
+    private double currentLat = 48.2321;
+    private double currentLng = 16.3549;
     private float currentSpeedMs = 10.0f; // Start at ~36 km/h
     private float internalBearing = 0.0f;
     private float acc = 0.0f;
