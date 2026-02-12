@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -233,12 +234,18 @@ class OsmViewModel : ViewModel(){
                     point.x, point.y,
                     zIndex = if (is_pinned) 10f else 2f,
                     relativeOffset = Offset(-0.5f, -0.5f)) {
+
                     val size = 18.0 * accuracy * state.scale // TODO: calculate the actual correct size !!
-                    if (!((size < 1) || (size > 5000)))
-                    {
-                        Canvas(modifier = Modifier.size(size.dp)) {
-                            drawCircle(color = Color.Blue.copy(alpha = 0.14f), style = Fill)
-                            drawCircle(color = Color.Blue.copy(alpha = 0.45f), style = Stroke(width = 1.dp.toPx()))
+                    Box(
+                        modifier = Modifier
+                            .clip(RectangleShape) // clip the content to container bounds
+                    ) {
+                        if (!((size < 1) || (size > 5000)))
+                        {
+                            Canvas(modifier = Modifier.size(size.dp)) {
+                                drawCircle(color = Color.Blue.copy(alpha = 0.14f), style = Fill)
+                                drawCircle(color = Color.Blue.copy(alpha = 0.45f), style = Stroke(width = 1.dp.toPx()))
+                            }
                         }
                     }
                 }
