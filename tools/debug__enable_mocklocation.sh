@@ -14,6 +14,6 @@ cd "$basedir"
 
 
 sed -i -e 's#val ___MOCK_FRIEND_LOCATION___ = false#val ___MOCK_FRIEND_LOCATION___ = true#g' "$f1"
-sed -i -e 's#INITIAL_ZOOM_LEVEL = 10.0#INITIAL_ZOOM_LEVEL = 6.0#g' "$f2"
+sed -i -e 's#INITIAL_ZOOM_LEVEL = 10.0#INITIAL_ZOOM_LEVEL = 7.0#g' "$f2"
 
 
