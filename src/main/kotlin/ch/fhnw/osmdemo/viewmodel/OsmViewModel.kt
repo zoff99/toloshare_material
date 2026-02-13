@@ -64,6 +64,8 @@ import ovh.plrapps.mapcompose.api.scrollTo
 import ovh.plrapps.mapcompose.api.setScrollOffsetRatio
 import ovh.plrapps.mapcompose.api.visibleBoundingBox
 import ovh.plrapps.mapcompose.core.TileStreamProvider
+import ovh.plrapps.mapcompose.demo.viewmodels.INITIAL_ZOOM_LEVEL
+import ovh.plrapps.mapcompose.demo.viewmodels.OsmVM
 import ovh.plrapps.mapcompose.ui.layout.Forced
 import ovh.plrapps.mapcompose.ui.state.MapState
 import randomDebugBorder
@@ -168,7 +170,7 @@ class OsmViewModel : ViewModel(){
         addMarker1(ST_STEPHEN_MARKER_ID, ST_STEPHEN_GEOPOS)
         viewModelScope.launch {
             state.centerOnMarker(id            = ST_STEPHEN_MARKER_ID,
-                                 destScale     = 0.003,
+                                 destScale     = 1 / (2.0.pow(10 - INITIAL_ZOOM_LEVEL)),
                                  animationSpec = SnapSpec())
         }
         // state.removeMarker(ST_STEPHEN_MARKER_ID)

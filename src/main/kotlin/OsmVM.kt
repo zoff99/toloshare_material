@@ -1,4 +1,4 @@
-@file:Suppress("SpellCheckingInspection", "PrivatePropertyName")
+@file:Suppress("SpellCheckingInspection", "PrivatePropertyName", "PropertyName")
 
 package ovh.plrapps.mapcompose.demo.viewmodels
 
@@ -14,12 +14,13 @@ import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.math.pow
 
+const val INITIAL_ZOOM_LEVEL = 4.0
+
 /**
  * Shows how to use WMTS tile servers with MapCompose, such as Open Street Map.
  */
 class OsmVM : ScreenModel {
     private val tileStreamProvider = makeOsmTileStreamProvider()
-    private val INITIAL_ZOOM_LEVEL = 5.0
     private val maxLevel = 16
     private val minLevel = 1
     private val mapSize = mapSizeAtLevel(maxLevel, tileSize = 256)
