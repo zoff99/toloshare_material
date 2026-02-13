@@ -1,4 +1,4 @@
-@file:Suppress("SpellCheckingInspection")
+@file:Suppress("SpellCheckingInspection", "PrivatePropertyName")
 
 package ovh.plrapps.mapcompose.demo.viewmodels
 
@@ -19,7 +19,7 @@ import kotlin.math.pow
  */
 class OsmVM : ScreenModel {
     private val tileStreamProvider = makeOsmTileStreamProvider()
-
+    private val INITIAL_ZOOM_LEVEL = 5.0
     private val maxLevel = 16
     private val minLevel = 1
     private val mapSize = mapSizeAtLevel(maxLevel, tileSize = 256)
@@ -30,7 +30,7 @@ class OsmVM : ScreenModel {
     }.apply {
         addLayer(tileStreamProvider)
         shouldLoopScale = false
-        scale = 5.0  // initial zoom level
+        scale = INITIAL_ZOOM_LEVEL  // initial zoom level
     }
 }
 
