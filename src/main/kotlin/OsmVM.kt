@@ -14,7 +14,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.math.pow
 
-const val INITIAL_ZOOM_LEVEL = 4.0
+const val INITIAL_ZOOM_LEVEL = 10.0
 
 /**
  * Shows how to use WMTS tile servers with MapCompose, such as Open Street Map.
