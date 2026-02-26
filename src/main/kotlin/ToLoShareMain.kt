@@ -1481,7 +1481,9 @@ fun App()
                                                     has_bearing = it.has_bearing, last_location_millis = it.last_remote_location_ts_millis,
                                                     accuracy = it.acc,
                                                     provider = it.provider,
-                                                    name = it.name, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon))
+                                                    name = it.name, geoPos = GeoPosition(latitude = it.lat, longitude = it.lon),
+                                                    proto_version = it.proto_version,
+                                                    speed = it.speed)
                                                 if (geostore.getFollowPk().equals(it.pk_str))
                                                 {
                                                     //mapScope.launch {

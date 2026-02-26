@@ -227,6 +227,7 @@ class MainActivity
         var _recBuffer: ByteBuffer? = null
 
         const val INVALID_BEARING: String = "FFF"
+        const val INVALID_SPEED: String = "0.0"
 
         @JvmField
         var PREF__database_files_dir = "."
@@ -1618,7 +1619,7 @@ class MainActivity
                     val geo_data_raw = String(Arrays.copyOfRange(data, 1, data.size), StandardCharsets.UTF_8)
                     // example data: TzGeo00:BEGINGEO:<lat>>:<lon>:0.0:22.03:124.1:ENDGEO
                     val separated: List<String> = geo_data_raw.split(":")
-                    if ((separated[0] == "TzGeo00") || (separated[0] == "TzGeo01"))
+                    if ((separated[0] == "TzGeo00") || (separated[0] == "TzGeo01") || (separated[0] == "TzGeo02"))
                     {
                         if (separated[1] == "BEGINGEO")
                         {
@@ -1626,6 +1627,10 @@ class MainActivity
                             if (separated[0].equals("TzGeo01"))
                             {
                                 proto_version = 1
+                            }
+                            else if (separated[0].equals("TzGeo02"))
+                            {
+                                proto_version = 2
                             }
 
                             var current_ts_millis: Long
@@ -1636,6 +1641,7 @@ class MainActivity
                             var loc_timestamp: Long
                             var loc_provider: String = "unknown"
                             var bearing_index: Int
+                            var speed_meters_per_second = 0.0f
 
                             if (proto_version == 0)
                             {
@@ -1662,6 +1668,29 @@ class MainActivity
                                     loc_provider = "???"
                                 }
                                 bearing_index = 8
+                            }
+                            else if (proto_version == 2)
+                            {
+                                current_ts_millis = System.currentTimeMillis()
+                                lat = separated[2].toFloat()
+                                lon = separated[3].toFloat()
+                                // float alt = Float.parseFloat(separated[4]); // not used
+                                acc = separated[5].toFloat()
+                                loc_timestamp = separated[6].toLong()
+                                try
+                                {
+                                    loc_provider = separated[7]
+                                } catch (e: java.lang.Exception)
+                                {
+                                    loc_provider = "???"
+                                }
+                                bearing_index = 8
+                                try
+                                {
+                                    speed_meters_per_second = separated[9].toFloat()
+                                } catch (e: java.lang.Exception)
+                                {
+                                }
                             }
                             else
                             {
@@ -1717,7 +1746,9 @@ class MainActivity
                                             has_bearing,
                                             last_remote_location_ts_ms = nowTs,
                                             true,
-                                            provider = loc_provider)
+                                            provider = loc_provider,
+                                            proto_version = proto_version,
+                                            speed = speed_meters_per_second)
                                     }
                                     else
                                     {
@@ -1779,7 +1810,9 @@ class MainActivity
                                                         has_bearing,
                                                         last_remote_location_ts_ms = nowTs,
                                                         false,
-                                                        provider = loc_provider
+                                                        provider = loc_provider,
+                                                        proto_version = proto_version,
+                                                        speed = speed_meters_per_second
                                                     )
                                                     if (i < SMOOTH_GPS_INTER_STEPS)
                                                     {
@@ -1803,7 +1836,9 @@ class MainActivity
                                         has_bearing,
                                         last_remote_location_ts_ms = nowTs,
                                         true,
-                                        provider = loc_provider
+                                        provider = loc_provider,
+                                        proto_version = proto_version,
+                                        speed = speed_meters_per_second
                                     )
                                 }
                             } catch (e: java.lang.Exception)
@@ -4626,8 +4661,9 @@ class MainActivity
 }
 
 private fun update_friend_geoitem(
-    fname: String, fpubkey: String, lat: Double, lon: Double, acc: Float,
-    bearing: Float, has_bearing: Boolean, last_remote_location_ts_ms: Long, direct: Boolean, provider: String
+    fname: String, fpubkey: String, lat: Double, lon: Double, acc: Float, bearing: Float, has_bearing: Boolean,
+    last_remote_location_ts_ms: Long, direct: Boolean, provider: String,
+    proto_version: Int, speed: Float
 )
 {
     geostore.update(item = GeoItem(name = fname, pk_str = fpubkey,
@@ -4635,5 +4671,8 @@ private fun update_friend_geoitem(
         bearing = bearing, has_bearing = has_bearing,
         last_remote_location_ts_millis = last_remote_location_ts_ms,
         provider = provider,
-        direct = direct))
+        direct = direct,
+        proto_version = proto_version,
+        speed = speed
+    ))
 }

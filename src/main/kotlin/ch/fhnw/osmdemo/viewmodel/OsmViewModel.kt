@@ -44,7 +44,6 @@ import geostore
 import io.ktor.utils.io.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.processNextEventInCurrentThread
 import ovh.plrapps.mapcompose.api.addLayer
 import ovh.plrapps.mapcompose.api.addMarker
 import ovh.plrapps.mapcompose.api.centerOnMarker
@@ -65,7 +64,6 @@ import ovh.plrapps.mapcompose.api.setScrollOffsetRatio
 import ovh.plrapps.mapcompose.api.visibleBoundingBox
 import ovh.plrapps.mapcompose.core.TileStreamProvider
 import ovh.plrapps.mapcompose.demo.viewmodels.INITIAL_ZOOM_LEVEL
-import ovh.plrapps.mapcompose.demo.viewmodels.OsmVM
 import ovh.plrapps.mapcompose.ui.layout.Forced
 import ovh.plrapps.mapcompose.ui.state.MapState
 import randomDebugBorder
@@ -73,6 +71,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.pow
 
+val Float.mpsToKmh: String get() = String.format("%.1f", this * 3.6f)
 const val HOTSPOT_MARKER_ID_ADDON = "x_marks_the_spot_eeJ3heeg"
 const val ACCURACY_MARKER_ID_ADDON = "y_acc_aeYaiqu5_Daey9ei5"
 
@@ -178,20 +177,21 @@ class OsmViewModel : ViewModel(){
 
     fun addMarker1(id: String, geoPos: GeoPosition) = addMarker(id, 0.0f,
         true, geoPos.asNormalizedWebMercator(), name = id, last_location_millis = -1,
-        accuracy = 0.0f, provider = "unknown")
+        accuracy = 0.0f, provider = "unknown", proto_version = 0, speed = 0.0f)
 
     fun addMarker3(
         id: String, bearing: Float, has_bearing: Boolean, geoPos: GeoPosition, name: String,
         last_location_millis: Long, accuracy: Float,
-        provider: String
+        provider: String, proto_version: Int, speed: Float
     ) =
         addMarker(id, bearing, has_bearing, geoPos.asNormalizedWebMercator(), name,
             last_location_millis, true, accuracy,
-            provider = provider)
+            provider = provider, proto_version = proto_version, speed = speed)
 
     fun addMarker(pk_string: String, bearing: Float, has_bearing: Boolean,
                   point : NormalizedPoint, name: String, last_location_millis: Long = -1L,
-                  hotspot: Boolean = false, accuracy: Float, provider: String,) {
+                  hotspot: Boolean = false, accuracy: Float, provider: String,
+                  proto_version: Int, speed: Float) {
         viewModelScope.launch {
             val is_pinned: Boolean
             if ((!pk_string.isNullOrEmpty()) && (geostore.getFollowPk().equals(pk_string)))
@@ -212,7 +212,7 @@ class OsmViewModel : ViewModel(){
                 name_ = "???"
             }
 
-            name_ = name_ + " (" + provider + ")"
+            name_ = name_ + " (" + provider + " / " + proto_version + ")" + " " + speed.mpsToKmh + " km/h"
 
             val has_delta_time: Boolean
             if (last_location_millis > -1L)

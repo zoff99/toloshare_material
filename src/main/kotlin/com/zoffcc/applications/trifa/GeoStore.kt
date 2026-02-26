@@ -22,11 +22,14 @@ data class GeoItem(
     var prev_lon: Double = -1.0,
     var prev_bearing: Float = -1f,
     var prev_has_bearing: Boolean = false,
+    var prev_speed: Float = 0.0f,
     val acc: Float,
     val last_remote_location_ts_millis: Long = 0,
     var prev_last_remote_location_ts_millis: Long = 0,
     val direct: Boolean = true,
     val provider: String = "unknown",
+    val proto_version: Int = 0,
+    val speed: Float = 0.0f
 ) {
     fun updateName(n: String) = copy(name = n)
 }
@@ -90,6 +93,7 @@ fun CoroutineScope.createGeoStore(): GeoStore
                     {
                         item.prev_has_bearing = to_remove_item.has_bearing
                         item.prev_bearing = to_remove_item.bearing
+                        item.prev_speed = to_remove_item.speed
                         item.prev_lat = to_remove_item.lat
                         item.prev_lon = to_remove_item.lon
                         item.prev_last_remote_location_ts_millis = to_remove_item.prev_last_remote_location_ts_millis
@@ -105,6 +109,7 @@ fun CoroutineScope.createGeoStore(): GeoStore
                     item.prev_has_bearing = item.has_bearing
                     item.prev_bearing = item.bearing
                     item.prev_lat = item.lat
+                    item.prev_speed = item.speed
                     item.prev_lon = item.lon
                     item.prev_last_remote_location_ts_millis = item.prev_last_remote_location_ts_millis
                 }

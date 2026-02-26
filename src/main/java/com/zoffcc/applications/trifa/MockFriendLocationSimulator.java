@@ -1,7 +1,6 @@
 package com.zoffcc.applications.trifa;
 
-import static com.zoffcc.applications.trifa.MainActivity.INVALID_BEARING;
-import static com.zoffcc.applications.trifa.MainActivity.android_tox_callback_friend_lossless_packet_cb_method;
+import static com.zoffcc.applications.trifa.MainActivity.*;
 import static com.zoffcc.applications.trifa.TRIFAGlobals.GEO_COORDS_CUSTOM_LOSSLESS_ID;
 
 @SuppressWarnings("SpellCheckingInspection")
@@ -22,6 +21,7 @@ public class MockFriendLocationSimulator {
     final static String GEO_COORD_PROTO_MAGIC = "TzGeo"; // must be exactly 5 char wide
     final static String GEO_COORD_PROTO_VERSION = "00"; // must be exactly 2 char wide
     final static String GEO_COORD_PROTO_VERSION_1 = "01"; // must be exactly 2 char wide
+    final static String GEO_COORD_PROTO_VERSION_2 = "02"; // must be exactly 2 char wide
 
     /** @noinspection unused*/
     public MockFriendLocationSimulator(long friend_number) {
@@ -146,7 +146,7 @@ public class MockFriendLocationSimulator {
         }
 
         // set friends location here -----------------
-        final byte[] data_bin = getGeoMsg_proto_v1(mockLocation, System.currentTimeMillis());
+        final byte[] data_bin = getGeoMsg_proto_v2(mockLocation, System.currentTimeMillis());
         int data_bin_len = data_bin.length;
         data_bin[0] = (byte) GEO_COORDS_CUSTOM_LOSSLESS_ID;
         // Log.i(TAG, "fn=" + this.friendnumber + " " + mockLocation);
@@ -194,6 +194,56 @@ public class MockFriendLocationSimulator {
                 timestamp + ":" +
                 provider + ":" +
                 bearing + ":ENDGEO";
+        // Log.i(TAG, "raw:" + temp_string);
+        // Log.i(TAG, "rawlen:" + temp_string.length());
+
+        byte[] data_bin = temp_string.getBytes(); // TODO: use specific characterset
+        return data_bin;
+    }
+
+    static byte[] getGeoMsg_proto_v2(Location location, long timestamp)
+    {
+        String bearing = "" + location.getBearing();
+        if (!location.hasBearing())
+        {
+            bearing = INVALID_BEARING;
+        }
+
+        String provider = "unknown";
+        try
+        {
+            if (location.getProvider() != null)
+            {
+                provider = location.getProvider();
+            }
+        }
+        catch(Exception e)
+        {
+        }
+
+        String speed = INVALID_SPEED;
+        try
+        {
+            if (location.hasSpeed())
+            {
+                speed = "" + location.getSpeed();
+            }
+        }
+        catch(Exception e)
+        {
+        }
+
+        String temp_string = "X" + // the pkt ID will be added here later. needs to be exactly 1 char!
+                GEO_COORD_PROTO_MAGIC +
+                GEO_COORD_PROTO_VERSION_1  + ":BEGINGEO:" +
+                location.getLatitude() + ":" +
+                location.getLongitude() + ":" +
+                location.getAltitude() + ":" +
+                location.getAccuracy() + ":" +
+                timestamp + ":" +
+                provider + ":" +
+                bearing + ":" +
+                speed + ":ENDGEO";
         // Log.i(TAG, "raw:" + temp_string);
         // Log.i(TAG, "rawlen:" + temp_string.length());
 

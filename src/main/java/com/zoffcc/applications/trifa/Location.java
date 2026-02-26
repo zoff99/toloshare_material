@@ -15,6 +15,7 @@ public class Location {
     // Bearing fields
     private float bearing;
     private boolean hasBearing = false;
+    private boolean hasSpeed = false;
 
     public Location(String provider) {
         this.provider = provider;
@@ -57,6 +58,21 @@ public class Location {
         this.hasBearing = false;
     }
 
+    /**
+     * Returns true if this location has a speed.
+     */
+    public boolean hasSpeed() {
+        return hasSpeed;
+    }
+
+    /**
+     * Removes the speed from this location.
+     */
+    public void removeSpeed() {
+        this.speed = 0.0f;
+        this.hasSpeed = false;
+    }
+
     // --- Standard Getters and Setters ---
 
     public double getLatitude() { return latitude; }
@@ -75,7 +91,10 @@ public class Location {
     public void setAltitude(double altitude) { this.altitude = altitude; }
 
     public float getSpeed() { return speed; }
-    public void setSpeed(float speed) { this.speed = speed; }
+    public void setSpeed(float speed) {
+        this.speed = speed;
+        this.hasSpeed = true;
+    }
 
     public long getTime() { return time; }
     public void setTime(long time) { this.time = time; }
