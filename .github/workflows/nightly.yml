@@ -96,12 +96,12 @@ jobs:
           cp -v ./build/compose/binaries/main*/deb/toloshare-material_*_amd64.deb toloshare-material_nightly.deb
           cp -v ./build/compose/binaries/main*/rpm/toloshare_material-*.x86_64.rpm toloshare-material_nightly.rpm
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: toloshare-material_nightly.deb
           path: toloshare-material_nightly.deb
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: toloshare-material_nightly.rpm
           path: toloshare-material_nightly.rpm
@@ -190,7 +190,7 @@ jobs:
         run: |
           cp -v ./toloshare*material*AppImage toloshare-material_nightly-x86_64.appimage
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: toloshare-material_nightly-x86_64.appimage
           path: toloshare-material_nightly-x86_64.appimage
@@ -267,7 +267,7 @@ jobs:
         run: |
           cp -v /Users/runner/work/toloshare_material/toloshare_material/build/compose/binaries/main*/dmg/toloshare_material-*.dmg toloshare-material_nightly.dmg
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: toloshare-material_nightly.dmg
           path: toloshare-material_nightly.dmg
@@ -336,13 +336,13 @@ jobs:
           cp -v ./build/compose/binaries/main*/exe/toloshare_material-*.exe toloshare-material_nightly.exe
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: toloshare-material_nightly.msi
           path: toloshare-material_nightly.msi
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: toloshare-material_nightly.exe
           path: toloshare-material_nightly.exe
@@ -580,7 +580,7 @@ jobs:
            cp -v dst2.png screenshot-macos-14arm.png
 
     - name: upload-screenshots
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: screenshot-macos-14
         path: |
@@ -739,7 +739,7 @@ jobs:
            cp -v dst2.png screenshot-macos-15arm.png
 
     - name: upload-screenshots
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: screenshot-macos-15
         path: |
@@ -985,13 +985,13 @@ jobs:
                cp -av /tmp/screenshot-linux.png screenshot-linux.png
 
         - name: upload-screenshots
-          uses: actions/upload-artifact@v6
+          uses: actions/upload-artifact@v7
           with:
             name: screenshot-linux
             path: /tmp/screenshot-linux.png
 
         - name: upload-screenshots
-          uses: actions/upload-artifact@v6
+          uses: actions/upload-artifact@v7
           with:
             name: screenshot-linux_before_wm
             path: /tmp/screenshot-linux_before_wm.png
@@ -1153,7 +1153,7 @@ jobs:
           Write-Output D:\a\toloshare_material\toloshare_material\screenshot-windows.png
 
       - name: upload-screenshots
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: screenshot-windows
           path: |
