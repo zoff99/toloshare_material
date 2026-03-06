@@ -1634,8 +1634,8 @@ class MainActivity
                             }
 
                             var current_ts_millis: Long
-                            var lat: Float
-                            var lon: Float
+                            var lat: Double
+                            var lon: Double
                             var acc: Float
                             var alt: Float
                             var loc_timestamp: Long
@@ -1646,8 +1646,8 @@ class MainActivity
                             if (proto_version == 0)
                             {
                                 current_ts_millis = System.currentTimeMillis()
-                                lat = separated[2].toFloat()
-                                lon = separated[3].toFloat()
+                                lat = separated[2].toDouble()
+                                lon = separated[3].toDouble()
                                 // float alt = Float.parseFloat(separated[4]); // not used
                                 acc = separated[5].toFloat()
                                 bearing_index = 6
@@ -1655,8 +1655,8 @@ class MainActivity
                             else if (proto_version == 1)
                             {
                                 current_ts_millis = System.currentTimeMillis()
-                                lat = separated[2].toFloat()
-                                lon = separated[3].toFloat()
+                                lat = separated[2].toDouble()
+                                lon = separated[3].toDouble()
                                 // float alt = Float.parseFloat(separated[4]); // not used
                                 acc = separated[5].toFloat()
                                 loc_timestamp = separated[6].toLong()
@@ -1672,8 +1672,8 @@ class MainActivity
                             else if (proto_version == 2)
                             {
                                 current_ts_millis = System.currentTimeMillis()
-                                lat = separated[2].toFloat()
-                                lon = separated[3].toFloat()
+                                lat = separated[2].toDouble()
+                                lon = separated[3].toDouble()
                                 // float alt = Float.parseFloat(separated[4]); // not used
                                 acc = separated[5].toFloat()
                                 loc_timestamp = separated[6].toLong()
@@ -1741,7 +1741,7 @@ class MainActivity
                                     if (current_values == null)
                                     {
                                         // add new friend geoitem, it does not exist yet
-                                        update_friend_geoitem(fname, fpubkey, lat.toDouble(), lon.toDouble(),
+                                        update_friend_geoitem(fname, fpubkey, lat, lon,
                                             acc, bearing,
                                             has_bearing,
                                             last_remote_location_ts_ms = nowTs,
@@ -1769,8 +1769,9 @@ class MainActivity
                                         val startLon = current_values.lon
                                         var startBearing = current_values.bearing
 
-                                        val targetLat = lat.toDouble()
-                                        val targetLon = lon.toDouble() // Calculate the shortest difference between target and start bearing
+                                        val targetLat = lat
+                                        val targetLon = lon
+                                        // Calculate the shortest difference between target and start bearing
                                         // This ensures we turn the "short way" (e.g., from 350 to 10 via 360/0)
                                         var bearingDiff = (((bearing - startBearing) % 360 + 540) % 360) - 180
                                         if (has_bearing != current_values.has_bearing)
@@ -1831,7 +1832,7 @@ class MainActivity
                                 else
                                 {
                                     update_friend_geoitem(
-                                        fname, fpubkey, lat.toDouble(), lon.toDouble(),
+                                        fname, fpubkey, lat, lon,
                                         acc, bearing,
                                         has_bearing,
                                         last_remote_location_ts_ms = nowTs,
