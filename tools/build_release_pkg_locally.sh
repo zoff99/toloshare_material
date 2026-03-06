@@ -9,7 +9,7 @@ basedir="$_HOME_""/../"
 
 cd "$basedir"
 
-./gradlew packageReleaseDeb
+./gradlew packageReleaseDeb || exit 1
 
 out_pkg=$(ls -1tr ./build/compose/binaries/main-release/deb/toloshare-material*_amd64.deb 2>/dev/null | tail -1 2> /dev/null)
 echo "found $out_pkg"
@@ -17,7 +17,7 @@ if [ "$out_pkg""x" == "x" ]; then
     echo "pkg not found"
     exit 1
 else
-    cp -v "$out_pkg" aa.deb
-    tools/fix_debian_pkg.sh aa.deb
+    cp -v "$out_pkg" aa.deb || exit 1
+    tools/fix_debian_pkg.sh aa.deb || exit 1
     rm -f aa.deb
 fi
