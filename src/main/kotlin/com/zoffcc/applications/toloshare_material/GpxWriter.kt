@@ -32,7 +32,7 @@ class GpxWriter(directoryPath: String, filename: String) {
   xmlns="http://www.topografix.com"
   xmlns:gpxtpx="http://www.garmin.com">
   <trk>
-    <name>${gpxFile.nameWithoutExtension}</name>
+    <name>route</name>
     <trkseg>$footer"""
                 gpxFile.writeText(header)
             }

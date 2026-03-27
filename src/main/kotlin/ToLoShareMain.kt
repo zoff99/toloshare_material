@@ -351,8 +351,8 @@ const val NUMBER_OF_MOCK_FRIENDS = 1
 const val SMOOTH_GPS_INTER_STEPS = 20
 var friendSimulator: MutableList<MockFriendLocationSimulator>? = null
 
-val writer = GpxWriter(directoryPath = "/tmp/", filename = "route_001")
-var recording_gpx = true
+var friend_gps_writer: GpxWriter? = null
+var friend_recording_gpx = true
 
 val singleTaskController3 = ThreadPoolExecutor(
     1,                   // corePoolSize: Keep 1 thread alive

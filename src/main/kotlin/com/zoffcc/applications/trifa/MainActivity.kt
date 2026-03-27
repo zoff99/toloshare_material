@@ -10,6 +10,7 @@ import UIGroupMessage
 import UIMessage
 import User
 import ___MOCK_FRIEND_LOCATION___
+import androidx.compose.animation.defaultDecayAnimationSpec
 import avstatestore
 import avstatestorecallstate
 import avstatestorevcapfpsstate
@@ -23,7 +24,6 @@ import com.zoffcc.applications.sorm.FriendList
 import com.zoffcc.applications.sorm.GroupDB
 import com.zoffcc.applications.sorm.GroupMessage
 import com.zoffcc.applications.sorm.Message
-import com.zoffcc.applications.toloshare_material.GpxWriter
 import com.zoffcc.applications.toloshare_material.toloshare_material.BuildConfig
 import com.zoffcc.applications.trifa.AudioBar.audio_in_bar
 import com.zoffcc.applications.trifa.AudioBar.audio_out_bar
@@ -140,11 +140,11 @@ import myUser
 import org.briarproject.briar.desktop.contact.ContactItem
 import org.briarproject.briar.desktop.contact.GroupItem
 import org.briarproject.briar.desktop.contact.GroupPeerItem
-import recording_gpx
+import friend_recording_gpx
 import set_tox_online_state
 import singleTaskController
 import toxdatastore
-import writer
+import friend_gps_writer
 import java.io.File
 import java.io.PrintWriter
 import java.io.RandomAccessFile
@@ -1738,18 +1738,21 @@ class MainActivity
 
                                 val nowTs = System.currentTimeMillis()
 
-                                if (recording_gpx)
+                                if (friend_recording_gpx)
                                 {
-                                    // HINT: record GPX file for the friend who he have pinned on the map
-                                    if (geostore.getFollowPk().equals(fpubkey))
+                                    try
+                                    { // HINT: record GPX file for the friend who he have pinned on the map
+                                        if (geostore.getFollowPk().equals(fpubkey))
+                                        {
+                                            friend_gps_writer?.addPoint(
+                                                lat = lat, lon = lon,
+                                                timestamp = nowTs,
+                                                elevation = null,
+                                                speed = speed_meters_per_second, bearing = bearing)
+                                        }
+                                    }
+                                    catch(_: Exception)
                                     {
-                                        writer.addPoint(
-                                            lat = lat,
-                                            lon = lon,
-                                            timestamp = nowTs,
-                                            elevation = null,
-                                            speed = speed_meters_per_second,
-                                            bearing = bearing)
                                     }
                                 }
 

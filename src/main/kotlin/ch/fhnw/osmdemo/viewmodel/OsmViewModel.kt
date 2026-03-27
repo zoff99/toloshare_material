@@ -2,6 +2,7 @@
 
 package ch.fhnw.osmdemo.viewmodel
 
+import APPDIRS
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.SnapSpec
 import androidx.compose.animation.core.TweenSpec
@@ -40,6 +41,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.zoffcc.applications.toloshare_material.GpxWriter
+import com.zoffcc.applications.trifa.MainActivity.Companion.tox_friend_get_name
+import com.zoffcc.applications.trifa.TrifaToxService.Companion.orma
+import friend_gps_writer
+import friend_recording_gpx
 import geostore
 import io.ktor.utils.io.*
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -67,6 +73,8 @@ import ovh.plrapps.mapcompose.demo.viewmodels.INITIAL_ZOOM_LEVEL
 import ovh.plrapps.mapcompose.ui.layout.Forced
 import ovh.plrapps.mapcompose.ui.state.MapState
 import randomDebugBorder
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.pow
@@ -118,10 +126,38 @@ class OsmViewModel : ViewModel(){
               {
                   // on second click reset "follow me" to "null" (do not follow anyone)
                   geostore.setFollowPk(null)
+                  if (friend_recording_gpx)
+                  {
+                      friend_gps_writer = null
+                  }
               }
               else
               {
                   geostore.setFollowPk(pk_string)
+                  if (friend_recording_gpx)
+                  {
+                      var fname: String = ""
+                      try
+                      {
+                          val fname2 = orma!!.selectFromFriendList()
+                              .tox_public_key_stringEq(pk_string).get(0).name
+                          if (!fname2.isNullOrEmpty())
+                          {
+                              if (fname2.isNotBlank())
+                              {
+                                  fname = fname2 + "_"
+                              }
+                          }
+                      } catch (_: Exception)
+                      {
+                      }
+
+
+                      val timestamp = LocalDateTime.now()
+                          .format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss"))
+                      val filename = "route" + "_" + pk_string.take(6) + "_" + fname + timestamp
+                      friend_gps_writer = GpxWriter(directoryPath = APPDIRS.getUserDataDir(), filename = filename)
+                  }
               }
               /*
               addCallout(id             = pk_string,
