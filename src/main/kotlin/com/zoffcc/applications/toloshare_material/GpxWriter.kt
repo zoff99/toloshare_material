@@ -45,7 +45,7 @@ class GpxWriter(directoryPath: String, filename: String) {
      *
      * @param lat The latitude of the point in decimal degrees (WGS84).
      * @param lon The longitude of the point in decimal degrees (WGS84).
-     * @param timestamp Epoch time in milliseconds (e.g., from System.currentTimeMillis() or Location.getTime()).
+     * @param timestamp Epoch time in milliseconds (e.g., from System.currentTimeMillis() or Location.getTime()) in your local timezone.
      * @param elevation The altitude above sea level in meters. Pass null if unknown.
      * @param speed The current travel speed in meters per second (m/s).
      * @param bearing The direction of travel in degrees (0.0 to 360.0), where 0 is North.
