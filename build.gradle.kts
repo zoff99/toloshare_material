@@ -19,7 +19,7 @@ plugins {
 }
 
 group = "com.zoffcc.applications.toloshare_material"
-version = "1.0.10"
+version = "1.0.11"
 val appName = "toloshare_material"
 
 val build_with_appimage = false
