@@ -146,6 +146,7 @@ import com.zoffcc.applications.sorm.BootstrapNodeEntryDB
 import com.zoffcc.applications.sorm.GroupMessage
 import com.zoffcc.applications.sorm.Message
 import com.zoffcc.applications.toloshare.PrefsSettings
+import com.zoffcc.applications.toloshare_material.GpxWriter
 import com.zoffcc.applications.toloshare_material.toloshare_material.BuildConfig
 import com.zoffcc.applications.trifa.AVState
 import com.zoffcc.applications.trifa.AudioBar
@@ -349,6 +350,9 @@ const val ___MOCK_FRIEND_LOCATION___ = false
 const val NUMBER_OF_MOCK_FRIENDS = 1
 const val SMOOTH_GPS_INTER_STEPS = 20
 var friendSimulator: MutableList<MockFriendLocationSimulator>? = null
+
+val writer = GpxWriter(directoryPath = "/tmp/", filename = "route_001")
+var recording_gpx = true
 
 val singleTaskController3 = ThreadPoolExecutor(
     1,                   // corePoolSize: Keep 1 thread alive
