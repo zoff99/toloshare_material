@@ -28,7 +28,7 @@ class GpxWriter(directoryPath: String, filename: String) {
 
             if (!gpxFile.exists()) {
                 val header = """<?xml version="1.0" encoding="UTF-8"?>
-<gpx version="1.1" creator="GpxWriter" 
+<gpx version="1.1" creator="GpxWriter"
   xmlns="http://www.topografix.com"
   xmlns:gpxtpx="http://www.garmin.com">
   <trk>
