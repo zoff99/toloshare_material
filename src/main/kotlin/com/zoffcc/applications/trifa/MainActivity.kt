@@ -1653,6 +1653,7 @@ class MainActivity
                                 lon = separated[3].toDouble()
                                 // float alt = Float.parseFloat(separated[4]); // not used
                                 acc = separated[5].toFloat()
+                                loc_timestamp = current_ts_millis
                                 bearing_index = 6
                             }
                             else if (proto_version == 1)
@@ -1746,7 +1747,7 @@ class MainActivity
                                         {
                                             friend_gps_writer?.addPoint(
                                                 lat = lat, lon = lon,
-                                                timestamp = nowTs,
+                                                timestamp = loc_timestamp,
                                                 elevation = null,
                                                 speed = speed_meters_per_second, bearing = bearing)
                                         }
