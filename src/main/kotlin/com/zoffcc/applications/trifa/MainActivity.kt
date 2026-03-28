@@ -1640,7 +1640,7 @@ class MainActivity
                             var lat: Double
                             var lon: Double
                             var acc: Float
-                            var alt: Float
+                            var alt: Double
                             var loc_timestamp: Long
                             var loc_provider: String = "unknown"
                             var bearing_index: Int
@@ -1651,7 +1651,7 @@ class MainActivity
                                 current_ts_millis = System.currentTimeMillis()
                                 lat = separated[2].toDouble()
                                 lon = separated[3].toDouble()
-                                // float alt = Float.parseFloat(separated[4]); // not used
+                                alt = separated[4].toDouble()
                                 acc = separated[5].toFloat()
                                 loc_timestamp = current_ts_millis
                                 bearing_index = 6
@@ -1661,7 +1661,7 @@ class MainActivity
                                 current_ts_millis = System.currentTimeMillis()
                                 lat = separated[2].toDouble()
                                 lon = separated[3].toDouble()
-                                // float alt = Float.parseFloat(separated[4]); // not used
+                                alt = separated[4].toDouble()
                                 acc = separated[5].toFloat()
                                 loc_timestamp = separated[6].toLong()
                                 try
@@ -1678,7 +1678,7 @@ class MainActivity
                                 current_ts_millis = System.currentTimeMillis()
                                 lat = separated[2].toDouble()
                                 lon = separated[3].toDouble()
-                                // float alt = Float.parseFloat(separated[4]); // not used
+                                alt = separated[4].toDouble()
                                 acc = separated[5].toFloat()
                                 loc_timestamp = separated[6].toLong()
                                 try
@@ -1748,7 +1748,7 @@ class MainActivity
                                             friend_gps_writer?.addPoint(
                                                 lat = lat, lon = lon,
                                                 timestamp = loc_timestamp,
-                                                elevation = null,
+                                                elevation = alt,
                                                 speed = speed_meters_per_second, bearing = bearing)
                                         }
                                     }
