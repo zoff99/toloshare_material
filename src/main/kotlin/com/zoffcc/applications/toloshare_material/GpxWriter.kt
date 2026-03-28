@@ -9,8 +9,12 @@ import java.util.Date
 import java.util.Locale
 
 class GpxWriter(directoryPath: String, filename: String) {
+    // 1. Define allowed characters (Alphanumeric, underscores, hyphens)
+    // 2. Replace everything else with an underscore
+    private val safeFilename = filename.replace(Regex("[^a-zA-Z0-9.=_-]"), "_")
+
     private val gpxFile: File = File(directoryPath,
-        if (filename.endsWith(".gpx")) filename else "$filename.gpx")
+        if (safeFilename.endsWith(".gpx")) safeFilename else "$safeFilename.gpx")
 
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
         // CRITICAL: Forces the formatter to treat input 'Long' as UTC
