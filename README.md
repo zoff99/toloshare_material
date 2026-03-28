@@ -1,7 +1,8 @@
 # ToLoShare
 
 ToLoShare is a cross-platform desktop application for secure peer-to-peer real-time location sharing.<br>
-The app is specifically designed as a Tox protocol client, emphasizing privacy and decentralization through its P2P architecture.<br>
+The app is specifically designed as a Tox protocol client, emphasizing privacy<br>
+and decentralization through its P2P architecture.<br>
 The "Material" in the name refers to the Material Design UI components used in the Compose interface.
 
 <img src="https://github.com/zoff99/toloshare_material/releases/download/nightly/screenshot-macos-15arm.png" width="90%">
