@@ -22,6 +22,23 @@ Automated screenshots:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;Looking for ToLoShare Mobile version? [follow me](https://github.com/zoff99/ToLoShare)
 
 
+## Viewing Friends on the Map
+
+Switch to MAP mode in the app<br>
+Your connected friends' locations appear as markers with their names<br>
+Each marker shows:<br>
+* Friend's name and location provider
+* Speed in km/h
+* Location age (turns red if older than 2 minutes)
+* Direction arrow if bearing data is available
+
+## Following a Friend on the map
+
+Click on any friend's marker on the map<br>
+The map will automatically center on that friend and track their movement<br>
+A pin icon appears on the followed friend's marker<br>
+To stop following, click the same marker again
+
 ## GPX Route recording
 
 * Start Recording: Click the red button to enable recording mode
