@@ -25,7 +25,7 @@ Automated screenshots:<br>
 ## Viewing Friends on the Map
 
 Switch to MAP mode in the app<br>
-Your connected friends' locations appear as markers with their names<br>
+Your connected friends locations appear as markers with their names<br>
 Each marker shows:<br>
 * Friend's name and location provider
 * Speed in km/h
