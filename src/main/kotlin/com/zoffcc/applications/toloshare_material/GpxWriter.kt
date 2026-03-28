@@ -64,14 +64,14 @@ class GpxWriter(directoryPath: String, filename: String) {
     ) {
         synchronized(fileLock) {
             val timeStr = dateFormat.format(Date(timestamp))
-            val eleTag = if (elevation != null) "\n      <ele>$elevation</ele>" else ""
+            val eleTag = if (elevation != null) "\n        <ele>$elevation</ele>" else ""
 
             val extensions = StringBuilder().apply {
                 if (speed != null || bearing != null) {
-                    append("\n      <extensions>\n        <gpxtpx:TrackPointExtension>")
-                    speed?.let { append("\n          <gpxtpx:speed>$it</gpxtpx:speed>") }
-                    bearing?.let { append("\n          <gpxtpx:course>$it</gpxtpx:course>") }
-                    append("\n        </gpxtpx:TrackPointExtension>\n      </extensions>")
+                    append("\n        <extensions>\n          <gpxtpx:TrackPointExtension>")
+                    speed?.let { append("\n            <gpxtpx:speed>$it</gpxtpx:speed>") }
+                    bearing?.let { append("\n            <gpxtpx:course>$it</gpxtpx:course>") }
+                    append("\n          </gpxtpx:TrackPointExtension>\n        </extensions>")
                 }
             }.toString()
 
