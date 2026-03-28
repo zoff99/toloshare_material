@@ -39,6 +39,11 @@ The map will automatically center on that friend and track their movement<br>
 A pin icon appears on the followed friend's marker<br>
 To stop following, click the same marker again
 
+## Friend Location updates are not smooth, why?
+
+Smooth updates only work for the currently followed friend,<br>
+other friends locations update when a new location update comes in.
+
 ## GPX Route recording
 
 * Start Recording: Click the red button to enable recording mode
