@@ -247,6 +247,8 @@ import java.io.File
 import java.lang.reflect.Field
 import java.net.InetSocketAddress
 import java.net.Proxy
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
@@ -3020,7 +3022,11 @@ fun MapWithZoomControl(vm: OsmViewModel, modifier: Modifier = Modifier) {
                 shape = RoundedCornerShape(20.dp))
         ) {
             IconButton(modifier = Modifier.size(40.dp),
-                onClick = { friend_recording_gpx = !friend_recording_gpx   }) {
+                onClick = {
+                    val newState = !friend_recording_gpx
+                    friend_recording_gpx = newState
+                    updateFriendGpsWriter(newState, geostore.getFollowPk())
+                }) {
                 // Custom Red Recording Button
                 Box(
                     modifier = Modifier
@@ -3085,3 +3091,36 @@ class RestartableExecutor {
         executor.shutdownNow()
     }
 }
+
+private val FriendGpsWriterLock = Any()
+fun updateFriendGpsWriter(isRecording: Boolean, followedPk: String?) {
+    synchronized(FriendGpsWriterLock) {
+        if (isRecording && followedPk != null && friend_gps_writer == null)
+        {
+            var fname: String = ""
+            try
+            {
+                val fname2 = orma!!.selectFromFriendList()
+                    .tox_public_key_stringEq(followedPk)
+                    .get(0).name
+                if (!fname2.isNullOrEmpty())
+                {
+                    if (fname2.isNotBlank())
+                    {
+                        fname = fname2 + "_"
+                    }
+                }
+            } catch (_: Exception)
+            {
+            }
+            val timestamp = LocalDateTime.now().format(
+                DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss"))
+            val filename = "route" + "_" + followedPk.take(6) + "_" + fname + timestamp
+            friend_gps_writer = GpxWriter(directoryPath = APPDIRS.getUserDataDir(), filename = filename)
+        } else if (!isRecording || followedPk == null)
+        {
+            friend_gps_writer = null
+        }
+    }
+}
+

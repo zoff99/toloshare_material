@@ -72,6 +72,7 @@ import ovh.plrapps.mapcompose.demo.viewmodels.INITIAL_ZOOM_LEVEL
 import ovh.plrapps.mapcompose.ui.layout.Forced
 import ovh.plrapps.mapcompose.ui.state.MapState
 import randomDebugBorder
+import updateFriendGpsWriter
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -125,39 +126,13 @@ class OsmViewModel : ViewModel(){
               {
                   // on second click reset "follow me" to "null" (do not follow anyone)
                   geostore.setFollowPk(null)
-                  if (friend_recording_gpx)
-                  {
-                      friend_gps_writer = null
-                  }
               }
               else
               {
                   geostore.setFollowPk(pk_string)
-                  if (friend_recording_gpx)
-                  {
-                      var fname: String = ""
-                      try
-                      {
-                          val fname2 = orma!!.selectFromFriendList()
-                              .tox_public_key_stringEq(pk_string).get(0).name
-                          if (!fname2.isNullOrEmpty())
-                          {
-                              if (fname2.isNotBlank())
-                              {
-                                  fname = fname2 + "_"
-                              }
-                          }
-                      } catch (_: Exception)
-                      {
-                      }
-
-
-                      val timestamp = LocalDateTime.now()
-                          .format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss"))
-                      val filename = "route" + "_" + pk_string.take(6) + "_" + fname + timestamp
-                      friend_gps_writer = GpxWriter(directoryPath = APPDIRS.getUserDataDir(), filename = filename)
-                  }
               }
+              updateFriendGpsWriter(friend_recording_gpx, geostore.getFollowPk())
+
               /*
               addCallout(id             = pk_string,
                          x              = x,
