@@ -3014,20 +3014,29 @@ fun MapWithZoomControl(vm: OsmViewModel, modifier: Modifier = Modifier) {
     })
     {
         MapPanel(vm.state, Modifier.align(Alignment.TopStart))
-        Column(modifier           = Modifier.padding(top = 10.dp, start = 10.dp)
-            .background(color = Color(0xCC2196F3).copy(alpha = 0.3f),
+        Column(modifier           = Modifier
+            .padding(10.dp)
+            .background(color = Color.Transparent,
                 shape = RoundedCornerShape(20.dp))
         ) {
-            IconButton(onClick = { friend_recording_gpx = !friend_recording_gpx   }) {
+            IconButton(modifier = Modifier.size(40.dp),
+                onClick = { friend_recording_gpx = !friend_recording_gpx   }) {
                 // Custom Red Recording Button
                 Box(
                     modifier = Modifier
-                        .padding(top = 5.dp)
-                        .size(40.dp) // Total button size
+                        .size(40.dp)
                         .clip(CircleShape)
                         .background(Color.Red.copy(alpha = if (friend_recording_gpx) 1f else 0.1f))
-                        .border(2.dp, Color.White, CircleShape) // Optional: Adds a white ring/border
-                )
+                        .border(2.dp, Color.White, CircleShape), // Optional: Adds a white ring/border
+                    contentAlignment = Alignment.Center // Center the content inside the Box
+                ) {
+                    Text(
+                        text = "REC",
+                        color = Color.Black.copy(alpha = if (friend_recording_gpx) 1f else 0.5f),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
         Column(modifier           = Modifier.align(Alignment.TopEnd)
