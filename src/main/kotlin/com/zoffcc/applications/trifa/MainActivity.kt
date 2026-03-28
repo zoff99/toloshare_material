@@ -2,6 +2,7 @@
 package com.zoffcc.applications.trifa
 
 import ColorProvider
+import GlobalRecordingState.friend_recording_gpx
 import GroupMessageAction
 import MessageAction
 import SMOOTH_GPS_INTER_STEPS
@@ -140,7 +141,6 @@ import myUser
 import org.briarproject.briar.desktop.contact.ContactItem
 import org.briarproject.briar.desktop.contact.GroupItem
 import org.briarproject.briar.desktop.contact.GroupPeerItem
-import friend_recording_gpx
 import set_tox_online_state
 import singleTaskController
 import toxdatastore

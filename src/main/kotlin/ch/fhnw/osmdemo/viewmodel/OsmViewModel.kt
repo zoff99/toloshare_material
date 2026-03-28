@@ -3,6 +3,7 @@
 package ch.fhnw.osmdemo.viewmodel
 
 import APPDIRS
+import GlobalRecordingState.friend_recording_gpx
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.SnapSpec
 import androidx.compose.animation.core.TweenSpec
@@ -42,10 +43,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zoffcc.applications.toloshare_material.GpxWriter
-import com.zoffcc.applications.trifa.MainActivity.Companion.tox_friend_get_name
 import com.zoffcc.applications.trifa.TrifaToxService.Companion.orma
 import friend_gps_writer
-import friend_recording_gpx
 import geostore
 import io.ktor.utils.io.*
 import kotlinx.coroutines.DelicateCoroutinesApi

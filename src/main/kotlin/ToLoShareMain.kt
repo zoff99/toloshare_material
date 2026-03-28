@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @file:Suppress("LocalVariableName", "FunctionName", "ConvertToStringTemplate", "SpellCheckingInspection", "UnusedReceiverParameter", "LiftReturnOrAssignment", "CascadeIf", "SENSELESS_COMPARISON", "VARIABLE_WITH_REDUNDANT_INITIALIZER", "UNUSED_ANONYMOUS_PARAMETER", "REDUNDANT_ELSE_IN_WHEN", "ReplaceSizeCheckWithIsNotEmpty", "ReplaceRangeToWithRangeUntil", "ReplaceGetOrSet", "SimplifyBooleanWithConstants", "ObjectPropertyName")
 
+import GlobalRecordingState.friend_recording_gpx
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
@@ -352,7 +353,10 @@ const val SMOOTH_GPS_INTER_STEPS = 20
 var friendSimulator: MutableList<MockFriendLocationSimulator>? = null
 
 var friend_gps_writer: GpxWriter? = null
-var friend_recording_gpx = true
+
+object GlobalRecordingState {
+    var friend_recording_gpx by mutableStateOf(false)
+}
 
 val singleTaskController3 = ThreadPoolExecutor(
     1,                   // corePoolSize: Keep 1 thread alive
@@ -3010,6 +3014,22 @@ fun MapWithZoomControl(vm: OsmViewModel, modifier: Modifier = Modifier) {
     })
     {
         MapPanel(vm.state, Modifier.align(Alignment.TopStart))
+        Column(modifier           = Modifier.padding(top = 10.dp, start = 10.dp)
+            .background(color = Color(0xCC2196F3).copy(alpha = 0.3f),
+                shape = RoundedCornerShape(20.dp))
+        ) {
+            IconButton(onClick = { friend_recording_gpx = !friend_recording_gpx   }) {
+                // Custom Red Recording Button
+                Box(
+                    modifier = Modifier
+                        .padding(top = 5.dp)
+                        .size(40.dp) // Total button size
+                        .clip(CircleShape)
+                        .background(Color.Red.copy(alpha = if (friend_recording_gpx) 1f else 0.1f))
+                        .border(2.dp, Color.White, CircleShape) // Optional: Adds a white ring/border
+                )
+            }
+        }
         Column(modifier           = Modifier.align(Alignment.TopEnd)
             .padding(top = 10.dp, end = 10.dp)
             .background(color = Color(0xCC2196F3).copy(alpha = 0.3f),
