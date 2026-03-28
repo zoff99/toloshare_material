@@ -21,6 +21,18 @@ Automated screenshots:<br>
 
 &nbsp;&nbsp;&nbsp;&nbsp;Looking for ToLoShare Mobile version? [follow me](https://github.com/zoff99/ToLoShare)
 
+
+## GPX Route recording
+
+* Start Recording: Click the red button to enable recording mode
+* Select Friend: Click on a friend's marker on the map to start tracking their location
+* GPX File Creation: When a friend is selected while recording is active, a new GpxWriter instance is created with a timestamped filename
+* Location Tracking: As location data arrives from the network, points are automatically added to the GPX file if the selected friend matches the incoming location data
+* Stop Recording: Click the same friend marker again to stop tracking, or click the red button to disable recording mode entirely
+
+
+
+
 <br>
 Any use of this project's code by GitHub Copilot, past or present, is done
 without our permission.  We do not consent to GitHub's use of this project's
