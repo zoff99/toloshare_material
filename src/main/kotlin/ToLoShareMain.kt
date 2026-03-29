@@ -3025,7 +3025,6 @@ fun MapWithZoomControl(vm: OsmViewModel, modifier: Modifier = Modifier) {
                 onClick = {
                     val newState = !friend_recording_gpx
                     friend_recording_gpx = newState
-                    updateFriendGpsWriter(newState, geostore.getFollowPk())
                 }) {
                 // Custom Red Recording Button
                 Box(

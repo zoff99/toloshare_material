@@ -129,7 +129,6 @@ class OsmViewModel : ViewModel(){
               {
                   geostore.setFollowPk(pk_string)
               }
-              updateFriendGpsWriter(friend_recording_gpx, geostore.getFollowPk())
 
               /*
               addCallout(id             = pk_string,
