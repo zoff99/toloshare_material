@@ -145,6 +145,7 @@ import set_tox_online_state
 import singleTaskController
 import toxdatastore
 import friend_gps_writer
+import updateFriendGpsWriter
 import java.io.File
 import java.io.PrintWriter
 import java.io.RandomAccessFile
@@ -1738,6 +1739,11 @@ class MainActivity
                                 }
 
                                 val nowTs = System.currentTimeMillis()
+
+                                if ((friend_recording_gpx) && (friend_gps_writer == null))
+                                {
+                                    updateFriendGpsWriter(friend_recording_gpx, geostore.getFollowPk())
+                                }
 
                                 if (friend_recording_gpx)
                                 {
