@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+@file:Suppress("LocalVariableName", "SpellCheckingInspection")
 
 package org.briarproject.briar.desktop.contact
 
@@ -23,8 +24,10 @@ import PUSHURL_SHOW_LEN_THRESHOLD
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.spacedBy
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -43,11 +46,13 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zoffcc.applications.trifa.HelperFriend.get_friend_name_from_pubkey
+import com.zoffcc.applications.trifa.HelperFriend.get_g_opts
 import com.zoffcc.applications.trifa.HelperRelay.get_friend_of_relay
 import com.zoffcc.applications.trifa.HelperRelay.get_relay_for_friend
 import com.zoffcc.applications.trifa.HelperRelay.is_any_relay
 import com.zoffcc.applications.trifa.Log
 import com.zoffcc.applications.trifa.TAG
+import com.zoffcc.applications.trifa.TrifaToxService.Companion.orma
 import globalfrndstoreunreadmsgs
 import globalstore
 import org.briarproject.briar.desktop.ui.NumberBadge
@@ -65,12 +70,18 @@ fun ContactItemView(
         // allows content to be bottom-aligned
         .height(IntrinsicSize.Min)
 ) {
+    val default_contact_pk = get_g_opts("follow_PK")
+    var is_default_contact = false
+    if ((!default_contact_pk.isNullOrEmpty()) && (default_contact_pk == contactItem.pubkey))
+    {
+        is_default_contact = true
+    }
     Row(
         verticalAlignment = CenterVertically,
         horizontalArrangement = spacedBy(0.dp),
-        modifier = Modifier.weight(1f, fill = true),
+        modifier = Modifier.weight(1f, fill = true)
+            .border(if (is_default_contact) 2.dp else 0.dp, if (is_default_contact) Color.Blue else Color.Transparent, CircleShape),
     ) {
-
         Box(Modifier.align(Top).padding(vertical = 0.dp)) {
             ProfileCircle(45.dp, contactItem)
             val current_friendtorerunreadmessagesstore by globalfrndstoreunreadmsgs.stateFlow.collectAsState()

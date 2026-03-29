@@ -1,4 +1,4 @@
-@file:Suppress("ConvertToStringTemplate", "LocalVariableName", "ReplaceSizeCheckWithIsNotEmpty", "FunctionName")
+@file:Suppress("ConvertToStringTemplate", "LocalVariableName", "ReplaceSizeCheckWithIsNotEmpty", "FunctionName", "SpellCheckingInspection")
 
 package com.zoffcc.applications.trifa
 
@@ -16,6 +16,7 @@ import com.zoffcc.applications.sorm.OrmaDatabase
 import com.zoffcc.applications.trifa.HelperFiletransfer.start_outgoing_ft
 import com.zoffcc.applications.trifa.HelperFriend.friend_call_push_url
 import com.zoffcc.applications.trifa.HelperFriend.get_friend_name_from_pubkey
+import com.zoffcc.applications.trifa.HelperFriend.get_g_opts
 import com.zoffcc.applications.trifa.HelperGeneric.get_friend_msgv3_capability
 import com.zoffcc.applications.trifa.HelperGeneric.is_friend_online_real
 import com.zoffcc.applications.trifa.HelperGeneric.tox_friend_resend_msgv3_wrapper
@@ -144,6 +145,9 @@ class TrifaToxService
                 Log.i(TAG, "is_tox_started=" + is_tox_started)
                 Log.i(TAG, "is_tox_started:==============================")
                 is_tox_started = true
+
+                set_followPK_to_default_contact()
+
                 if (!old_is_tox_started)
                 {
                     init_tox_callbacks()
@@ -1532,6 +1536,24 @@ class TrifaToxService
                 }
             }
             conf_++
+        }
+    }
+
+    fun set_followPK_to_default_contact()
+    {
+        try
+        {
+            val value = get_g_opts("follow_PK")
+            if (value != null)
+            {
+                if ((!value.isEmpty()) && (value.length > 6))
+                {
+                    geostore.setFollowPk(value)
+                }
+            }
+        }
+        catch(_: Exception)
+        {
         }
     }
 }

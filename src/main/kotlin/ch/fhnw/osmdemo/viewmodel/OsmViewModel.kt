@@ -116,16 +116,14 @@ class OsmViewModel : ViewModel(){
               // println("move $id $x $y")
           }
 
-          /**
-           * On Marker click, add a callout. If the id is [tapToDismissId], set auto-dismiss
-           * to false. For this particular id, we programmatically remove the callout on tap.
-           */
           onMarkerClick { pk_string, x, y ->
               var shouldAnimate by mutableStateOf(true)
               if (geostore.getFollowPk().equals(pk_string))
               {
                   // on second click reset "follow me" to "null" (do not follow anyone)
                   geostore.setFollowPk(null)
+                  // HINT: if we have a default contact set, still set follow pk to "null"
+                  //       or else we would never be able to stop follwing the default contact
               }
               else
               {
