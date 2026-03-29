@@ -1740,17 +1740,18 @@ class MainActivity
 
                                 val nowTs = System.currentTimeMillis()
 
-                                if ((friend_recording_gpx) && (friend_gps_writer == null))
-                                {
-                                    updateFriendGpsWriter(friend_recording_gpx, geostore.getFollowPk())
-                                }
-
                                 if (friend_recording_gpx)
                                 {
                                     try
-                                    { // HINT: record GPX file for the friend who he have pinned on the map
+                                    {
+                                        // HINT: record GPX file for the friend who he have pinned on the map
                                         if (geostore.getFollowPk().equals(fpubkey))
                                         {
+                                            if (friend_gps_writer == null)
+                                            {
+                                                updateFriendGpsWriter(friend_recording_gpx, geostore.getFollowPk())
+                                            }
+
                                             friend_gps_writer?.addPoint(
                                                 lat = lat, lon = lon,
                                                 timestamp = loc_timestamp,
