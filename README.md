@@ -37,7 +37,7 @@ Each marker shows:<br>
 Click on any friend's marker on the map<br>
 The map will automatically center on that friend and track their movement<br>
 A pin icon appears on the followed friend's marker<br>
-To stop following, click the same marker again
+To stop following, click the same marker again, or click on another friend's marker.
 
 ## Friend Location updates are not smooth, why?
 
