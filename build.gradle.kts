@@ -226,6 +226,20 @@ compose.desktop {
         jvmArgs += listOf("-Dcom.apple.mrj.application.apple.menu.about.name=ToLoShare")
         jvmArgs += listOf("-Dapple.awt.application.name=ToLoShare")
 
+        try
+        {
+            if (os!!.isLinux)
+            {
+                // on Linux set this for a possible skiko bug fix
+                println("Linux -> skiko bug fix")
+                jvmArgs += listOf("-Dskiko.vsync.enabled=false")
+            }
+        }
+        catch(_: Exception)
+        {
+            println("error detecting OS -> for skiko bug fix")
+        }
+
         buildTypes.release.proguard {
             optimize.set(false)
             obfuscate.set(false)
