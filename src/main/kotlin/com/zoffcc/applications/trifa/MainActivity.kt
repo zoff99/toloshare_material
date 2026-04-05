@@ -11,11 +11,12 @@ import UIGroupMessage
 import UIMessage
 import User
 import ___MOCK_FRIEND_LOCATION___
-import androidx.compose.animation.defaultDecayAnimationSpec
+import androidx.compose.ui.unit.dp
 import avstatestore
 import avstatestorecallstate
 import avstatestorevcapfpsstate
 import avstatestorevplayfpsstate
+import ch.fhnw.osmdemo.viewmodel.GeoPosition
 import com.zoffcc.applications.ffmpegav.AVActivity.ffmpegav_loadjni
 import com.zoffcc.applications.jninotifications.NTFYActivity
 import com.zoffcc.applications.jninotifications.NTFYActivity.jninotifications_loadjni
@@ -122,6 +123,8 @@ import com.zoffcc.applications.trifa.VideoInFrame.new_video_in_frame
 import com.zoffcc.applications.trifa.VideoInFrame.setup_video_in_resolution
 import com.zoffcc.applications.trifa2.timestampMs
 import contactstore
+import f_trails
+import friend_gps_writer
 import geostore
 import global_prefs
 import globalfrndstoreunreadmsgs
@@ -141,10 +144,16 @@ import myUser
 import org.briarproject.briar.desktop.contact.ContactItem
 import org.briarproject.briar.desktop.contact.GroupItem
 import org.briarproject.briar.desktop.contact.GroupPeerItem
+import ovh.plrapps.mapcompose.api.addPath
+import ovh.plrapps.mapcompose.api.removeAllPaths
+import ovh.plrapps.mapcompose.api.removePath
+import ovh.plrapps.mapcompose.api.updatePath
+import ovh.plrapps.mapcompose.ui.paths.model.PatternItem
+import ovh.plrapps.mapcompose.utils.Point
+import path_global_hackish_id_cur
 import set_tox_online_state
 import singleTaskController
 import toxdatastore
-import friend_gps_writer
 import updateFriendGpsWriter
 import java.io.File
 import java.io.PrintWriter
@@ -154,6 +163,7 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
+import kotlin.collections.mutableListOf
 
 @Suppress("UNUSED_PARAMETER", "LocalVariableName", "PropertyName", "ClassName", "FunctionName", "SpellCheckingInspection")
 class MainActivity
@@ -1764,6 +1774,58 @@ class MainActivity
                                     catch(_: Exception)
                                     {
                                     }
+                                }
+
+                                try
+                                {
+                                    if (geostore.getFollowPk().equals(fpubkey))
+                                    {
+                                        val tmp_location = Location(loc_provider);
+                                        tmp_location.latitude = lat
+                                        tmp_location.longitude = lon
+                                        tmp_location.time = loc_timestamp
+                                        f_trails.updateLocation(fpubkey, tmp_location)
+                                        try
+                                        {
+                                            val trails = f_trails.getRecentPositions(fpubkey)
+                                            val points = mutableListOf<Pair<Double, Double>>()
+                                            trails.drop(1).forEach { loc ->
+                                                try {
+                                                    val geo_pos = GeoPosition(latitude = loc.latitude,
+                                                        longitude = loc.longitude)
+                                                    val tmp_p = geo_pos.asNormalizedWebMercator()
+                                                    points.add(Pair(tmp_p.x, tmp_p.y))
+                                                } catch (e: Exception) {
+                                                    e.printStackTrace()
+                                                }
+                                            }
+                                            // Log.i("TRAIL:", "002 " + points)
+                                            val dash_pattern: List<PatternItem>? = listOf(
+                                                PatternItem.Dash(4.dp),
+                                                PatternItem.Gap(1.dp)
+                                            )
+                                            // HACK - HACK - HACK
+                                            // HACK - HACK - HACK
+                                            GlobalViewModels.osm.state.removeAllPaths()
+                                            GlobalViewModels.osm.state.addPath(id = "" + (path_global_hackish_id_cur + 1) + ":::trail:::" + fpubkey) {
+                                                addPoints(points)
+                                            }
+                                            // GlobalViewModels.osm.state.removePath(id = "" + path_global_hackish_id_cur + ":::trail:::" + fpubkey)
+                                            path_global_hackish_id_cur++
+                                            if (path_global_hackish_id_cur > 1000)
+                                            {
+                                                path_global_hackish_id_cur = 1
+                                            }
+                                            // HACK - HACK - HACK
+                                            // HACK - HACK - HACK
+                                        } catch (e: java.lang.Exception)
+                                        {
+                                            e.printStackTrace()
+                                        }
+                                    }
+                                }
+                                catch(_: Exception)
+                                {
                                 }
 
                                 // Log.i(TAG, "GEO::" + separated)

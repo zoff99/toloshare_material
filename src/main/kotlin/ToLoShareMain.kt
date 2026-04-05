@@ -197,6 +197,7 @@ import com.zoffcc.applications.trifa.SingleComponentAspectRatioKeeperLayout
 import com.zoffcc.applications.trifa.SqliteEscapeLikeString
 import com.zoffcc.applications.trifa.TAG
 import com.zoffcc.applications.trifa.TRIFAGlobals
+import com.zoffcc.applications.trifa.ThreadSafeFriendTrails
 import com.zoffcc.applications.trifa.ToxVars
 import com.zoffcc.applications.trifa.TrifaToxService
 import com.zoffcc.applications.trifa.TrifaToxService.Companion.clear_grouppeers
@@ -349,11 +350,13 @@ var ScaffoldCoroutineScope: CoroutineScope = GlobalScope
 var NotoEmojiFont: FontFamily? = null
 var DefaultFont: FontFamily? = null
 const val DISPLAY_SINGLE_INSTANCE_INFO = 1000L
+var path_global_hackish_id_cur = 1L
 
 const val ___MOCK_FRIEND_LOCATION___ = false
 const val NUMBER_OF_MOCK_FRIENDS = 1
 const val SMOOTH_GPS_INTER_STEPS = 20
 var friendSimulator: MutableList<MockFriendLocationSimulator>? = null
+val f_trails: ThreadSafeFriendTrails = ThreadSafeFriendTrails()
 
 var friend_gps_writer: GpxWriter? = null
 
@@ -371,6 +374,10 @@ val singleTaskController3 = ThreadPoolExecutor(
 )
 val singleTaskController = RestartableExecutor()
 
+object GlobalViewModels {
+    lateinit var osm: OsmViewModel
+}
+
 @OptIn(DelicateCoroutinesApi::class, ExperimentalFoundationApi::class)
 @Composable
 @Preview
@@ -379,7 +386,8 @@ fun App()
     var start_button_text by remember { mutableStateOf("start") }
     var tox_running_state: String by remember { mutableStateOf("stopped") }
 
-    val osm = remember { OsmViewModel() }
+    GlobalViewModels.osm = remember { OsmViewModel() }
+    val osm = GlobalViewModels.osm
 
     println("User data dir: " + APPDIRS.getUserDataDir())
     println("User data dir (roaming): " + APPDIRS.getUserDataDir(roaming = true))
