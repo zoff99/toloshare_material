@@ -1756,6 +1756,8 @@ class MainActivity
                                                 lat = lat, lon = lon,
                                                 timestamp = loc_timestamp,
                                                 elevation = alt,
+                                                provider = loc_provider,
+                                                accuracy = acc,
                                                 speed = speed_meters_per_second, bearing = bearing)
                                         }
                                     }

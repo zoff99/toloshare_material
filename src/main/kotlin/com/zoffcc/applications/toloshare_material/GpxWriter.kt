@@ -49,6 +49,8 @@ class GpxWriter(directoryPath: String, filename: String) {
      *
      * @param lat The latitude of the point in decimal degrees (WGS84).
      * @param lon The longitude of the point in decimal degrees (WGS84).
+     * @param accuracy in meters.
+     * @param provider name of the location provider or null.
      * @param timestamp Epoch time in milliseconds (e.g., from System.currentTimeMillis() or Location.getTime()) in UTC.
      * @param elevation The altitude above sea level in meters. Pass null if unknown.
      * @param speed The current travel speed in meters per second (m/s).
@@ -57,6 +59,8 @@ class GpxWriter(directoryPath: String, filename: String) {
     fun addPoint(
         lat: Double,
         lon: Double,
+        accuracy: Float,
+        provider: String?,
         timestamp: Long,
         elevation: Double? = null,
         speed: Float? = null,
@@ -65,6 +69,8 @@ class GpxWriter(directoryPath: String, filename: String) {
         synchronized(fileLock) {
             val timeStr = dateFormat.format(Date(timestamp))
             val eleTag = if (elevation != null) "\n        <ele>$elevation</ele>" else ""
+            val fixtypeTag = if (provider.equals("gps", true)) "\n        <fix>3d</fix>" else ""
+            val commentTag = if (provider != null) "\n        <cmt>$provider</cmt>" else ""
 
             val extensions = StringBuilder().apply {
                 if (speed != null || bearing != null) {
@@ -76,7 +82,7 @@ class GpxWriter(directoryPath: String, filename: String) {
             }.toString()
 
             val newEntry = """
-      <trkpt lat="$lat" lon="$lon">$eleTag
+      <trkpt lat="$lat" lon="$lon">$eleTag$fixtypeTag$commentTag
         <time>$timeStr</time>$extensions
       </trkpt>$footer"""
 
