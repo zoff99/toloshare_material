@@ -543,6 +543,14 @@ fun App()
                                         Text(start_button_text)
                                     }
                                     var online_button_text by remember { mutableStateOf("offline") }
+                                    LaunchedEffect(online_button_text_wrapper) {
+                                        while (true) {
+                                            if (online_button_text != online_button_text_wrapper) {
+                                                online_button_text = online_button_text_wrapper
+                                            }
+                                            delay(200) // Non-blocking delay
+                                        }
+                                    }
                                     Button( // self connection state button
                                         modifier = Modifier.width(120.dp),
                                         onClick = {},
@@ -563,21 +571,6 @@ fun App()
                                             CircleShape).background(Color(online_button_color_wrapper), CircleShape))
                                         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                                         Text(getOnlineButtonText(online_button_text))
-                                        Thread {
-                                            while (true)
-                                            {
-                                                try
-                                                {
-                                                    Thread.sleep(200)
-                                                    if (online_button_text != online_button_text_wrapper)
-                                                    {
-                                                        online_button_text = online_button_text_wrapper
-                                                    }
-                                                } catch (_: Exception)
-                                                {
-                                                }
-                                            }
-                                        }.start()
                                     }
                                 }
                                 Row(verticalAlignment = Alignment.Bottom) {
