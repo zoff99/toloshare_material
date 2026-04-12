@@ -133,6 +133,15 @@ public class HelperRelay
             }
         }
 
+        // whitelist mozilla sunup server
+        if (push_url.length() > NOTIFICATION_SUNUP_PUSH_URL_PREFIX.length())
+        {
+            if (push_url.startsWith(NOTIFICATION_SUNUP_PUSH_URL_PREFIX))
+            {
+                return true;
+            }
+        }
+
         // anything else is not allowed at this time!
         return false;
     }
