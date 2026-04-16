@@ -206,16 +206,17 @@ dependencies {
 }
 
 val main_class_name = "ToLoShareMainKt"
+val USE_JDK_VERSION = 17
 
 compose.desktop {
     java {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(17))
+            languageVersion.set(JavaLanguageVersion.of(USE_JDK_VERSION))
         }
     }
 
     kotlin {
-        jvmToolchain(17)
+        jvmToolchain(USE_JDK_VERSION)
     }
 
     application {
