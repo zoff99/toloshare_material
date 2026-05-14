@@ -95,7 +95,6 @@ dependencyVerification {
         'org.jetbrains.compose.animation:animation-desktop:1.12.0-alpha01+dev4104:animation-desktop-1.12.0-alpha01+dev4104.jar:964390c0266f3679cc07d11f6db83b09b175fcd906aabfe39b38c659a0fb700e',
         'org.jetbrains.compose.components:components-resources-desktop:1.10.0:library-desktop-1.10.0.jar:7dbbe06683befa8110b4ac926a7432b7e2ee446ed156adf55ad17e9c868ae0e2',
         'org.jetbrains.compose.components:components-resources-desktop:1.12.0-alpha01+dev4104:library-desktop-1.12.0-alpha01+dev4104.jar:05e1cad77c8ede7930ad21223b819932b70d7ad969ebfef97ddf272fc1a7bc39',
-        'org.jetbrains.compose.components:components-ui-tooling-preview-desktop:1.9.1:library-desktop-1.9.1.jar:ca0857dcde7cffff8eea3cce2940a285f219f673829f7f9a3381f767d224f411',
         'org.jetbrains.compose.desktop:desktop-jvm:1.10.0:desktop-jvm-1.10.0.jar:fdb63de4c9bdc6570c5355eeb0f013d4635effda42907c2d084acc77e08d4f8a',
         'org.jetbrains.compose.desktop:desktop-jvm:1.12.0-alpha01+dev4104:desktop-jvm-1.12.0-alpha01+dev4104.jar:9f3d221e1accd6c7c64ac2a0d7c8053537bc7f49592c44d72b766434dfce7440',
         'org.jetbrains.compose.foundation:foundation-desktop:1.10.0:foundation-desktop-1.10.0.jar:f988ef9d9517dc26b360943349bf1412d5735beb8ecf4f5304f10ecfe6ca05db',
@@ -186,8 +185,8 @@ dependencyVerification {
         'org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2:kotlinx-coroutines-swing-1.10.2.jar:02bdb85f20ec08004429abf6887e8d0e40f3ab637d7462f817f0f8abbe7d1eb5',
         'org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.11.0:kotlinx-coroutines-swing-1.11.0.jar:7f658fe952b56176111faad8ac275268904608915d6c79374fa0c80fb288fb60',
         'org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.7.1:kotlinx-datetime-jvm-0.7.1.jar:3b8b98657c9aff3be7f6b4b575e9f3fb9a3a1f452a801da0f438901734acdade',
-        'org.jetbrains.kotlinx:kotlinx-io-bytestring-jvm:0.8.2:kotlinx-io-bytestring-jvm-0.8.2.jar:3da805e9da2ff3cb119f744dcd11de6a18e32a5b933518f17418ba5795cfa775',
-        'org.jetbrains.kotlinx:kotlinx-io-core-jvm:0.8.2:kotlinx-io-core-jvm-0.8.2.jar:610770cc855edf1c57d9fcd7c69fd040af57adaf8834505f91805de680783d13',
+        'org.jetbrains.kotlinx:kotlinx-io-bytestring-jvm:0.9.0:kotlinx-io-bytestring-jvm-0.9.0.jar:43a8c9d7c5460622c4ffe7e7c9443736af1a69183316b532de78a9aafa86b636',
+        'org.jetbrains.kotlinx:kotlinx-io-core-jvm:0.9.0:kotlinx-io-core-jvm-0.9.0.jar:338872148faa4a44acc9bfa91343813d51784e8d47f005ad4406647297f85041',
         'org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.7.3:kotlinx-serialization-core-jvm-1.7.3.jar:f0adde45864144475385cf4aa7e0b7feb27f61fcf9472665ed98cc971b06b1eb',
         'org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.9.0:kotlinx-serialization-core-jvm-1.9.0.jar:1f0afa172110e45a7231ef1b44ae8fd84c1ebaff96f3fc3ad68ef8c48120b59c',
         'org.jetbrains.runtime:jbr-api:1.5.0:jbr-api-1.5.0.jar:657ede7d7f8e175c909b23caa10fcd4d4a511304fd938aa9cc8457b4378950d5',
@@ -205,6 +204,6 @@ dependencyVerification {
         'org.slf4j:slf4j-api:1.7.36:slf4j-api-1.7.36.jar:d3ef575e3e4979678dc01bf1dcce51021493b4d11fb7f1be8ad982877c16a1c0',
         'org.slf4j:slf4j-api:2.0.17:slf4j-api-2.0.17.jar:7b751d952061954d5abfed7181c1f645d336091b679891591d63329c622eb832',
         'org.slf4j:slf4j-api:2.0.18:slf4j-api-2.0.18.jar:44508fd1576500688c790b190acdd16fec4f8c79a3e0b900afd70503cf055f55',
-        'ovh.plrapps:mapcompose-mp-desktop:0.12.0:library-desktop.jar:c69c1ab3b8e218fddd4b936bc6e2978798869da03a828da3e970a15970bd7777',
+        'ovh.plrapps:mapcompose-mp-desktop:0.12.1:library-desktop.jar:48c90b5b04b75ed4cad4091817e5bfadb41d5af33fafb47e4f9d4bda24997348',
     ]
 }
