@@ -198,7 +198,7 @@ dependencies {
     // implementation("io.ktor:ktor-client-android:3.3.3")
     implementation("io.ktor:ktor-client-apache5:3.5.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.11.0")
-    val voyagerVersion = "1.1.0-beta03"
+    val voyagerVersion = "2.2.21-1.10.3"
     implementation("cafe.adriel.voyager:voyager-screenmodel:${voyagerVersion}")
     implementation("cafe.adriel.voyager:voyager-core:${voyagerVersion}")
     implementation("com.squareup.okio:okio:3.17.0")
