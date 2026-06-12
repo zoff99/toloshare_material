@@ -173,6 +173,7 @@ dependencyVerification {
         'org.jetbrains.kotlin:kotlin-stdlib:2.1.21:kotlin-stdlib-2.1.21.jar:263bdc679e1f62012db7b091796279b6d71cf36f4797a98ff1ace05835f201c8',
         'org.jetbrains.kotlin:kotlin-stdlib:2.2.21:kotlin-stdlib-2.2.21.jar:6558a3d233da56a20934b32159f9db5f86ed5816ef098f78a2c223dc6abb79dd',
         'org.jetbrains.kotlin:kotlin-stdlib:2.4.0-Beta2:kotlin-stdlib-2.4.0-Beta2.jar:a77560d44ed7441461899fb2cfe86200f686eaa01c5dc9f5bb704ed9f5106834',
+        'org.jetbrains.kotlin:kotlin-stdlib:2.4.0:kotlin-stdlib-2.4.0.jar:ccb14ff83fabcb11458b798dbc9824748ccdffeec79c9aba789e6ed1cda86b1c',
         'org.jetbrains.kotlin:kotlin-tooling-core:2.4.0-Beta2:kotlin-tooling-core-2.4.0-Beta2.jar:59ea305372e3a2b7417764dcfecf645066a0d9b1792ab40afd15c1cc8535b58a',
         'org.jetbrains.kotlin:kotlin-util-io:2.4.0-Beta2:kotlin-util-io-2.4.0-Beta2.jar:4720b53feff72d238e22da1b9c221973cc98031a14e03c29e1e44122be123e81',
         'org.jetbrains.kotlin:kotlin-util-klib-metadata:2.4.0-Beta2:kotlin-util-klib-metadata-2.4.0-Beta2.jar:fd19f1ae6ef0847e2d811915a97b706d43e0e2debc4a3af65a0c6e4c2f79e99b',
@@ -204,6 +205,6 @@ dependencyVerification {
         'org.ow2.asm:asm:9.9.1:asm-9.9.1.jar:6f3828a215c920059a5efa2fb55c233d6c54ec5cadca99ce1b1bdd10077c7ddd',
         'org.slf4j:slf4j-api:1.7.36:slf4j-api-1.7.36.jar:d3ef575e3e4979678dc01bf1dcce51021493b4d11fb7f1be8ad982877c16a1c0',
         'org.slf4j:slf4j-api:2.0.18:slf4j-api-2.0.18.jar:44508fd1576500688c790b190acdd16fec4f8c79a3e0b900afd70503cf055f55',
-        'ovh.plrapps:mapcompose-mp-desktop:0.13.2:library-desktop.jar:91c425ae37bbb9b9fc0573fc91153260dc31d1649eadbbaff7eaf19733b0d563',
+        'ovh.plrapps:mapcompose-mp-desktop:1.0.0:library-desktop.jar:bbd4368776a66d28d264a935da75d1abcdf36d4814bea82f2def48569d8bb8ee',
     ]
 }
