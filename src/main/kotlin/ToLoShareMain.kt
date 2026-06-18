@@ -3005,6 +3005,7 @@ fun MapWithZoomControl(vm: OsmViewModel, modifier: Modifier = Modifier) {
         val delta = event.changes.first().scrollDelta.y
         accumulatedDelta += delta
 
+        /*
         // Only trigger when the user has scrolled enough
         if (abs(accumulatedDelta) >= zoomThreshold) {
             if (accumulatedDelta > 0) {
@@ -3015,6 +3016,7 @@ fun MapWithZoomControl(vm: OsmViewModel, modifier: Modifier = Modifier) {
             // Reset after triggering
             accumulatedDelta = 0f
         }
+         */
     })
     {
         MapPanel(vm.state, Modifier.align(Alignment.TopStart))
