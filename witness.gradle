@@ -205,6 +205,6 @@ dependencyVerification {
         'org.ow2.asm:asm:9.9.1:asm-9.9.1.jar:6f3828a215c920059a5efa2fb55c233d6c54ec5cadca99ce1b1bdd10077c7ddd',
         'org.slf4j:slf4j-api:1.7.36:slf4j-api-1.7.36.jar:d3ef575e3e4979678dc01bf1dcce51021493b4d11fb7f1be8ad982877c16a1c0',
         'org.slf4j:slf4j-api:2.0.18:slf4j-api-2.0.18.jar:44508fd1576500688c790b190acdd16fec4f8c79a3e0b900afd70503cf055f55',
-        'ovh.plrapps:mapcompose-mp-desktop:1.0.0:library-desktop.jar:bbd4368776a66d28d264a935da75d1abcdf36d4814bea82f2def48569d8bb8ee',
+        'ovh.plrapps:mapcompose-mp-desktop:1.1.0:library-desktop.jar:349eb085c01468fa77b8d2f49666dafb2053d06e301a6703d308fa51b92e06f1',
     ]
 }
