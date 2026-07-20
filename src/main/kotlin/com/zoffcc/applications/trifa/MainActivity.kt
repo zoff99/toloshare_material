@@ -1005,10 +1005,10 @@ class MainActivity
          * @param peer_id      The ID of the peer the message is intended for.
          * @param message      A non-NULL pointer to the first element of a byte array
          * containing the message text.
-         * @return true on success.
+         * @return pseudo message ID on success. return < 0 on error.
          */
         @JvmStatic
-        external fun tox_group_send_private_message(group_number: Long, peer_id: Long, a_TOX_MESSAGE_TYPE: Int, message: String?): Int
+        external fun tox_group_send_private_message(group_number: Long, peer_id: Long, a_TOX_MESSAGE_TYPE: Int, message: String?): Long
 
         /**
          * Send a text chat message to the specified peer in the specified group.
@@ -1027,10 +1027,10 @@ class MainActivity
          * message is intended for. If this parameter is NULL, this function will return false.
          * @param message                A non-NULL pointer to the first element of a byte array
          * containing the message text.
-         * @return 0 on success. return < 0 on error.
+         * @return pseudo message ID on success. return < 0 on error.
          */
         @JvmStatic
-        external fun tox_group_send_private_message_by_peerpubkey(group_number: Long, peer_public_key_string: String?, a_TOX_MESSAGE_TYPE: Int, message: String?): Int
+        external fun tox_group_send_private_message_by_peerpubkey(group_number: Long, peer_public_key_string: String?, a_TOX_MESSAGE_TYPE: Int, message: String?): Long
 
         /**
          * Accept an invite to a group chat that the client previously received from a friend. The invite
@@ -3490,7 +3490,7 @@ class MainActivity
 
         @JvmStatic
         @Suppress("unused")
-        fun android_tox_callback_group_private_message_cb_method(group_number: Long, peer_id: Long, a_TOX_MESSAGE_TYPE: Int, message_orig: String?, length: Long)
+        fun android_tox_callback_group_private_message_cb_method(group_number: Long, peer_id: Long, a_TOX_MESSAGE_TYPE: Int, message_orig: String?, length: Long, message_id: Long)
         {
             val res = tox_group_self_get_peer_id(group_number)
             if (res == peer_id)
