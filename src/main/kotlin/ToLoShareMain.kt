@@ -110,13 +110,20 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.platform.Font
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -1618,6 +1625,7 @@ fun App()
                 HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(0.dp))
                 Row(
                     modifier = Modifier.randomDebugBorder().height(MAIN_STATUS_BAR_HEIGHT).fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Bottom)
                 {
                     Spacer(modifier = Modifier.width(5.dp))
@@ -1714,6 +1722,39 @@ fun App()
                     Text(os_name_ver,
                         fontSize = 11.sp,
                         maxLines = 1)
+
+                    // This weight modifier pushes everything after it to the right edge
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    val annotatedText = buildAnnotatedString {
+                        append("Map data from ")
+
+                        // Attach a URL link to the word "OpenStreetMap"
+                        withLink(
+                            LinkAnnotation.Url(
+                                url = "https://www.openstreetmap.org/copyright",
+                                // Optional styling for the link
+                                styles = TextLinkStyles(
+                                    style = SpanStyle(
+                                        color = Color.Blue,
+                                        textDecoration = TextDecoration.Underline
+                                    )
+                                )
+                            )
+                        ) {
+                            append("OpenStreetMap")
+                        }
+                    }
+
+                    Text(
+                        text = annotatedText,
+                        fontSize = 11.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis // Safely handle long text on small screens
+                    )
+
+                    // right-edge padding
+                    Spacer(modifier = Modifier.width(5.dp))
                 }
             }
 
