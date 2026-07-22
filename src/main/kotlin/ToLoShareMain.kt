@@ -103,7 +103,9 @@ import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -217,6 +219,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
@@ -246,6 +249,7 @@ import org.briarproject.briar.desktop.ui.UiPlaceholder
 import org.briarproject.briar.desktop.ui.VerticalDivider
 import org.briarproject.briar.desktop.utils.InternationalizationUtils.i18n
 import ovh.plrapps.mapcompose.api.hasMarker
+import ovh.plrapps.mapcompose.api.idleStateFlow
 import ovh.plrapps.mapcompose.api.removeAllMarkers
 import ovh.plrapps.mapcompose.api.removeMarker
 import ovh.plrapps.mapcompose.api.scrollTo
@@ -1470,7 +1474,37 @@ fun App()
                             {
                                 val geostate by geostore.stateFlow.collectAsState()
                                 val mapScope = rememberCoroutineScope()
-                                Box(modifier = Modifier.fillMaxSize()) {
+                                var isTrackingUser by remember { mutableStateOf(true) }
+                                val scope = rememberCoroutineScope()
+                                var debounceJob by remember { mutableStateOf<Job?>(null) }
+                                Box(modifier = Modifier.fillMaxSize()
+                                    .pointerInput(Unit) {
+                                        awaitPointerEventScope {
+                                            while (true) {
+                                                val event = awaitPointerEvent()
+
+                                                val isLeftPressed = event.buttons.isPrimaryPressed
+                                                val scrollDelta = event.changes.firstOrNull()?.scrollDelta
+                                                val isScrolling = scrollDelta != null && scrollDelta.y != 0f
+
+                                                if (isLeftPressed || isScrolling) {
+                                                    // 1. Instantly update state
+                                                    if (isTrackingUser) {
+                                                        isTrackingUser = false
+                                                        Log.i(TAG, "isTrackingUser=" + isTrackingUser)
+                                                    }
+
+                                                    // 2. Efficiently reset the timer
+                                                    debounceJob?.cancel()
+                                                    debounceJob = scope.launch {
+                                                        delay(1000L)
+                                                        isTrackingUser = true
+                                                        Log.i(TAG, "isTrackingUser=" + isTrackingUser)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }) {
                                     // HINT: redraw map every 30 seconds
                                     var redraw_map: Long by remember { mutableStateOf(1L) }
                                     LaunchedEffect(redraw_map) {
@@ -1505,12 +1539,12 @@ fun App()
                                                     speed = it.speed)
                                                 if (geostore.getFollowPk().equals(it.pk_str))
                                                 {
-                                                    //mapScope.launch {
+                                                    if (isTrackingUser)
+                                                    { // HINT: here the map moves the new GPS position to the center
+                                                        //mapScope.launch {
                                                         val geo_pos_normalized = geo_pos.asNormalizedWebMercator()
-                                                        osm.state.scrollTo(x = geo_pos_normalized.x, y = geo_pos_normalized.y,
-                                                            animationSpec = TweenSpec(durationMillis = 0,
-                                                                easing = LinearEasing))
-                                                    //}
+                                                        osm.state.scrollTo(x = geo_pos_normalized.x, y = geo_pos_normalized.y, animationSpec = TweenSpec(durationMillis = 0, easing = LinearEasing)) //}
+                                                    }
                                                 }
                                             }
                                         }
