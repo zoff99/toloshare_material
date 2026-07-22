@@ -201,7 +201,7 @@ dependencies {
     val voyagerVersion = "2.2.21-1.10.3"
     implementation("cafe.adriel.voyager:voyager-screenmodel:${voyagerVersion}")
     implementation("cafe.adriel.voyager:voyager-core:${voyagerVersion}")
-    implementation("com.squareup.okio:okio:3.17.0")
+    implementation("com.squareup.okio:okio:3.18.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose")
 }
 
