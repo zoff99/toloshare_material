@@ -145,6 +145,9 @@ import org.briarproject.briar.desktop.contact.ContactItem
 import org.briarproject.briar.desktop.contact.GroupItem
 import org.briarproject.briar.desktop.contact.GroupPeerItem
 import ovh.plrapps.mapcompose.api.addPath
+import ovh.plrapps.mapcompose.api.allPaths
+import ovh.plrapps.mapcompose.api.hasPath
+import ovh.plrapps.mapcompose.api.makePathDataBuilder
 import ovh.plrapps.mapcompose.api.removeAllPaths
 import ovh.plrapps.mapcompose.api.removePath
 import ovh.plrapps.mapcompose.api.updatePath
@@ -1800,24 +1803,32 @@ class MainActivity
                                                 }
                                             }
                                             // Log.i("TRAIL:", "002 " + points)
-                                            val dash_pattern: List<PatternItem>? = listOf(
+                                            val dash_pattern: List<PatternItem> = listOf(
                                                 PatternItem.Dash(4.dp),
                                                 PatternItem.Gap(1.dp)
                                             )
-                                            // HACK - HACK - HACK
-                                            // HACK - HACK - HACK
-                                            GlobalViewModels.osm.state.removeAllPaths()
-                                            GlobalViewModels.osm.state.addPath(id = "" + (path_global_hackish_id_cur + 1) + ":::trail:::" + fpubkey) {
+                                            val pathId = ":::trail:::$fpubkey"
+                                            val pathData = GlobalViewModels.osm.state.makePathDataBuilder().apply {
                                                 addPoints(points)
+                                            }.build()
+
+                                            // HINT: remove path that belong to another friend
+                                            GlobalViewModels.osm.state.allPaths {
+                                                if (it.id != pathId) {
+                                                    GlobalViewModels.osm.state.removePath(it.id)
+                                                }
                                             }
-                                            // GlobalViewModels.osm.state.removePath(id = "" + path_global_hackish_id_cur + ":::trail:::" + fpubkey)
-                                            path_global_hackish_id_cur++
-                                            if (path_global_hackish_id_cur > 1000)
+
+                                            // HINT: add or update path (GPS trail)
+                                            if (pathData != null)
                                             {
-                                                path_global_hackish_id_cur = 1
+                                                if (GlobalViewModels.osm.state.hasPath(pathId)) {
+                                                    GlobalViewModels.osm.state.updatePath(pathId, pathData)
+                                                } else {
+                                                    GlobalViewModels.osm.state.addPath(pathId, pathData)
+                                                }
                                             }
-                                            // HACK - HACK - HACK
-                                            // HACK - HACK - HACK
+
                                         } catch (e: java.lang.Exception)
                                         {
                                             e.printStackTrace()
