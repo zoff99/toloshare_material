@@ -296,6 +296,7 @@ val GROUP_COLLAPSED_PEER_COLUMN_WIDTH = 45.dp
 const val GROUP_PEER_COLUMN_PEERNAME_LEN_THRESHOLD = 12
 val MESSAGE_INPUT_LINE_HEIGHT = 58.dp
 val MAIN_TOP_TAB_HEIGHT = 160.dp
+val MAIN_TOP_TAB_MAPMODE_HEIGHT = 50.dp
 const val IMAGE_PREVIEW_SIZE = 70f
 const val AVATAR_SIZE = 40f
 const val MAX_AVATAR_SIZE = 70f
@@ -451,7 +452,8 @@ fun App()
                     BriarSidebar(uiMode = uiMode, setUiMode = { uiMode = it })
                     VerticalDivider()
                     Column(Modifier.randomDebugBorder()) {
-                        Row(modifier = Modifier.randomDebugBorder().fillMaxWidth().height(main_top_tab_height)) {
+                        Row(modifier = Modifier.randomDebugBorder().fillMaxWidth()
+                            .height(if (uiMode != UiMode.MAP) main_top_tab_height else MAIN_TOP_TAB_MAPMODE_HEIGHT)) {
                             Column(modifier = Modifier.randomDebugBorder()) {
                                 Row(Modifier.wrapContentHeight(), Arrangement.spacedBy(5.dp)) {
 
@@ -593,136 +595,91 @@ fun App()
                                         Text(getOnlineButtonText(online_button_text))
                                     }
                                 }
-                                Row(verticalAlignment = Alignment.Bottom) {
-                                    Column {
-                                        SaveDataPath()
-                                        ToxIDTextField()
+                                if (uiMode != UiMode.MAP)
+                                {
+                                    Row(verticalAlignment = Alignment.Bottom) {
+                                        Column {
+                                            SaveDataPath()
+                                            ToxIDTextField()
+                                        }
+                                        ToxIDQRCode()
                                     }
-                                    ToxIDQRCode()
                                 }
                             }
-                            Spacer(modifier = Modifier.width(5.dp))
-                            val current_callstate2 by avstatestorecallstate.stateFlow.collectAsState()
-                            when (current_callstate2.call_state)
+                            if (uiMode != UiMode.MAP)
                             {
-                                AVState.CALL_STATUS.CALL_STATUS_INCOMING ->
+                                Spacer(modifier = Modifier.width(5.dp))
+                                val current_callstate2 by avstatestorecallstate.stateFlow.collectAsState()
+                                when (current_callstate2.call_state)
                                 {
-                                    Row() {
-                                        Column(modifier = Modifier.fillMaxHeight(1.0f).width(400.dp)
-                                            .padding(10.dp)
-                                            .dashedBorder(color = Color.Red,
-                                                strokeWidth = 5.dp,
-                                                cornerRadiusDp = 25.dp)) {
-                                            Row(modifier = Modifier.padding(15.dp)) {
-                                                Spacer(Modifier.size(2.dp).weight(0.3f))
-                                                var fname: String? = ""
-                                                try
-                                                {
-                                                    fname = tox_friend_get_name(tox_friend_by_public_key(avstatestore.state.call_with_friend_pubkey_get()))
-                                                } catch (_: Exception)
-                                                {
+                                    AVState.CALL_STATUS.CALL_STATUS_INCOMING ->
+                                    {
+                                        Row() {
+                                            Column(modifier = Modifier.fillMaxHeight(1.0f).width(400.dp).padding(10.dp).dashedBorder(color = Color.Red, strokeWidth = 5.dp, cornerRadiusDp = 25.dp)) {
+                                                Row(modifier = Modifier.padding(15.dp)) {
+                                                    Spacer(Modifier.size(2.dp).weight(0.3f))
+                                                    var fname: String? = ""
+                                                    try
+                                                    {
+                                                        fname = tox_friend_get_name(tox_friend_by_public_key(avstatestore.state.call_with_friend_pubkey_get()))
+                                                    } catch (_: Exception)
+                                                    {
+                                                    }
+                                                    var text_value = "incoming Call"
+                                                    if ((fname != null) && (fname != ""))
+                                                    {
+                                                        text_value = "incoming Call from: " + fname
+                                                    }
+                                                    Text(modifier = Modifier.align(Alignment.CenterVertically), fontSize = 20.sp, textAlign = TextAlign.Center, text = text_value)
+                                                    Spacer(Modifier.size(2.dp).weight(0.3f))
                                                 }
-                                                var text_value = "incoming Call"
-                                                if ((fname != null) && (fname != ""))
-                                                {
-                                                    text_value = "incoming Call from: " + fname
-                                                }
-                                                Text(modifier = Modifier.align(Alignment.CenterVertically),
-                                                    fontSize = 20.sp,
-                                                    textAlign = TextAlign.Center,
-                                                    text = text_value)
-                                                Spacer(Modifier.size(2.dp).weight(0.3f))
-                                            }
-                                            Row(modifier = Modifier.padding(15.dp)) {
-                                                Spacer(Modifier.width(70.dp))
-                                                IconButton(
-                                                    icon = Icons.Filled.Check,
-                                                    iconTint = Color.Green,
-                                                    iconSize = 30.dp,
-                                                    contentDescription = "start",
-                                                    onClick = {
+                                                Row(modifier = Modifier.padding(15.dp)) {
+                                                    Spacer(Modifier.width(70.dp))
+                                                    IconButton(icon = Icons.Filled.Check, iconTint = Color.Green, iconSize = 30.dp, contentDescription = "start", onClick = {
                                                         val calling_friend_pk = avstatestore.state.call_with_friend_pubkey_get()
                                                         if (calling_friend_pk != null)
                                                         {
                                                             accept_incoming_av_call(calling_friend_pk)
                                                         }
-                                                    }
-                                                )
-                                                Spacer(Modifier.width(2.dp).weight(0.3f))
-                                                IconButton(
-                                                    icon = Icons.Filled.Cancel,
-                                                    iconTint = Color.Red,
-                                                    iconSize = 30.dp,
-                                                    contentDescription = "cancel",
-                                                    onClick = {
+                                                    })
+                                                    Spacer(Modifier.width(2.dp).weight(0.3f))
+                                                    IconButton(icon = Icons.Filled.Cancel, iconTint = Color.Red, iconSize = 30.dp, contentDescription = "cancel", onClick = {
                                                         if (avstatestore.state.call_with_friend_pubkey_get() != null)
                                                         {
                                                             decline_incoming_av_call()
                                                         }
-                                                    }
-                                                )
-                                                Spacer(Modifier.width(70.dp))
-                                            }
-                                            Row()
-                                            {
-                                                Spacer(Modifier.size(10.dp))
+                                                    })
+                                                    Spacer(Modifier.width(70.dp))
+                                                }
+                                                Row() {
+                                                    Spacer(Modifier.size(10.dp))
+                                                }
                                             }
                                         }
                                     }
-                                }
-                                AVState.CALL_STATUS.CALL_STATUS_NONE,
-                                AVState.CALL_STATUS.CALL_STATUS_CALLING,
-                                AVState.CALL_STATUS.CALL_STATUS_ENDING ->
-                                {
-                                    Row(modifier = Modifier.randomDebugBorder().padding(3.dp)) {
-                                        var video_in_box_width by remember { mutableStateOf(VIDEO_IN_BOX_WIDTH_SMALL) }
-                                        var video_in_box_height by remember { mutableStateOf(VIDEO_IN_BOX_HEIGHT_SMALL) }
-                                        val video_in_box_small by remember { mutableStateOf(true) }
-                                        val video_in_box_width_fraction by remember { mutableStateOf(VIDEO_IN_BOX_WIDTH_FRACTION_SMALL) }
-                                        var h265_encoder by remember { mutableStateOf(false) }
-                                        Column(modifier = Modifier.fillMaxHeight(1.0f)) {
-                                            if ((current_callstate2.call_state == AVState.CALL_STATUS.CALL_STATUS_NONE) &&
-                                                ((ngc_video_frame_last_incoming_ts + 2000) < System.currentTimeMillis()))
-                                            {
-                                                val painter = painterResource("Tv-test-pattern-146649_640.png")
-                                                Tooltip(text = "incoming Video") {
-                                                    Image(
-                                                        modifier = Modifier.fillMaxWidth(video_in_box_width_fraction)
-                                                            .padding(5.dp)
-                                                            .weight(80.0f)
-                                                            .clip(RoundedCornerShape(10.dp))
-                                                            .border(1.dp, color = Color.Gray, RoundedCornerShape(10.dp)),
-                                                        alpha = VIDEO_PLACEHOLDER_ALPHA,
-                                                        contentScale = ContentScale.Crop,
-                                                        painter = painter,
-                                                        contentDescription = "incoming Video"
-                                                    )
-                                                }
-                                            } else
-                                            {
-                                                if (avstatestorecallstate.state.video_in_popout)
+                                    AVState.CALL_STATUS.CALL_STATUS_NONE, AVState.CALL_STATUS.CALL_STATUS_CALLING, AVState.CALL_STATUS.CALL_STATUS_ENDING ->
+                                    {
+                                        Row(modifier = Modifier.randomDebugBorder().padding(3.dp)) {
+                                            var video_in_box_width by remember { mutableStateOf(VIDEO_IN_BOX_WIDTH_SMALL) }
+                                            var video_in_box_height by remember { mutableStateOf(VIDEO_IN_BOX_HEIGHT_SMALL) }
+                                            val video_in_box_small by remember { mutableStateOf(true) }
+                                            val video_in_box_width_fraction by remember { mutableStateOf(VIDEO_IN_BOX_WIDTH_FRACTION_SMALL) }
+                                            var h265_encoder by remember { mutableStateOf(false) }
+                                            Column(modifier = Modifier.fillMaxHeight(1.0f)) {
+                                                if ((current_callstate2.call_state == AVState.CALL_STATUS.CALL_STATUS_NONE) && ((ngc_video_frame_last_incoming_ts + 2000) < System.currentTimeMillis()))
                                                 {
-                                                    IconButton(
-                                                        modifier = Modifier.fillMaxWidth(video_in_box_width_fraction)
-                                                            .padding(5.dp)
-                                                            .weight(80.0f)
-                                                            .clip(RoundedCornerShape(10.dp))
-                                                            .border(1.dp, color = Color.Gray, RoundedCornerShape(10.dp)),
-                                                        icon = Icons.Filled.Check,
-                                                        iconTint = DELIVERY_CHECKMARK_COLOR,
-                                                        enabled = false,
-                                                        iconSize = 20.dp,
-                                                        contentDescription = "Video in popout Window",
-                                                        onClick = {}
-                                                    )
+                                                    val painter = painterResource("Tv-test-pattern-146649_640.png")
+                                                    Tooltip(text = "incoming Video") {
+                                                        Image(modifier = Modifier.fillMaxWidth(video_in_box_width_fraction).padding(5.dp).weight(80.0f).clip(RoundedCornerShape(10.dp)).border(1.dp, color = Color.Gray, RoundedCornerShape(10.dp)), alpha = VIDEO_PLACEHOLDER_ALPHA, contentScale = ContentScale.Crop, painter = painter, contentDescription = "incoming Video")
+                                                    }
                                                 } else
                                                 {
-                                                    SwingPanel(
-                                                        background = VIDEO_BOX_BG_COLOR,
-                                                        modifier = Modifier.fillMaxWidth(video_in_box_width_fraction)
-                                                            .padding(5.dp)
-                                                            .weight(80.0f)
-                                                            .combinedClickable(onClick = {
+                                                    if (avstatestorecallstate.state.video_in_popout)
+                                                    {
+                                                        IconButton(modifier = Modifier.fillMaxWidth(video_in_box_width_fraction).padding(5.dp).weight(80.0f).clip(RoundedCornerShape(10.dp)).border(1.dp, color = Color.Gray, RoundedCornerShape(10.dp)), icon = Icons.Filled.Check, iconTint = DELIVERY_CHECKMARK_COLOR, enabled = false, iconSize = 20.dp, contentDescription = "Video in popout Window", onClick = {})
+                                                    } else
+                                                    {
+                                                        SwingPanel(background = VIDEO_BOX_BG_COLOR, modifier = Modifier.fillMaxWidth(video_in_box_width_fraction).padding(5.dp).weight(80.0f).combinedClickable(onClick = {
                                                                 if (video_in_box_small)
                                                                 {
                                                                     video_in_box_width = VIDEO_IN_BOX_WIDTH_BIG
@@ -733,17 +690,14 @@ fun App()
                                                                     video_in_box_height = VIDEO_IN_BOX_HEIGHT_SMALL
                                                                 }
                                                                 video_in_box_small != video_in_box_small
-                                                            }),
-                                                        factory = {
+                                                            }), factory = {
                                                             JPanel(SingleComponentAspectRatioKeeperLayout(), DOUBLE_BUFFER_VIDEOIN).apply {
                                                                 add(JPictureBox.videoinbox)
                                                             }
-                                                        }
-                                                    )
+                                                        })
+                                                    }
                                                 }
-                                            }
-                                            val current_vplayfps_state by avstatestorevplayfpsstate.stateFlow.collectAsState()
-                                            /*
+                                                val current_vplayfps_state by avstatestorevplayfpsstate.stateFlow.collectAsState()/*
                                     // !! IMPORTANT !!
                                     // because for some reason the whole UI and all chat messages will repaint when this
                                     // element changes. i do not know why :-(
@@ -758,26 +712,20 @@ fun App()
                                         fontSize = 11.sp,
                                         modifier = Modifier.height(VIDEO_STATS_TEXT_HEIGHT),
                                         maxLines = 1)
-                                    */
-                                            // !! IMPORTANT !!
-                                            // because for some reason the whole UI and all chat messages will repaint when this
-                                            // element changes. i do not know why :-(
-                                            Text(" " + current_vplayfps_state.incomingResolution,
-                                                fontSize = 11.sp,
-                                                modifier = Modifier.height(VIDEO_STATS_TEXT_HEIGHT),
-                                                maxLines = 1)
-                                        }
-                                        Row() {
-                                            val aux_icons_start_padding = 5.dp
-                                            val aux_icons_end_padding = 5.dp
-                                            val aux_icons_top_padding = 3.dp
-                                            val aux_icons_size = 18.dp
-                                            Column {
-                                                Tooltip(text = "toggle large incoming video size") {
-                                                    Icon(modifier = Modifier.padding(start = aux_icons_start_padding, end = aux_icons_end_padding, top = aux_icons_top_padding).size(aux_icons_size).combinedClickable(
-                                                        onClick = {
-                                                            avstatestorecallstate.video_in_popout_update(!avstatestorecallstate.state.video_in_popout)
-                                                            /*
+                                    */ // !! IMPORTANT !!
+                                                // because for some reason the whole UI and all chat messages will repaint when this
+                                                // element changes. i do not know why :-(
+                                                Text(" " + current_vplayfps_state.incomingResolution, fontSize = 11.sp, modifier = Modifier.height(VIDEO_STATS_TEXT_HEIGHT), maxLines = 1)
+                                            }
+                                            Row() {
+                                                val aux_icons_start_padding = 5.dp
+                                                val aux_icons_end_padding = 5.dp
+                                                val aux_icons_top_padding = 3.dp
+                                                val aux_icons_size = 18.dp
+                                                Column {
+                                                    Tooltip(text = "toggle large incoming video size") {
+                                                        Icon(modifier = Modifier.padding(start = aux_icons_start_padding, end = aux_icons_end_padding, top = aux_icons_top_padding).size(aux_icons_size).combinedClickable(onClick = {
+                                                            avstatestorecallstate.video_in_popout_update(!avstatestorecallstate.state.video_in_popout)/*
                                                     if (video_in_box_small)
                                                     {
                                                         video_in_box_width = VIDEO_IN_BOX_WIDTH_BIG
@@ -794,14 +742,11 @@ fun App()
                                                     video_in_box_small = video_in_box_small.not()
                                                     Log.i(TAG, "update3: " + video_in_box_small)
                                                     */
-                                                        }), imageVector = Icons.Default.Fullscreen,
-                                                        contentDescription = "toggle large incoming video size"
-                                                    )
-                                                }
-                                                var audio_filter_current_value by remember { mutableStateOf(PREF__audio_input_filter) }
-                                                Tooltip(text = "enable Noise Suppresion on audio capture") {
-                                                    Icon(modifier = Modifier.padding(start = aux_icons_start_padding, end = aux_icons_end_padding, top = aux_icons_top_padding).size(aux_icons_size).combinedClickable(
-                                                        onClick = {
+                                                        }), imageVector = Icons.Default.Fullscreen, contentDescription = "toggle large incoming video size")
+                                                    }
+                                                    var audio_filter_current_value by remember { mutableStateOf(PREF__audio_input_filter) }
+                                                    Tooltip(text = "enable Noise Suppresion on audio capture") {
+                                                        Icon(modifier = Modifier.padding(start = aux_icons_start_padding, end = aux_icons_end_padding, top = aux_icons_top_padding).size(aux_icons_size).combinedClickable(onClick = {
                                                             if (PREF__audio_input_filter == 0)
                                                             {
                                                                 PREF__audio_input_filter = 1
@@ -811,15 +756,11 @@ fun App()
                                                             }
                                                             audio_filter_current_value = PREF__audio_input_filter
                                                             AVActivity.ffmpegav_apply_audio_filter(PREF__audio_input_filter)
-                                                        }),
-                                                        imageVector = Icons.Default.NoiseAware,
-                                                        contentDescription = "enable Noise Suppresion on audio capture",
-                                                        tint = if (audio_filter_current_value == 1) Color.Red else Color.DarkGray)
-                                                }
-                                                var video_force_mjpeg_value by remember { mutableStateOf(PREF__v4l2_capture_force_mjpeg) }
-                                                Tooltip(text = "force MJPEG on video capture") {
-                                                    Icon(modifier = Modifier.padding(start = aux_icons_start_padding, end = aux_icons_end_padding, top = aux_icons_top_padding).size(aux_icons_size).combinedClickable(
-                                                        onClick = {
+                                                        }), imageVector = Icons.Default.NoiseAware, contentDescription = "enable Noise Suppresion on audio capture", tint = if (audio_filter_current_value == 1) Color.Red else Color.DarkGray)
+                                                    }
+                                                    var video_force_mjpeg_value by remember { mutableStateOf(PREF__v4l2_capture_force_mjpeg) }
+                                                    Tooltip(text = "force MJPEG on video capture") {
+                                                        Icon(modifier = Modifier.padding(start = aux_icons_start_padding, end = aux_icons_end_padding, top = aux_icons_top_padding).size(aux_icons_size).combinedClickable(onClick = {
                                                             if (PREF__v4l2_capture_force_mjpeg == 0)
                                                             {
                                                                 PREF__v4l2_capture_force_mjpeg = 1
@@ -828,15 +769,11 @@ fun App()
                                                                 PREF__v4l2_capture_force_mjpeg = 0
                                                             }
                                                             video_force_mjpeg_value = PREF__v4l2_capture_force_mjpeg
-                                                        }),
-                                                        imageVector = Icons.Default.RawOff,
-                                                        contentDescription = "force MJPEG on video capture",
-                                                        tint = if (video_force_mjpeg_value == 1) Color.Red else Color.DarkGray)
-                                                }
-                                                var do_not_sync_av_value by remember { mutableStateOf(PREF__do_not_sync_av) }
-                                                Tooltip(text = "force AV sync OFF") {
-                                                    Icon(modifier = Modifier.padding(start = aux_icons_start_padding, end = aux_icons_end_padding, top = aux_icons_top_padding).size(aux_icons_size).combinedClickable(
-                                                        onClick = {
+                                                        }), imageVector = Icons.Default.RawOff, contentDescription = "force MJPEG on video capture", tint = if (video_force_mjpeg_value == 1) Color.Red else Color.DarkGray)
+                                                    }
+                                                    var do_not_sync_av_value by remember { mutableStateOf(PREF__do_not_sync_av) }
+                                                    Tooltip(text = "force AV sync OFF") {
+                                                        Icon(modifier = Modifier.padding(start = aux_icons_start_padding, end = aux_icons_end_padding, top = aux_icons_top_padding).size(aux_icons_size).combinedClickable(onClick = {
                                                             if (PREF__do_not_sync_av == 0)
                                                             {
                                                                 PREF__do_not_sync_av = 1
@@ -847,15 +784,11 @@ fun App()
                                                             do_not_sync_av_value = PREF__do_not_sync_av
                                                             MainActivity.tox_set_do_not_sync_av(PREF__do_not_sync_av)
                                                             println("tox_set_do_not_sync_av:2: " + PREF__do_not_sync_av)
-                                                        }),
-                                                        imageVector = Icons.Default.LinkOff,
-                                                        contentDescription = "force AV sync OFF",
-                                                        tint = if (do_not_sync_av_value == 1) Color.Red else Color.DarkGray)
-                                                }
-                                                var video_bitrate_mode_value by remember { mutableStateOf(PREF__video_bitrate_mode) }
-                                                Tooltip(text = "toggle video capture quality") {
-                                                    Icon(modifier = Modifier.padding(start = aux_icons_start_padding, end = aux_icons_end_padding, top = aux_icons_top_padding).size(aux_icons_size).combinedClickable(
-                                                        onClick = {
+                                                        }), imageVector = Icons.Default.LinkOff, contentDescription = "force AV sync OFF", tint = if (do_not_sync_av_value == 1) Color.Red else Color.DarkGray)
+                                                    }
+                                                    var video_bitrate_mode_value by remember { mutableStateOf(PREF__video_bitrate_mode) }
+                                                    Tooltip(text = "toggle video capture quality") {
+                                                        Icon(modifier = Modifier.padding(start = aux_icons_start_padding, end = aux_icons_end_padding, top = aux_icons_top_padding).size(aux_icons_size).combinedClickable(onClick = {
                                                             if (PREF__video_bitrate_mode == 0)
                                                             {
                                                                 PREF__video_bitrate_mode = 1
@@ -877,82 +810,51 @@ fun App()
                                                             } catch (_: java.lang.Exception)
                                                             {
                                                             }
-                                                        }),
-                                                        imageVector = Icons.Default.HighQuality,
-                                                        contentDescription = "toggle video capture quality",
-                                                        tint =
-                                                        if (video_bitrate_mode_value == 0) Color.DarkGray
+                                                        }), imageVector = Icons.Default.HighQuality, contentDescription = "toggle video capture quality", tint = if (video_bitrate_mode_value == 0) Color.DarkGray
                                                         else if (video_bitrate_mode_value == 1) Color.Green
                                                         else Color.Red)
-                                                }
-                                                val current_callstate3 by avstatestorecallstate.stateFlow.collectAsState()
-                                                if (current_callstate3.call_state == AVState.CALL_STATUS.CALL_STATUS_CALLING)
-                                                {
-                                                    Icon(modifier = Modifier.size(36.dp)
-                                                        .align(Alignment.CenterHorizontally)
-                                                        .combinedClickable(
-                                                            onClick = {
+                                                    }
+                                                    val current_callstate3 by avstatestorecallstate.stateFlow.collectAsState()
+                                                    if (current_callstate3.call_state == AVState.CALL_STATUS.CALL_STATUS_CALLING)
+                                                    {
+                                                        Icon(modifier = Modifier.size(36.dp).align(Alignment.CenterHorizontally).combinedClickable(onClick = {
                                                                 val friendnum = tox_friend_by_public_key(avstatestore.state.call_with_friend_pubkey_get())
                                                                 Log.i(TAG, "ffmpeg_devices_stop:002")
                                                                 avstatestore.state.ffmpeg_devices_stop()
                                                                 MainActivity.toxav_call_control(friendnum, ToxVars.TOXAV_CALL_CONTROL.TOXAV_CALL_CONTROL_CANCEL.value)
                                                                 MainActivity.on_call_ended_actions()
-                                                            }),
-                                                        imageVector = Icons.Filled.Cancel,
-                                                        tint = Color.Red,
-                                                        contentDescription = "stop Call")
+                                                            }), imageVector = Icons.Filled.Cancel, tint = Color.Red, contentDescription = "stop Call")
+                                                    }
                                                 }
-                                            }
-                                            Column {
-                                                Tooltip(text = "toggle H265 video encoder") {
-                                                    Icon(modifier = Modifier.padding(start = aux_icons_start_padding, end = aux_icons_end_padding, top = aux_icons_top_padding).size(aux_icons_size).combinedClickable(
-                                                        onClick = {
+                                                Column {
+                                                    Tooltip(text = "toggle H265 video encoder") {
+                                                        Icon(modifier = Modifier.padding(start = aux_icons_start_padding, end = aux_icons_end_padding, top = aux_icons_top_padding).size(aux_icons_size).combinedClickable(onClick = {
                                                             h265_encoder = h265_encoder.not()
                                                             if (h265_encoder)
                                                             {
-                                                                toxav_option_set(
-                                                                    tox_friend_by_public_key(avstatestore.state.call_with_friend_pubkey_get()),
-                                                                    ToxVars.TOXAV_OPTIONS_OPTION.TOXAV_ENCODER_CODEC_USED.value.toLong(),
-                                                                    ToxVars.TOXAV_ENCODER_CODEC_USED_VALUE.TOXAV_ENCODER_CODEC_USED_H265.value.toLong())
+                                                                toxav_option_set(tox_friend_by_public_key(avstatestore.state.call_with_friend_pubkey_get()), ToxVars.TOXAV_OPTIONS_OPTION.TOXAV_ENCODER_CODEC_USED.value.toLong(), ToxVars.TOXAV_ENCODER_CODEC_USED_VALUE.TOXAV_ENCODER_CODEC_USED_H265.value.toLong())
                                                             } else
                                                             {
-                                                                toxav_option_set(
-                                                                    tox_friend_by_public_key(avstatestore.state.call_with_friend_pubkey_get()),
-                                                                    ToxVars.TOXAV_OPTIONS_OPTION.TOXAV_ENCODER_CODEC_USED.value.toLong(),
-                                                                    ToxVars.TOXAV_ENCODER_CODEC_USED_VALUE.TOXAV_ENCODER_CODEC_USED_VP8.value.toLong())
+                                                                toxav_option_set(tox_friend_by_public_key(avstatestore.state.call_with_friend_pubkey_get()), ToxVars.TOXAV_OPTIONS_OPTION.TOXAV_ENCODER_CODEC_USED.value.toLong(), ToxVars.TOXAV_ENCODER_CODEC_USED_VALUE.TOXAV_ENCODER_CODEC_USED_VP8.value.toLong())
                                                             }
-                                                        }), imageVector = Icons.Default.VideoLabel,
-                                                        tint = if (h265_encoder) Color.Red else Color.DarkGray,
-                                                        contentDescription = "toggle H265 video encoder"
-                                                    )
+                                                        }), imageVector = Icons.Default.VideoLabel, tint = if (h265_encoder) Color.Red else Color.DarkGray, contentDescription = "toggle H265 video encoder")
+                                                    }
                                                 }
                                             }
-                                        }
-                                        Column {
-                                            Spacer(modifier = Modifier.height(5.dp))
-                                            var video_out_box_width by remember { mutableStateOf(VIDEO_OUT_BOX_WIDTH_SMALL) }
-                                            var video_out_box_height by remember { mutableStateOf(VIDEO_OUT_BOX_HEIGHT_SMALL) }
-                                            var video_out_box_small by remember { mutableStateOf(true) }
-                                            if (current_callstate2.call_state == AVState.CALL_STATUS.CALL_STATUS_NONE)
-                                            {
-                                                val painter = painterResource("Tv-test-pattern-146649_640.png")
-                                                Tooltip(text = "own Video") {
-                                                    Image(
-                                                        modifier = Modifier.size(video_out_box_width, video_out_box_height)
-                                                            .clip(RoundedCornerShape(10.dp))
-                                                            .border(1.dp, color = Color.Gray, RoundedCornerShape(10.dp)),
-                                                        alpha = VIDEO_PLACEHOLDER_ALPHA,
-                                                        contentScale = ContentScale.Crop,
-                                                        painter = painter,
-                                                        contentDescription = "own Video"
-                                                    )
-                                                }
-                                            } else
-                                            {
-                                                SwingPanel(
-                                                    background = VIDEO_BOX_BG_COLOR,
-                                                    modifier = Modifier.size(video_out_box_width, video_out_box_height)
-                                                        .combinedClickable(onClick = {
+                                            Column {
+                                                Spacer(modifier = Modifier.height(5.dp))
+                                                var video_out_box_width by remember { mutableStateOf(VIDEO_OUT_BOX_WIDTH_SMALL) }
+                                                var video_out_box_height by remember { mutableStateOf(VIDEO_OUT_BOX_HEIGHT_SMALL) }
+                                                var video_out_box_small by remember { mutableStateOf(true) }
+                                                if (current_callstate2.call_state == AVState.CALL_STATUS.CALL_STATUS_NONE)
+                                                {
+                                                    val painter = painterResource("Tv-test-pattern-146649_640.png")
+                                                    Tooltip(text = "own Video") {
+                                                        Image(modifier = Modifier.size(video_out_box_width, video_out_box_height).clip(RoundedCornerShape(10.dp)).border(1.dp, color = Color.Gray, RoundedCornerShape(10.dp)), alpha = VIDEO_PLACEHOLDER_ALPHA, contentScale = ContentScale.Crop, painter = painter, contentDescription = "own Video")
+                                                    }
+                                                } else
+                                                {
+                                                    SwingPanel(background = VIDEO_BOX_BG_COLOR, modifier = Modifier.size(video_out_box_width, video_out_box_height).combinedClickable(onClick = {
                                                             if (video_out_box_small)
                                                             {
                                                                 video_out_box_width = VIDEO_OUT_BOX_WIDTH_BIG
@@ -964,17 +866,13 @@ fun App()
                                                             }
                                                             video_out_box_small = !video_out_box_small
                                                             Log.i(TAG, "update1: " + video_out_box_small)
-                                                        }),
-                                                    factory = {
+                                                        }), factory = {
                                                         JPanel(SingleComponentAspectRatioKeeperLayout(), DOUBLE_BUFFER_VIDEOOUT).apply {
                                                             add(JPictureBoxOut.videooutbox)
                                                         }
-                                                    },
-                                                    update = { Log.i(TAG, "update2: " + video_out_box_small) }
-                                                )
-                                            }
-                                            val current_vicfps_state by avstatestorevcapfpsstate.stateFlow.collectAsState()
-                                            /*
+                                                    }, update = { Log.i(TAG, "update2: " + video_out_box_small) })
+                                                }
+                                                val current_vicfps_state by avstatestorevcapfpsstate.stateFlow.collectAsState()/*
                                     // !! IMPORTANT !!
                                     // because for some reason the whole UI and all chat messages will repaint when this
                                     // element changes. i do not know why :-(
@@ -989,434 +887,390 @@ fun App()
                                         fontSize = 11.sp,
                                         modifier = Modifier.height(VIDEO_STATS_TEXT_HEIGHT),
                                         maxLines = 1)
-                                    */
-                                            // !! IMPORTANT !!
-                                            // because for some reason the whole UI and all chat messages will repaint when this
-                                            // element changes. i do not know why :-(
-                                            Text("" + current_vicfps_state.sourceResolution,
-                                                fontSize = 11.sp,
-                                                modifier = Modifier.height(VIDEO_STATS_TEXT_HEIGHT),
-                                                maxLines = 1)
-                                            // !! IMPORTANT !!
-                                            // because for some reason the whole UI and all chat messages will repaint when this
-                                            // element changes. i do not know why :-(
-                                            Text("" + current_vicfps_state.sourceFormat,
-                                                fontSize = 11.sp,
-                                                modifier = Modifier.height(VIDEO_STATS_TEXT_HEIGHT),
-                                                maxLines = 1)
+                                    */ // !! IMPORTANT !!
+                                                // because for some reason the whole UI and all chat messages will repaint when this
+                                                // element changes. i do not know why :-(
+                                                Text("" + current_vicfps_state.sourceResolution, fontSize = 11.sp, modifier = Modifier.height(VIDEO_STATS_TEXT_HEIGHT), maxLines = 1) // !! IMPORTANT !!
+                                                // because for some reason the whole UI and all chat messages will repaint when this
+                                                // element changes. i do not know why :-(
+                                                Text("" + current_vicfps_state.sourceFormat, fontSize = 11.sp, modifier = Modifier.height(VIDEO_STATS_TEXT_HEIGHT), maxLines = 1)
+                                            }
                                         }
                                     }
                                 }
-                            }
-                            var expanded_a by remember { mutableStateOf(false) }
-                            var expanded_v by remember { mutableStateOf(false) }
-                            var expanded_as by remember { mutableStateOf(false) }
-                            var expanded_vs by remember { mutableStateOf(false) }
-                            val audio_in_devices by remember { mutableStateOf(ArrayList<String>()) }
-                            val audio_in_sources by remember { mutableStateOf(ArrayList<AVActivity.ffmpegav_descrid>()) }
-                            val video_in_devices by remember { mutableStateOf(ArrayList<String>()) }
-                            val video_in_sources by remember { mutableStateOf(ArrayList<AVActivity.ffmpegav_descrid>()) }
-                            Column(modifier = Modifier.randomDebugBorder()) {
-                                Text(text = "audio capture: " + avstatestore.state.audio_in_device_get() + " " + avstatestore.state.audio_in_source_get(), fontSize = 12.sp, modifier = Modifier.fillMaxWidth(),
-                                    maxLines = 1)
-                                Box {
-                                    IconButton(onClick = {
-                                        avstatestore.state.ffmpeg_init_do()
-                                        val audio_in_devices_get = AVActivity.ffmpegav_get_audio_in_devices_wrapper()
-                                        println("ffmpeg audio in devices: " + audio_in_devices_get.size)
-                                        audio_in_devices.clear()
-                                        audio_in_devices.addAll(audio_in_devices_get)
-                                        expanded_a = true
-                                    },
-                                        modifier = Modifier.size(AV_SELECTOR_ICON_SIZE)) {
-                                        Icon(Icons.Filled.Refresh, null)
-                                    }
-                                    DropdownMenu(
-                                        expanded = expanded_a,
-                                        onDismissRequest = { expanded_a = false },
-                                    ) {
-                                        if (audio_in_devices.size > 0)
-                                        {
-                                            audio_in_devices.forEach() {
-                                                if (it != null)
-                                                {
-                                                    DropdownMenuItem(onClick = { avstatestore.state.audio_in_source_set("");audio_in_sources.clear(); avstatestore.state.audio_in_device_set(it);expanded_a = false }) {
-                                                        Text("" + it)
+                                var expanded_a by remember { mutableStateOf(false) }
+                                var expanded_v by remember { mutableStateOf(false) }
+                                var expanded_as by remember { mutableStateOf(false) }
+                                var expanded_vs by remember { mutableStateOf(false) }
+                                val audio_in_devices by remember { mutableStateOf(ArrayList<String>()) }
+                                val audio_in_sources by remember { mutableStateOf(ArrayList<AVActivity.ffmpegav_descrid>()) }
+                                val video_in_devices by remember { mutableStateOf(ArrayList<String>()) }
+                                val video_in_sources by remember { mutableStateOf(ArrayList<AVActivity.ffmpegav_descrid>()) }
+                                Column(modifier = Modifier.randomDebugBorder()) {
+                                    Text(text = "audio capture: " + avstatestore.state.audio_in_device_get() + " " + avstatestore.state.audio_in_source_get(), fontSize = 12.sp, modifier = Modifier.fillMaxWidth(), maxLines = 1)
+                                    Box {
+                                        IconButton(onClick = {
+                                            avstatestore.state.ffmpeg_init_do()
+                                            val audio_in_devices_get = AVActivity.ffmpegav_get_audio_in_devices_wrapper()
+                                            println("ffmpeg audio in devices: " + audio_in_devices_get.size)
+                                            audio_in_devices.clear()
+                                            audio_in_devices.addAll(audio_in_devices_get)
+                                            expanded_a = true
+                                        }, modifier = Modifier.size(AV_SELECTOR_ICON_SIZE)) {
+                                            Icon(Icons.Filled.Refresh, null)
+                                        }
+                                        DropdownMenu(
+                                            expanded = expanded_a,
+                                            onDismissRequest = { expanded_a = false },
+                                        ) {
+                                            if (audio_in_devices.size > 0)
+                                            {
+                                                audio_in_devices.forEach() {
+                                                    if (it != null)
+                                                    {
+                                                        DropdownMenuItem(onClick = { avstatestore.state.audio_in_source_set(""); audio_in_sources.clear(); avstatestore.state.audio_in_device_set(it); expanded_a = false }) {
+                                                            Text("" + it)
+                                                        }
                                                     }
                                                 }
                                             }
-                                        }
-                                        DropdownMenuItem(
-                                            onClick = {
+                                            DropdownMenuItem(onClick = {
                                                 avstatestore.state.audio_in_source_set("")
                                                 audio_in_sources.clear()
                                                 avstatestore.state.audio_in_device_set("")
                                                 expanded_a = false
-                                            })
-                                        {
-                                            Text("-none-")
+                                            }) {
+                                                Text("-none-")
+                                            }
                                         }
                                     }
-                                }
-                                Box {
-                                    IconButton(onClick = {
-                                        if ((avstatestore.state.audio_in_device_get() != null) && (avstatestore.state.audio_in_device_get() != ""))
-                                        {
-                                            avstatestore.state.ffmpeg_init_do()
-                                            var audio_in_sources_get: Array<AVActivity.ffmpegav_descrid> = emptyArray()
-                                            val tmp = AVActivity.ffmpegav_get_in_sources(avstatestore.state.audio_in_device_get(), 0)
-                                            if (tmp == null)
+                                    Box {
+                                        IconButton(onClick = {
+                                            if ((avstatestore.state.audio_in_device_get() != null) && (avstatestore.state.audio_in_device_get() != ""))
                                             {
-                                                if (avstatestore.state.audio_in_device_get() == JAVA_AUDIO_IN_DEVICE_NAME)
+                                                avstatestore.state.ffmpeg_init_do()
+                                                var audio_in_sources_get: Array<AVActivity.ffmpegav_descrid> = emptyArray()
+                                                val tmp = AVActivity.ffmpegav_get_in_sources(avstatestore.state.audio_in_device_get(), 0)
+                                                if (tmp == null)
                                                 {
+                                                    if (avstatestore.state.audio_in_device_get() == JAVA_AUDIO_IN_DEVICE_NAME)
+                                                    {
+                                                        val tmp0 = AVActivity.ffmpegav_descrid()
+                                                        tmp0.id = "default"
+                                                        val tmp2 = ArrayList<AVActivity.ffmpegav_descrid>()
+                                                        tmp2.add(tmp0)
+                                                        audio_in_sources_get = tmp2.toTypedArray()
+                                                    } else
+                                                    {
+                                                        audio_in_sources_get = emptyArray()
+                                                    }
+                                                } else if (avstatestore.state.audio_in_device_get() == JAVA_AUDIO_IN_DEVICE_NAME)
+                                                {
+                                                    val tmp2 = ArrayList<AVActivity.ffmpegav_descrid>()
+                                                    tmp.iterator().forEach() {
+                                                        if ((it != null) && (it.id != null))
+                                                        {
+                                                            tmp2.add(it)
+                                                        }
+                                                    }
                                                     val tmp0 = AVActivity.ffmpegav_descrid()
                                                     tmp0.id = "default"
-                                                    val tmp2 = ArrayList<AVActivity.ffmpegav_descrid>()
                                                     tmp2.add(tmp0)
                                                     audio_in_sources_get = tmp2.toTypedArray()
                                                 } else
                                                 {
-                                                    audio_in_sources_get = emptyArray()
-                                                }
-                                            } else if (avstatestore.state.audio_in_device_get() == JAVA_AUDIO_IN_DEVICE_NAME)
-                                            {
-                                                val tmp2 = ArrayList<AVActivity.ffmpegav_descrid>()
-                                                tmp.iterator().forEach() {
-                                                    if ((it != null) && (it.id != null))
-                                                    {
-                                                        tmp2.add(it)
+                                                    val tmp2 = ArrayList<AVActivity.ffmpegav_descrid>()
+                                                    tmp.iterator().forEach() {
+                                                        if ((it != null) && (it.id != null))
+                                                        {
+                                                            tmp2.add(it)
+                                                        }
                                                     }
-                                                }
-                                                val tmp0 = AVActivity.ffmpegav_descrid()
-                                                tmp0.id = "default"
-                                                tmp2.add(tmp0)
-                                                audio_in_sources_get = tmp2.toTypedArray()
-                                            } else
-                                            {
-                                                val tmp2 = ArrayList<AVActivity.ffmpegav_descrid>()
-                                                tmp.iterator().forEach() {
-                                                    if ((it != null) && (it.id != null))
-                                                    {
-                                                        tmp2.add(it)
-                                                    }
-                                                }
-                                                audio_in_sources_get = tmp2.toTypedArray()
-                                            }
-                                            // if (avstatestore.state.audio_in_device_get() == "dshow")
-                                            //{
-                                            //    audio_in_sources_get += listOf("audio=" + MainActivity.DB_PREF__windows_audio_in_source + "")
-                                            //}
-                                            audio_in_sources.clear()
-                                            if (audio_in_sources_get.isNotEmpty())
-                                            {
-                                                println("ffmpeg audio in sources: " + audio_in_sources_get.size)
-                                                audio_in_sources.addAll(audio_in_sources_get)
-                                                expanded_as = true
-                                            }
-                                        }
-                                    },
-                                        modifier = Modifier.size(AV_SELECTOR_ICON_SIZE)) {
-                                        Icon(Icons.Filled.Refresh, null)
-                                    }
-                                    DropdownMenu(
-                                        expanded = expanded_as,
-                                        onDismissRequest = { expanded_as = false },
-                                    ) {
-                                        if (audio_in_sources.size > 0)
-                                        {
-                                            audio_in_sources.forEach() {
-                                                if (it != null)
+                                                    audio_in_sources_get = tmp2.toTypedArray()
+                                                } // if (avstatestore.state.audio_in_device_get() == "dshow")
+                                                //{
+                                                //    audio_in_sources_get += listOf("audio=" + MainActivity.DB_PREF__windows_audio_in_source + "")
+                                                //}
+                                                audio_in_sources.clear()
+                                                if (audio_in_sources_get.isNotEmpty())
                                                 {
-                                                    DropdownMenuItem(onClick = { avstatestore.state.audio_in_source_set(it.id);expanded_as = false }) {
-                                                        Text(if (it.description.isEmpty()) it.id else it.description + " (" + it.id + ")")
+                                                    println("ffmpeg audio in sources: " + audio_in_sources_get.size)
+                                                    audio_in_sources.addAll(audio_in_sources_get)
+                                                    expanded_as = true
+                                                }
+                                            }
+                                        }, modifier = Modifier.size(AV_SELECTOR_ICON_SIZE)) {
+                                            Icon(Icons.Filled.Refresh, null)
+                                        }
+                                        DropdownMenu(
+                                            expanded = expanded_as,
+                                            onDismissRequest = { expanded_as = false },
+                                        ) {
+                                            if (audio_in_sources.size > 0)
+                                            {
+                                                audio_in_sources.forEach() {
+                                                    if (it != null)
+                                                    {
+                                                        DropdownMenuItem(onClick = { avstatestore.state.audio_in_source_set(it.id); expanded_as = false }) {
+                                                            Text(if (it.description.isEmpty()) it.id else it.description + " (" + it.id + ")")
+                                                        }
                                                     }
                                                 }
                                             }
-                                        }
-                                        DropdownMenuItem(
-                                            onClick = {
+                                            DropdownMenuItem(onClick = {
                                                 avstatestore.state.audio_in_source_set("")
                                                 expanded_as = false
-                                            })
-                                        {
-                                            Text("-none-")
+                                            }) {
+                                                Text("-none-")
+                                            }
                                         }
                                     }
-                                }
 
-                                Text("video capture: " + avstatestore.state.video_in_device_get() + " " + avstatestore.state.video_in_source_get(), fontSize = 12.sp, modifier = Modifier.fillMaxWidth(),
-                                    maxLines = 1)
-                                Box {
-                                    IconButton(onClick = {
-                                        avstatestore.state.ffmpeg_init_do()
-                                        val video_in_devices_get = AVActivity.ffmpegav_get_video_in_devices()
-                                        println("ffmpeg video in devices: " + video_in_devices_get.size)
-                                        video_in_devices.clear()
-                                        video_in_devices.addAll(video_in_devices_get)
-                                        expanded_v = true
-                                    },
-                                        modifier = Modifier.size(AV_SELECTOR_ICON_SIZE)) {
-                                        Icon(Icons.Filled.Refresh, null)
-                                    }
-                                    DropdownMenu(
-                                        expanded = expanded_v,
-                                        onDismissRequest = { expanded_v = false },
-                                    ) {
-                                        if (video_in_devices.size > 0)
-                                        {
-                                            video_in_devices.forEach() {
-                                                if (it != null)
-                                                {
-                                                    DropdownMenuItem(onClick = { avstatestore.state.video_in_source_set("");video_in_sources.clear(); avstatestore.state.video_in_device_set(it);expanded_v = false }) {
-                                                        Text("" + it)
+                                    Text("video capture: " + avstatestore.state.video_in_device_get() + " " + avstatestore.state.video_in_source_get(), fontSize = 12.sp, modifier = Modifier.fillMaxWidth(), maxLines = 1)
+                                    Box {
+                                        IconButton(onClick = {
+                                            avstatestore.state.ffmpeg_init_do()
+                                            val video_in_devices_get = AVActivity.ffmpegav_get_video_in_devices()
+                                            println("ffmpeg video in devices: " + video_in_devices_get.size)
+                                            video_in_devices.clear()
+                                            video_in_devices.addAll(video_in_devices_get)
+                                            expanded_v = true
+                                        }, modifier = Modifier.size(AV_SELECTOR_ICON_SIZE)) {
+                                            Icon(Icons.Filled.Refresh, null)
+                                        }
+                                        DropdownMenu(
+                                            expanded = expanded_v,
+                                            onDismissRequest = { expanded_v = false },
+                                        ) {
+                                            if (video_in_devices.size > 0)
+                                            {
+                                                video_in_devices.forEach() {
+                                                    if (it != null)
+                                                    {
+                                                        DropdownMenuItem(onClick = { avstatestore.state.video_in_source_set(""); video_in_sources.clear(); avstatestore.state.video_in_device_set(it); expanded_v = false }) {
+                                                            Text("" + it)
+                                                        }
                                                     }
                                                 }
                                             }
-                                        }
-                                        DropdownMenuItem(
-                                            onClick = {
+                                            DropdownMenuItem(onClick = {
                                                 avstatestore.state.video_in_source_set("")
                                                 video_in_sources.clear()
                                                 avstatestore.state.video_in_device_set("")
                                                 expanded_v = false
-                                            })
-                                        {
-                                            Text("-none-")
+                                            }) {
+                                                Text("-none-")
+                                            }
                                         }
                                     }
-                                }
-                                Box {
-                                    IconButton(onClick = {
-                                        if ((avstatestore.state.video_in_device_get() != null) && (avstatestore.state.video_in_device_get() != ""))
-                                        {
-                                            avstatestore.state.ffmpeg_init_do()
-                                            var video_in_sources_get: Array<AVActivity.ffmpegav_descrid> = emptyArray()
-                                            if (avstatestore.state.video_in_device_get() == "video4linux2,v4l2")
+                                    Box {
+                                        IconButton(onClick = {
+                                            if ((avstatestore.state.video_in_device_get() != null) && (avstatestore.state.video_in_device_get() != ""))
                                             {
-                                                val tmp = AVActivity.ffmpegav_get_in_sources("v4l2", 1)
-                                                if (tmp == null)
+                                                avstatestore.state.ffmpeg_init_do()
+                                                var video_in_sources_get: Array<AVActivity.ffmpegav_descrid> = emptyArray()
+                                                if (avstatestore.state.video_in_device_get() == "video4linux2,v4l2")
                                                 {
-                                                    video_in_sources_get = emptyArray()
+                                                    val tmp = AVActivity.ffmpegav_get_in_sources("v4l2", 1)
+                                                    if (tmp == null)
+                                                    {
+                                                        video_in_sources_get = emptyArray()
+                                                    } else
+                                                    {
+                                                        val tmp2 = ArrayList<AVActivity.ffmpegav_descrid>()
+                                                        tmp.iterator().forEach() {
+                                                            if ((it != null) && (it.id != null))
+                                                            {
+                                                                tmp2.add(it)
+                                                            }
+                                                        }
+                                                        video_in_sources_get = tmp2.toTypedArray()
+                                                    }
                                                 } else
                                                 {
-                                                    val tmp2 = ArrayList<AVActivity.ffmpegav_descrid>()
-                                                    tmp.iterator().forEach() {
-                                                        if ((it != null) && (it.id != null))
-                                                        {
-                                                            tmp2.add(it)
+                                                    val tmp = AVActivity.ffmpegav_get_in_sources(avstatestore.state.video_in_device_get(), 1)
+                                                    if (tmp == null)
+                                                    {
+                                                        video_in_sources_get = emptyArray()
+                                                    } else
+                                                    {
+                                                        val tmp2 = ArrayList<AVActivity.ffmpegav_descrid>()
+                                                        tmp.iterator().forEach() {
+                                                            if ((it != null) && (it.id != null))
+                                                            {
+                                                                tmp2.add(it)
+                                                            }
+                                                        }
+                                                        video_in_sources_get = tmp2.toTypedArray()
+                                                    }
+                                                }
+                                                Log.i(TAG, "video_in_device=" + avstatestore.state.video_in_device_get())
+                                                if (avstatestore.state.video_in_device_get() == "x11grab")
+                                                {
+                                                    val tmp0 = AVActivity.ffmpegav_descrid()
+                                                    tmp0.id = ":0.0"
+                                                    video_in_sources_get += listOf(tmp0)
+                                                    val tmp1 = AVActivity.ffmpegav_descrid()
+                                                    tmp1.id = ":1.0"
+                                                    video_in_sources_get += listOf(tmp1)
+                                                    val tmp2 = AVActivity.ffmpegav_descrid()
+                                                    tmp2.id = ":2.0"
+                                                    video_in_sources_get += listOf(tmp2)
+                                                    val tmp3 = AVActivity.ffmpegav_descrid()
+                                                    tmp3.id = ":3.0"
+                                                    video_in_sources_get += listOf(tmp3)
+                                                    val tmp4 = AVActivity.ffmpegav_descrid()
+                                                    tmp4.id = ":4.0"
+                                                    video_in_sources_get += listOf(tmp4)
+                                                    val tmp5 = AVActivity.ffmpegav_descrid()
+                                                    tmp5.id = ":5.0"
+                                                    video_in_sources_get += listOf(tmp5)
+                                                }
+                                                video_in_sources.clear()
+                                                if (video_in_sources_get.isNotEmpty())
+                                                {
+                                                    println("ffmpeg video in sources: " + video_in_sources_get.size)
+                                                    video_in_sources.addAll(video_in_sources_get)
+                                                    expanded_vs = true
+                                                }
+                                            }
+                                        }, modifier = Modifier.size(AV_SELECTOR_ICON_SIZE)) {
+                                            Icon(Icons.Filled.Refresh, null)
+                                        }
+                                        DropdownMenu(
+                                            expanded = expanded_vs,
+                                            onDismissRequest = { expanded_vs = false },
+                                        ) {
+                                            if (video_in_sources.size > 0)
+                                            {
+                                                video_in_sources.forEach() {
+                                                    if (it != null)
+                                                    {
+                                                        DropdownMenuItem(onClick = { avstatestore.state.video_in_source_set(it.id); expanded_vs = false }) {
+                                                            Text(if (it.description.isEmpty()) it.id else it.description + " (" + it.id + ")")
                                                         }
                                                     }
-                                                    video_in_sources_get = tmp2.toTypedArray()
-                                                }
-                                            } else
-                                            {
-                                                val tmp = AVActivity.ffmpegav_get_in_sources(avstatestore.state.video_in_device_get(), 1)
-                                                if (tmp == null)
-                                                {
-                                                    video_in_sources_get = emptyArray()
-                                                } else
-                                                {
-                                                    val tmp2 = ArrayList<AVActivity.ffmpegav_descrid>()
-                                                    tmp.iterator().forEach() {
-                                                        if ((it != null) && (it.id != null))
-                                                        {
-                                                            tmp2.add(it)
-                                                        }
-                                                    }
-                                                    video_in_sources_get = tmp2.toTypedArray()
                                                 }
                                             }
-                                            Log.i(TAG, "video_in_device=" + avstatestore.state.video_in_device_get())
-                                            if (avstatestore.state.video_in_device_get() == "x11grab")
-                                            {
-                                                val tmp0 = AVActivity.ffmpegav_descrid()
-                                                tmp0.id = ":0.0"
-                                                video_in_sources_get += listOf(tmp0)
-                                                val tmp1 = AVActivity.ffmpegav_descrid()
-                                                tmp1.id = ":1.0"
-                                                video_in_sources_get += listOf(tmp1)
-                                                val tmp2 = AVActivity.ffmpegav_descrid()
-                                                tmp2.id = ":2.0"
-                                                video_in_sources_get += listOf(tmp2)
-                                                val tmp3 = AVActivity.ffmpegav_descrid()
-                                                tmp3.id = ":3.0"
-                                                video_in_sources_get += listOf(tmp3)
-                                                val tmp4 = AVActivity.ffmpegav_descrid()
-                                                tmp4.id = ":4.0"
-                                                video_in_sources_get += listOf(tmp4)
-                                                val tmp5 = AVActivity.ffmpegav_descrid()
-                                                tmp5.id = ":5.0"
-                                                video_in_sources_get += listOf(tmp5)
-                                            }
-                                            video_in_sources.clear()
-                                            if (video_in_sources_get.isNotEmpty())
-                                            {
-                                                println("ffmpeg video in sources: " + video_in_sources_get.size)
-                                                video_in_sources.addAll(video_in_sources_get)
-                                                expanded_vs = true
-                                            }
-                                        }
-                                    },
-                                        modifier = Modifier.size(AV_SELECTOR_ICON_SIZE)) {
-                                        Icon(Icons.Filled.Refresh, null)
-                                    }
-                                    DropdownMenu(
-                                        expanded = expanded_vs,
-                                        onDismissRequest = { expanded_vs = false },
-                                    ) {
-                                        if (video_in_sources.size > 0)
-                                        {
-                                            video_in_sources.forEach() {
-                                                if (it != null)
-                                                {
-                                                    DropdownMenuItem(onClick = { avstatestore.state.video_in_source_set(it.id);expanded_vs = false }) {
-                                                        Text(if (it.description.isEmpty()) it.id else it.description + " (" + it.id + ")")
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        DropdownMenuItem(
-                                            onClick = {
+                                            DropdownMenuItem(onClick = {
                                                 avstatestore.state.video_in_source_set("")
                                                 expanded_vs = false
-                                            })
-                                        {
-                                            Text("-none-")
+                                            }) {
+                                                Text("-none-")
+                                            }
                                         }
                                     }
-                                }
-                                var resolution_expanded by remember { mutableStateOf(false) }
-                                Text("video resolution: " + avstatestore.state.video_in_resolution_get(), fontSize = 13.sp, modifier = Modifier.fillMaxWidth(),
-                                    maxLines = 1)
-                                IconButton(onClick = {
-                                    resolution_expanded = true
-                                },
-                                    modifier = Modifier.size(AV_SELECTOR_ICON_SIZE)) {
-                                    Icon(Icons.Filled.Refresh, null)
-                                }
-                                val items = listOf("480x270", "640x360", "640x480", "480x640", "960x540", "720x720", "1024x768", "1280x720", "720x1280", "1080x1080", "1920x1080", "1080x1920")
-                                DropdownMenu(
-                                    expanded = resolution_expanded,
-                                    onDismissRequest = { resolution_expanded = false },
-                                ) {
-                                    items.forEachIndexed { index, s ->
-                                        DropdownMenuItem(onClick = {
-                                            if (avstatestore.state.calling_state_get() != AVState.CALL_STATUS.CALL_STATUS_CALLING)
-                                            {
-                                                // HINT: only allow to change resolution when no call is active
-                                                avstatestore.state.video_in_resolution_set(s)
+                                    var resolution_expanded by remember { mutableStateOf(false) }
+                                    Text("video resolution: " + avstatestore.state.video_in_resolution_get(), fontSize = 13.sp, modifier = Modifier.fillMaxWidth(), maxLines = 1)
+                                    IconButton(onClick = {
+                                        resolution_expanded = true
+                                    }, modifier = Modifier.size(AV_SELECTOR_ICON_SIZE)) {
+                                        Icon(Icons.Filled.Refresh, null)
+                                    }
+                                    val items = listOf("480x270", "640x360", "640x480", "480x640", "960x540", "720x720", "1024x768", "1280x720", "720x1280", "1080x1080", "1920x1080", "1080x1920")
+                                    DropdownMenu(
+                                        expanded = resolution_expanded,
+                                        onDismissRequest = { resolution_expanded = false },
+                                    ) {
+                                        items.forEachIndexed { index, s ->
+                                            DropdownMenuItem(onClick = {
+                                                if (avstatestore.state.calling_state_get() != AVState.CALL_STATUS.CALL_STATUS_CALLING)
+                                                { // HINT: only allow to change resolution when no call is active
+                                                    avstatestore.state.video_in_resolution_set(s)
+                                                } else
+                                                {
+                                                    SnackBarToast("Resolution change is only allowed when no call is active")
+                                                }
+                                                resolution_expanded = false
+                                            }) {
+                                                Text(text = s)
                                             }
-                                            else
-                                            {
-                                                SnackBarToast("Resolution change is only allowed when no call is active")
-                                            }
-                                            resolution_expanded = false
-                                        }) {
-                                            Text(text = s)
                                         }
                                     }
-                                }
-                                var capture_fps_expanded by remember { mutableStateOf(false) }
-                                val fps_int = avstatestore.state.video_capture_fps_get()
-                                var fps_info_str = "" + fps_int
-                                if (fps_int == -1)
-                                {
-                                    fps_info_str = "Default"
-                                }
-                                Text("capture fps: " + fps_info_str, fontSize = 13.sp, modifier = Modifier.fillMaxWidth(),
-                                    maxLines = 1)
-                                IconButton(onClick = {
-                                    capture_fps_expanded = true
-                                },
-                                    modifier = Modifier.size(AV_SELECTOR_ICON_SIZE)) {
-                                    Icon(Icons.Filled.Refresh, null)
-                                }
-                                val items_capture_fps = listOf(-1, 5, 10, 15, 20, 24, 25, 30, 60)
-                                DropdownMenu(
-                                    expanded = capture_fps_expanded,
-                                    onDismissRequest = { capture_fps_expanded = false },
-                                ) {
-                                    items_capture_fps.forEachIndexed { index, s ->
-                                        DropdownMenuItem(onClick = {
-                                            try
-                                            {
-                                                avstatestore.state.video_capture_fps_set(s)
-                                            } catch (_: Exception)
-                                            {
-                                            }
-                                            capture_fps_expanded = false
-                                        }) {
-                                            if (s == -1)
-                                            {
-                                                Text(text = "Default")
-                                            }
-                                            else
-                                            {
-                                                Text(text = "" + s)
+                                    var capture_fps_expanded by remember { mutableStateOf(false) }
+                                    val fps_int = avstatestore.state.video_capture_fps_get()
+                                    var fps_info_str = "" + fps_int
+                                    if (fps_int == -1)
+                                    {
+                                        fps_info_str = "Default"
+                                    }
+                                    Text("capture fps: " + fps_info_str, fontSize = 13.sp, modifier = Modifier.fillMaxWidth(), maxLines = 1)
+                                    IconButton(onClick = {
+                                        capture_fps_expanded = true
+                                    }, modifier = Modifier.size(AV_SELECTOR_ICON_SIZE)) {
+                                        Icon(Icons.Filled.Refresh, null)
+                                    }
+                                    val items_capture_fps = listOf(-1, 5, 10, 15, 20, 24, 25, 30, 60)
+                                    DropdownMenu(
+                                        expanded = capture_fps_expanded,
+                                        onDismissRequest = { capture_fps_expanded = false },
+                                    ) {
+                                        items_capture_fps.forEachIndexed { index, s ->
+                                            DropdownMenuItem(onClick = {
+                                                try
+                                                {
+                                                    avstatestore.state.video_capture_fps_set(s)
+                                                } catch (_: Exception)
+                                                {
+                                                }
+                                                capture_fps_expanded = false
+                                            }) {
+                                                if (s == -1)
+                                                {
+                                                    Text(text = "Default")
+                                                } else
+                                                {
+                                                    Text(text = "" + s)
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
                         }
-                        Column(modifier = Modifier.randomDebugBorder().padding(4.dp)) {
-                            val current_callstate3 by avstatestorecallstate.stateFlow.collectAsState()
-                            val audio_bar_bgcolor = MaterialTheme.colors.background
-                            if ((current_callstate3.call_state == AVState.CALL_STATUS.CALL_STATUS_NONE) &&
-                                ((ngc_video_frame_last_incoming_ts + 2000) < System.currentTimeMillis()))
-                            {
-                                Box(modifier = Modifier.size(200.dp, 5.dp))
-                            } else
-                            {
-                                SwingPanel(
-                                    modifier = Modifier.size(200.dp, 5.dp),
-                                    factory = {
+                        if (uiMode != UiMode.MAP)
+                        {
+                            Column(modifier = Modifier.randomDebugBorder().padding(4.dp)) {
+                                val current_callstate3 by avstatestorecallstate.stateFlow.collectAsState()
+                                val audio_bar_bgcolor = MaterialTheme.colors.background
+                                if ((current_callstate3.call_state == AVState.CALL_STATUS.CALL_STATUS_NONE) && ((ngc_video_frame_last_incoming_ts + 2000) < System.currentTimeMillis()))
+                                {
+                                    Box(modifier = Modifier.size(200.dp, 5.dp))
+                                } else
+                                {
+                                    SwingPanel(modifier = Modifier.size(200.dp, 5.dp), factory = {
                                         JPanel(SingleComponentAspectRatioKeeperLayout(), true).apply {
                                             add(audio_out_bar)
                                             AudioBar.set_bar_bgcolor(audio_bar_bgcolor.toArgb(), audio_out_bar)
                                         }
-                                    },
-                                    update = { }
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(5.dp))
-                            if ((current_callstate3.call_state == AVState.CALL_STATUS.CALL_STATUS_NONE) &&
-                                ((ngc_video_frame_last_incoming_ts + 2000) < System.currentTimeMillis()))
-                            {
-                                Box(modifier = Modifier.size(200.dp, 5.dp))
-                            } else
-                            {
-                                SwingPanel(
-                                    modifier = Modifier.size(200.dp, 5.dp),
-                                    factory = {
+                                    }, update = { })
+                                }
+                                Spacer(modifier = Modifier.height(5.dp))
+                                if ((current_callstate3.call_state == AVState.CALL_STATUS.CALL_STATUS_NONE) && ((ngc_video_frame_last_incoming_ts + 2000) < System.currentTimeMillis()))
+                                {
+                                    Box(modifier = Modifier.size(200.dp, 5.dp))
+                                } else
+                                {
+                                    SwingPanel(modifier = Modifier.size(200.dp, 5.dp), factory = {
                                         JPanel(SingleComponentAspectRatioKeeperLayout(), true).apply {
                                             add(audio_in_bar)
                                             AudioBar.set_bar_bgcolor(audio_bar_bgcolor.toArgb(), audio_in_bar)
                                         }
-                                    },
-                                    update = { }
-                                )
+                                    }, update = { })
+                                }
                             }
-                        }
-                        UIScaleItem(
-                            label = i18n("ui.ui_textscale"),
-                            description = "${i18n("ui.current_value")}: "
-                                    + " " + ui_scale + ", " + i18n("ui.drag_slider_to_change")) {
-                            Row(horizontalArrangement = Arrangement.spacedBy(2.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.width(200.dp)) {
-                                Icon(Icons.Default.FormatSize, null, Modifier.scale(0.7f))
-                                Slider(value = ui_scale,
-                                    onValueChange = {
+                            UIScaleItem(label = i18n("ui.ui_textscale"), description = "${i18n("ui.current_value")}: " + " " + ui_scale + ", " + i18n("ui.drag_slider_to_change")) {
+                                Row(horizontalArrangement = Arrangement.spacedBy(2.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.width(200.dp)) {
+                                    Icon(Icons.Default.FormatSize, null, Modifier.scale(0.7f))
+                                    Slider(value = ui_scale, onValueChange = {
                                         ui_scale = it
                                         globalstore.updateUiScale(it)
                                         Log.i(TAG, "updateUiScale:density: $ui_scale")
-                                    },
-                                    onValueChangeFinished = { },
-                                    valueRange = 0.6f..3f, steps = 6, // todo: without setting the width explicitly,
-                                    //  the slider takes up the whole remaining space
-                                    modifier = Modifier.width(150.dp))
-                                Icon(imageVector = Icons.Default.FormatSize, contentDescription = null)
+                                    }, onValueChangeFinished = { }, valueRange = 0.6f..3f, steps = 6, // todo: without setting the width explicitly,
+                                        //  the slider takes up the whole remaining space
+                                        modifier = Modifier.width(150.dp))
+                                    Icon(imageVector = Icons.Default.FormatSize, contentDescription = null)
+                                }
                             }
                         }
                         HorizontalDivider(modifier = Modifier.fillMaxWidth())
