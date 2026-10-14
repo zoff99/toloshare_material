@@ -129,7 +129,7 @@ fun AboutScreen(modifier: Modifier = Modifier.padding(16.dp)) {
                         url = "$url&template=bug.yaml"
                         url = try
                         {
-                            url + "&trifa_material_version=" + URLEncoder.encode(BuildConfig.APP_VERSION, "UTF-8")
+                            url + "&toloshare_material_version=" + URLEncoder.encode(BuildConfig.APP_VERSION, "UTF-8")
                         } catch (e: java.lang.Exception)
                         {
                             "$url" + "&toloshare_material_version=unknown"
