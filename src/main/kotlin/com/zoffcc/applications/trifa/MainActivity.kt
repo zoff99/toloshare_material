@@ -1781,58 +1781,48 @@ class MainActivity
 
                                 try
                                 {
-                                    if (geostore.getFollowPk().equals(fpubkey))
+                                    val tmp_location = Location(loc_provider);
+                                    tmp_location.latitude = lat
+                                    tmp_location.longitude = lon
+                                    tmp_location.time = loc_timestamp
+                                    f_trails.updateLocation(fpubkey, tmp_location)
+                                    try
                                     {
-                                        val tmp_location = Location(loc_provider);
-                                        tmp_location.latitude = lat
-                                        tmp_location.longitude = lon
-                                        tmp_location.time = loc_timestamp
-                                        f_trails.updateLocation(fpubkey, tmp_location)
-                                        try
-                                        {
-                                            val trails = f_trails.getRecentPositions(fpubkey)
-                                            val points = mutableListOf<Pair<Double, Double>>()
-                                            trails.drop(1).forEach { loc ->
-                                                try {
-                                                    val geo_pos = GeoPosition(latitude = loc.latitude,
-                                                        longitude = loc.longitude)
-                                                    val tmp_p = geo_pos.asNormalizedWebMercator()
-                                                    points.add(Pair(tmp_p.x, tmp_p.y))
-                                                } catch (e: Exception) {
-                                                    e.printStackTrace()
-                                                }
+                                        val trails = f_trails.getRecentPositions(fpubkey)
+                                        val points = mutableListOf<Pair<Double, Double>>()
+                                        trails.drop(1).forEach { loc ->
+                                            try {
+                                                val geo_pos = GeoPosition(latitude = loc.latitude,
+                                                    longitude = loc.longitude)
+                                                val tmp_p = geo_pos.asNormalizedWebMercator()
+                                                points.add(Pair(tmp_p.x, tmp_p.y))
+                                            } catch (e: Exception) {
+                                                e.printStackTrace()
                                             }
-                                            // Log.i("TRAIL:", "002 " + points)
-                                            val dash_pattern: List<PatternItem> = listOf(
-                                                PatternItem.Dash(4.dp),
-                                                PatternItem.Gap(1.dp)
-                                            )
-                                            val pathId = ":::trail:::$fpubkey"
-                                            val pathData = GlobalViewModels.osm.state.makePathDataBuilder().apply {
-                                                addPoints(points)
-                                            }.build()
-
-                                            // HINT: remove path that belong to another friend
-                                            GlobalViewModels.osm.state.allPaths {
-                                                if (it.id != pathId) {
-                                                    GlobalViewModels.osm.state.removePath(it.id)
-                                                }
-                                            }
-
-                                            // HINT: add or update path (GPS trail)
-                                            if (pathData != null)
-                                            {
-                                                if (GlobalViewModels.osm.state.hasPath(pathId)) {
-                                                    GlobalViewModels.osm.state.updatePath(pathId, pathData)
-                                                } else {
-                                                    GlobalViewModels.osm.state.addPath(pathId, pathData)
-                                                }
-                                            }
-
-                                        } catch (e: java.lang.Exception)
-                                        {
-                                            e.printStackTrace()
                                         }
+                                        // Log.i("TRAIL:", "002 " + points)
+                                        val dash_pattern: List<PatternItem> = listOf(
+                                            PatternItem.Dash(4.dp),
+                                            PatternItem.Gap(1.dp)
+                                        )
+                                        val pathId = ":::trail:::$fpubkey"
+                                        val pathData = GlobalViewModels.osm.state.makePathDataBuilder().apply {
+                                            addPoints(points)
+                                        }.build()
+
+                                        // HINT: add or update path (GPS trail)
+                                        if (pathData != null)
+                                        {
+                                            if (GlobalViewModels.osm.state.hasPath(pathId)) {
+                                                GlobalViewModels.osm.state.updatePath(pathId, pathData)
+                                            } else {
+                                                GlobalViewModels.osm.state.addPath(pathId, pathData)
+                                            }
+                                        }
+
+                                    } catch (e: java.lang.Exception)
+                                    {
+                                        e.printStackTrace()
                                     }
                                 }
                                 catch(_: Exception)
