@@ -133,11 +133,14 @@ import globalstore
 import groupmessagestore
 import grouppeerstore
 import groupstore
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import lock_data_dir_input
 import messagestore
 import myUser
@@ -245,6 +248,8 @@ class MainActivity
 
         const val INVALID_BEARING: String = "FFF"
         const val INVALID_SPEED: String = "0.0"
+
+        private val trailScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
         @JvmField
         var PREF__database_files_dir = "."
@@ -1781,48 +1786,48 @@ class MainActivity
 
                                 try
                                 {
-                                    val tmp_location = Location(loc_provider);
-                                    tmp_location.latitude = lat
-                                    tmp_location.longitude = lon
-                                    tmp_location.time = loc_timestamp
-                                    f_trails.updateLocation(fpubkey, tmp_location)
-                                    try
-                                    {
-                                        val trails = f_trails.getRecentPositions(fpubkey)
-                                        val points = mutableListOf<Pair<Double, Double>>()
-                                        trails.drop(1).forEach { loc ->
-                                            try {
-                                                val geo_pos = GeoPosition(latitude = loc.latitude,
-                                                    longitude = loc.longitude)
-                                                val tmp_p = geo_pos.asNormalizedWebMercator()
-                                                points.add(Pair(tmp_p.x, tmp_p.y))
-                                            } catch (e: Exception) {
-                                                e.printStackTrace()
+                                    trailScope.launch {
+                                        try {
+                                            // 1. Update the thread-safe history (f_trails is already thread-safe)
+                                            val tmp_location = Location(loc_provider).apply {
+                                                latitude = lat
+                                                longitude = lon
+                                                time = loc_timestamp
                                             }
-                                        }
-                                        // Log.i("TRAIL:", "002 " + points)
-                                        val dash_pattern: List<PatternItem> = listOf(
-                                            PatternItem.Dash(4.dp),
-                                            PatternItem.Gap(1.dp)
-                                        )
-                                        val pathId = ":::trail:::$fpubkey"
-                                        val pathData = GlobalViewModels.osm.state.makePathDataBuilder().apply {
-                                            addPoints(points)
-                                        }.build()
+                                            f_trails.updateLocation(fpubkey, tmp_location)
 
-                                        // HINT: add or update path (GPS trail)
-                                        if (pathData != null)
-                                        {
-                                            if (GlobalViewModels.osm.state.hasPath(pathId)) {
-                                                GlobalViewModels.osm.state.updatePath(pathId, pathData)
-                                            } else {
-                                                GlobalViewModels.osm.state.addPath(pathId, pathData)
+                                            // 2. HEAVY MATH: Run projection and list building on the background thread
+                                            val trails = f_trails.getRecentPositions(fpubkey)
+                                            val points = ArrayList<Pair<Double, Double>>(trails.size)
+
+                                            for (i in 0 until trails.size) {
+                                                val loc = trails[i]
+                                                val tmp_p = GeoPosition(latitude = loc.latitude, longitude = loc.longitude).asNormalizedWebMercator()
+                                                points.add(tmp_p.x to tmp_p.y)
                                             }
-                                        }
 
-                                    } catch (e: java.lang.Exception)
-                                    {
-                                        e.printStackTrace()
+                                            val pathId = ":::trail:::$fpubkey"
+
+                                            // 3. Build the path data on the background thread
+                                            val pathData = GlobalViewModels.osm.state.makePathDataBuilder().apply {
+                                                addPoints(points)
+                                            }.build()
+
+                                            // 4. SAFELY UPDATE UI: MapCompose state mutations are generally safe from anywhere,
+                                            // but pushing the final update to the Main thread is 100% safe against any
+                                            // underlying graphics engine thread assertions.
+                                            withContext(Dispatchers.Main) {
+                                                if (pathData != null) {
+                                                    if (GlobalViewModels.osm.state.hasPath(pathId)) {
+                                                        GlobalViewModels.osm.state.updatePath(pathId, pathData)
+                                                    } else {
+                                                        GlobalViewModels.osm.state.addPath(pathId, pathData)
+                                                    }
+                                                }
+                                            }
+                                        } catch (e: Exception) {
+                                            e.printStackTrace()
+                                        }
                                     }
                                 }
                                 catch(_: Exception)
