@@ -7,8 +7,10 @@ class ThreadSafeFriendTrails {
     private val friendLocations = ConcurrentHashMap<String, Deque<Location>>()
 
     companion object {
-        private const val MAX_AGE_MS = 180 * 1000L
-        private const val MAX_POSITIONS = 80
+        // UPDATED: 60 minutes * 60 seconds * 1000 milliseconds
+        private const val MAX_AGE_MS = 60 * 60 * 1000L
+        // UPDATED: 1000 location points
+        private const val MAX_POSITIONS = 1000
     }
 
     fun updateLocation(friendId: String, newLoc: Location) {
