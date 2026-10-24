@@ -46,8 +46,8 @@ dependencyVerification {
         'com.google.errorprone:error_prone_annotations:2.27.0:error_prone_annotations-2.27.0.jar:24c923372c58e35d0b9f16a028929bb9aedc77521867c274f2bd0735df5ba1f5',
         'com.google.errorprone:error_prone_annotations:2.48.0:error_prone_annotations-2.48.0.jar:b49c5c958316ed67a09c699dda9aa749caf434d51d863dea599ef36a49b9c855',
         'com.googlecode.javaewah:JavaEWAH:1.2.3:JavaEWAH-1.2.3.jar:d65226949713c4c61a784f41c51167e7b0316f93764398ebba9e4336b3d954c2',
-        'com.sksamuel.scrimage:scrimage-core:4.6.8:scrimage-core-4.6.8.jar:1177daea3672442174050145277bb3edcfddab184cbd511b97134eda45a038c3',
-        'com.sksamuel.scrimage:scrimage-webp:4.6.8:scrimage-webp-4.6.8.jar:c5853fbaadc34653eee2a44761ebb1468740bc273fba41e2dde94390dededa1c',
+        'com.sksamuel.scrimage:scrimage-core:4.6.9:scrimage-core-4.6.9.jar:1773ff060a0fcf235e6265a3a582144f73955c3755e6a13e3df0b5f008e169d2',
+        'com.sksamuel.scrimage:scrimage-webp:4.6.9:scrimage-webp-4.6.9.jar:c5853fbaadc34653eee2a44761ebb1468740bc273fba41e2dde94390dededa1c',
         'com.squareup.okhttp3:okhttp-jvm:5.5.0:okhttp-jvm-5.5.0.jar:234194a04aac54858df0a750d243af7b2e39df5e4eb86e9912043ad33a9f9a52',
         'com.squareup.okio:okio-jvm:3.18.2:okio-jvm-3.18.2.jar:681fed549d1d2c63710f42c9eab433d642c71af778babd67035c50f8c425aaff',
         'com.squareup:javapoet:1.13.0:javapoet-1.13.0.jar:4c7517e848a71b36d069d12bb3bf46a70fd4cda3105d822b0ed2e19c00b69291',
@@ -208,7 +208,6 @@ dependencyVerification {
         'org.jetbrains.kotlin:kotlin-stdlib:2.3.20:kotlin-stdlib-2.3.20.jar:0ae12504a5040ebaf37703908483420d1a5624dd1d93f357665f8c77c848a01e',
         'org.jetbrains.kotlin:kotlin-stdlib:2.3.21:kotlin-stdlib-2.3.21.jar:6f64eac736db9434dd6925b4a518b9d1d17177652320c37916cf9ba3ce7d7d7a',
         'org.jetbrains.kotlin:kotlin-stdlib:2.4.0:kotlin-stdlib-2.4.0.jar:ccb14ff83fabcb11458b798dbc9824748ccdffeec79c9aba789e6ed1cda86b1c',
-        'org.jetbrains.kotlin:kotlin-stdlib:2.4.20:kotlin-stdlib-2.4.20.jar:2226de463d309d4a5500a481320b3dea515a6981dcae1def531fbc158884e25f',
         'org.jetbrains.kotlin:kotlin-stdlib:2.4.21:kotlin-stdlib-2.4.21.jar:bd8250210584cb659847dce9cda660f8e9906e5def7fbebcea93dc6dcb6a88a3',
         'org.jetbrains.kotlin:kotlin-tooling-core:2.4.0:kotlin-tooling-core-2.4.0.jar:59ea305372e3a2b7417764dcfecf645066a0d9b1792ab40afd15c1cc8535b58a',
         'org.jetbrains.kotlin:kotlin-tooling-core:2.4.21:kotlin-tooling-core-2.4.21.jar:5fc5db083803232857408ed5c25bcc307c703b04bdef6cb2c34ebf4db611a622',
@@ -246,6 +245,6 @@ dependencyVerification {
         'org.slf4j:slf4j-api:2.0.17:slf4j-api-2.0.17.jar:7b751d952061954d5abfed7181c1f645d336091b679891591d63329c622eb832',
         'org.slf4j:slf4j-api:2.0.18:slf4j-api-2.0.18.jar:44508fd1576500688c790b190acdd16fec4f8c79a3e0b900afd70503cf055f55',
         'org.slf4j:slf4j-api:2.0.19:slf4j-api-2.0.19.jar:e91ff6d720609e7a194ffe758c3ed5c84e798617ae07b0a0f6a4fe229741b4bb',
-        'ovh.plrapps:mapcompose-mp-desktop:1.1.3:library-desktop.jar:6eefcae697b02d1044f7d57b3834b9ddd97203a12688d65c9735f42ecb586882',
+        'ovh.plrapps:mapcompose-mp-desktop:1.1.4:library-desktop.jar:ba9643f49a31bb372af43f9a59522d715644996f42ad6cc56b82834bcf5a0920',
     ]
 }
