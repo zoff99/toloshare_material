@@ -701,6 +701,7 @@ jobs:
            cat /Users/runner/work/toloshare_material/toloshare_material/toloshare.log
            cliclick -m verbose c:195,347
            sleep 1
+           /Users/runner/work/toloshare_material/toloshare_material/tools/dismiss_macos_dialog.sh &
            cliclick -m verbose c:745,627
            sleep 1
            cliclick -m verbose c:367,623
