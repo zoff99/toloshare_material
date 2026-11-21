@@ -278,8 +278,8 @@ compose.desktop {
             }
 
             nativeDistributions {
-                modules("java.instrument", "java.net.http", "java.prefs", "java.sql", "jdk.unsupported", "jdk.security.auth")
-                // includeAllModules = true
+                // modules("java.instrument", "java.net.http", "java.prefs", "java.sql", "jdk.unsupported", "jdk.security.auth")
+                includeAllModules = true
             }
 
             val iconsRoot = project.file("resources")
